@@ -1,0 +1,42 @@
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.egg-info/
+
+# Virtual environment (at project root)
+venv/
+.venv/
+env/
+
+# Environment secrets (nunca van en la imagen)
+api/.env
+api/.env.local
+api/.env.*.local
+
+# Upload directory (volumen externo en producción)
+api/uploads/
+
+# Development scripts
+api/test_db.py
+
+# Development artifacts
+**/*.log
+**/.pytest_cache/
+**/.mypy_cache/
+**/.coverage
+**/htmlcov/
+
+# VCS
+.git/
+.gitignore
+
+# Docs and config not needed in image
+docs/
+*.md
+cloudbuild.yaml
+
+# IDE
+.vscode/
+.idea/

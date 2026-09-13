@@ -1,0 +1,34 @@
+# Entorno virtual — las dependencias van en la imagen
+venv/
+.venv/
+
+# Variables de entorno — nunca en la imagen
+.env
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Archivos de desarrollo y pruebas
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+tests/
+test_*.py
+*_test.py
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore

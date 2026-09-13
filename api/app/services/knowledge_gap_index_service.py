@@ -1,0 +1,125 @@
+"""Operaciones sobre el índice para el módulo "Preguntas sin respuesta":
+buscar documentos candidatos, indexar alias y respuestas escritas a mano, y
+reejecutar una pregunta para verificar que tras resolverla ya se recupera.
+Ver `docs/RAG_PIPELINE.md` §8."""
+from typing import List, Optional
+
+from app.services.embedding_service import EmbeddingService
+from app.services.pinecone_service import PineconeService
+
+# Mismo umbral que RAGService.RELEVANCE_THRESHOLD — por debajo, se considera
+# que el índice no tiene contenido relevante para la pregunta.
+RELEVANCE_THRESHOLD = 0.30
+
+
+def _search(question: str, company_id: int, assistant_id: Optional[int], top_k: int) -> List:
+    """Busca en el namespace del asistente con fallback al de la empresa,
+    igual que RAGService.generate_response."""
+    embedding = EmbeddingService().generar_embedding(question)
+    pinecone_svc = PineconeService()
+
+    matches: List = []
+    if assistant_id:
+        matches = pinecone_svc.buscar_vectores(
+            embedding,
+            top_k=top_k,
+            namespace=PineconeService.construir_namespace(company_id, assistant_id),
+        )
+    if not matches:
+        matches = pinecone_svc.buscar_vectores(
+            embedding,
+            top_k=top_k,
+            namespace=PineconeService.construir_namespace(company_id),
+        )
+    return matches
+
+
+def find_candidates(question: str, company_id: int, assistant_id: Optional[int], top_k: int = 3) -> List[dict]:
+    """Candidatos del índice para una pregunta: documento, chunk y score, por
+    encima del umbral de relevancia. Alimenta el modo "Vincular documento"."""
+    matches = _search(question, company_id, assistant_id, top_k)
+    candidates = []
+    for m in matches:
+        score = float(getattr(m, "score", 0) or 0)
+        if score < RELEVANCE_THRESHOLD:
+            continue
+        meta = m.metadata or {}
+        if not meta.get("document_id"):
+            continue
+        candidates.append({
+            "document_id": meta["document_id"],
+            "chunk_id": meta.get("chunk_index", 0),
+            "name": meta.get("document_name", "Documento"),
+            "score": round(score, 3),
+        })
+    return candidates
+
+
+def best_score(question: str, company_id: int, assistant_id: Optional[int]) -> float:
+    """Mejor score de similitud contra el índice, 0.0 si no hay resultados.
+    Usado para reejecutar la pregunta al verificar una resolución."""
+    matches = _search(question, company_id, assistant_id, top_k=1)
+    return round(float(matches[0].score), 3) if matches else 0.0
+
+
+def index_answer(
+    gap_id: int,
+    question: str,
+    answer_text: str,
+    company_id: int,
+    assistant_id: Optional[int],
+    answered_by: int,
+) -> None:
+    """Indexa una respuesta escrita a mano como chunk propio, recuperable a
+    futuro por preguntas similares."""
+    embedding = EmbeddingService().generar_embedding(f"{question}\n\n{answer_text}")
+    namespace = PineconeService.construir_namespace(company_id, assistant_id)
+    vector = {
+        "id": f"gap-{gap_id}-answer",
+        "values": embedding,
+        "metadata": {
+            "document_id": None,
+            "document_name": "Respuesta directa (preguntas sin responder)",
+            "company_id": company_id,
+            "assistant_id": assistant_id,
+            "knowledge_gap_id": gap_id,
+            "answered_by": answered_by,
+            "text": answer_text[:1000],
+        },
+    }
+    PineconeService().upsert_vectores([vector], namespace=namespace)
+
+
+def index_alias(
+    gap_id: int,
+    texts: List[str],
+    document_id: int,
+    document_name: str,
+    chunk_id: int,
+    company_id: int,
+    assistant_id: Optional[int],
+) -> None:
+    """Registra la pregunta y sus variantes como alias del documento vinculado,
+    para que futuras consultas con la misma redacción lo recuperen."""
+    texts = [t for t in texts if t]
+    if not texts:
+        return
+    embeddings = EmbeddingService().generar_embeddings_batch(texts)
+    namespace = PineconeService.construir_namespace(company_id, assistant_id)
+    vectors = [
+        {
+            "id": f"gap-{gap_id}-alias-{i}",
+            "values": embedding,
+            "metadata": {
+                "document_id": document_id,
+                "document_name": document_name,
+                "company_id": company_id,
+                "assistant_id": assistant_id,
+                "knowledge_gap_id": gap_id,
+                "alias_of_chunk_id": chunk_id,
+                "text": text[:1000],
+            },
+        }
+        for i, (text, embedding) in enumerate(zip(texts, embeddings))
+    ]
+    PineconeService().upsert_vectores(vectors, namespace=namespace)
