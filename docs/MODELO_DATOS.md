@@ -211,7 +211,7 @@ erDiagram
     widgets {
         uuid id PK
         int company_id FK
-        int assistant_id FK
+        int assistant_id FK "obligatorio, hereda modelo/prompt/documentos"
         string name
         boolean is_active
         string position
@@ -220,10 +220,6 @@ erDiagram
         string bot_name
         text bot_avatar_url
         text company_logo_url
-        text system_prompt
-        decimal temperature
-        int max_tokens
-        string model_name
         json quick_replies
         string default_language
         json supported_languages
@@ -605,11 +601,40 @@ class User(Base):
 
 PK en **UUID** para evitar enumeración en URLs públicas.
 
+Un widget es el **despliegue público de un asistente** — solo contiene
+presentación (tema visual, identidad del bot, límites de uso público). El
+modelo (LLM), el `system_prompt` y los documentos consultables **viven en
+el `Assistant` enlazado y se heredan de ahí**, no se duplican en el widget.
+`assistant_id` es por eso obligatorio: sin asistente no hay ni modelo ni
+conocimiento que ofrecer.
+
+> **Corrección de diseño (documentada, no solo aplicada):** el modelo
+> original tenía `system_prompt` (obligatorio), `temperature`, `max_tokens`
+> y `model_name` duplicados en `Widget`, con `assistant_id` opcional
+> (`SET NULL` al borrar el asistente). Esa combinación permitía un widget
+> "huérfano" operando con su propia configuración, desincronizada de
+> cualquier asistente real — inconsistencia típica de un campo agregado
+> antes de que existiera el enlace a `Assistant`. Se corrigió eliminando los
+> campos duplicados y haciendo `assistant_id` obligatorio (`CASCADE`).
+> Nota aparte: en el código previo a esta corrección, ningún endpoint
+> público llegó a leer esos campos para generar respuestas (`widgets.py`
+> solo tenía CRUD) — el riesgo de la corrección fue de esquema, no de
+> romper una funcionalidad en producción.
+>
+> **Estado de aplicación: completo.** Corregido en el modelo ORM y los
+> schemas (`widget.py`, `schemas/widget.py`), y el `ALTER TABLE` real ya se
+> ejecutó sobre Supabase (`migrate_widget_assistant.sql`) — el widget
+> huérfano de prueba se eliminó, las columnas duplicadas ya no existen en
+> la tabla, `assistant_id` es `NOT NULL`, y la FK quedó en `ON DELETE
+> CASCADE`. Verificado end-to-end: backend arrancando contra el esquema
+> nuevo y `GET /api/v1/widgets/` respondiendo `200` con los datos
+> correctos.
+
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | `id` | UUID PK | Auto-generated |
 | `company_id` | Integer FK | → companies, indexado |
-| `assistant_id` | Integer FK | → assistants SET NULL, indexado |
+| `assistant_id` | Integer FK | → assistants **CASCADE**, obligatorio, indexado |
 | `name` | String(255) | |
 | `is_active` | Boolean | Default True |
 | `position` | String(20) | `bottom-right` (default) |
@@ -618,14 +643,10 @@ PK en **UUID** para evitar enumeración en URLs públicas.
 | `bot_name` | String(100) | Default "Asistente Virtual" |
 | `bot_avatar_url` | Text | Nullable |
 | `company_logo_url` | Text | Nullable |
-| `system_prompt` | Text | |
-| `temperature` | Numeric(3,2) | Default 0.1 |
-| `max_tokens` | Integer | Default 1000 |
-| `model_name` | String(50) | Default `gpt-4o-mini` |
 | `quick_replies` | JSON | Sugerencias rápidas |
 | `default_language` | String(5) | Default `es` |
 | `supported_languages` | JSON | Default `["es", "en"]` |
-| `daily_message_limit` | Integer | Default 100 |
+| `daily_message_limit` | Integer | Default 100 — rate-limit de acceso público/anónimo |
 | `created_at` | DateTime TZ | Auto |
 | `updated_at` | DateTime TZ | Auto on update |
 

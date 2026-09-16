@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, JSON, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -33,14 +33,11 @@ class Widget(Base):
         "border_radius":    "12px",
     })
 
-    # Identidad del bot
+    # Identidad del bot (presentación — el modelo/prompt/documentos viven en
+    # el Assistant enlazado, el widget solo los hereda, no los duplica)
     bot_name        = Column(String(100), default="Asistente Virtual")
     bot_avatar_url  = Column(Text, nullable=True)
     company_logo_url = Column(Text, nullable=True)
-    system_prompt   = Column(Text, nullable=False)
-    temperature     = Column(Numeric(3, 2), default=0.1)
-    max_tokens      = Column(Integer, default=1000)
-    model_name      = Column(String(50), default="gpt-4o-mini")
 
     # Respuestas rápidas sugeridas
     quick_replies = Column(JSON, default=list)
@@ -49,10 +46,16 @@ class Widget(Base):
     default_language    = Column(String(5), default="es")
     supported_languages = Column(JSON, default=lambda: ["es", "en"])
 
-    # Límites
+    # Límites (rate-limiting de acceso público/anónimo — el Assistant, al
+    # estar detrás de JWT, no lo necesita)
     daily_message_limit = Column(Integer, default=100)
 
-    assistant_id = Column(Integer, ForeignKey("assistants.id", ondelete="SET NULL"), nullable=True, index=True)
+    # Todo widget representa el despliegue público de UN asistente — sin
+    # asistente no hay modelo, prompt ni documentos que consultar, así que
+    # el enlace es obligatorio (antes era nullable con SET NULL, permitiendo
+    # un widget "huérfano" con su propia config duplicada; corregido para
+    # que herede siempre del Assistant, sin duplicación).
+    assistant_id = Column(Integer, ForeignKey("assistants.id", ondelete="CASCADE"), nullable=False, index=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

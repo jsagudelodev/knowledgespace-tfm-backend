@@ -31,6 +31,14 @@ widget público embebible):
 - CRUD administrativo de companies/users/notifications: es soporte necesario
   para que el multi-tenant funcione, no la contribución de investigación.
 
+## Material de defensa
+
+- `docs/tutorials/README.md` — tutoriales interactivos ejecutables, con
+  sección "Para la defensa" y sugerencia de demo en vivo.
+- `docs/DEFENSA_TECNICA_AMPLIADA.md` — petición exacta al LLM, seguridad,
+  multi-tenancy en Postgres, decisiones de stack, y la pregunta de
+  contribución académica.
+
 ## Limitaciones conocidas
 
 - Cobertura de tests: 4 archivos de test unitario sobre lógica pura (RAG,

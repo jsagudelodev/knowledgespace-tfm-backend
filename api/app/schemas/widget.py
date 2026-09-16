@@ -29,15 +29,13 @@ class WidgetBase(BaseModel):
     bot_name: str = "Asistente Virtual"
     bot_avatar_url: Optional[str] = None
     company_logo_url: Optional[str] = None
-    system_prompt: str
-    temperature: float = Field(default=0.1, ge=0.0, le=1.0)
-    max_tokens: int = Field(default=1000, gt=0)
-    model_name: str = "gpt-4o-mini"
     quick_replies: List[str] = Field(default_factory=list)
     default_language: str = "es"
     supported_languages: List[str] = Field(default_factory=lambda: ["es", "en"])
     daily_message_limit: int = Field(default=100, gt=0)
-    assistant_id: Optional[int] = None
+    # Obligatorio: un widget es el despliegue público de UN asistente — sin
+    # él no hay modelo/prompt/documentos que heredar (ver widget.py).
+    assistant_id: int
 
 
 class WidgetCreate(WidgetBase):
@@ -55,10 +53,6 @@ class WidgetUpdate(BaseModel):
     bot_name: Optional[str] = None
     bot_avatar_url: Optional[str] = None
     company_logo_url: Optional[str] = None
-    system_prompt: Optional[str] = None
-    temperature: Optional[float] = Field(None, ge=0.0, le=1.0)
-    max_tokens: Optional[int] = Field(None, gt=0)
-    model_name: Optional[str] = None
     quick_replies: Optional[List[str]] = None
     default_language: Optional[str] = None
     supported_languages: Optional[List[str]] = None
