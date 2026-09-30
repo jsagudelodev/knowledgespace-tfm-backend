@@ -8,7 +8,14 @@ from app.core.config import settings
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
 
-RELEVANCE_THRESHOLD = 0.30   # umbral mínimo de similitud coseno para evitar hallucinations
+# Umbral mínimo de similitud coseno para descartar evidencia débil antes de
+# construir el contexto. El 0.30 no es convencional: cae en el centro de la
+# banda vacía entre el ruido máximo medido (0.229, consultas ajenas al corpus)
+# y la señal mínima (0.389, quinto chunk de la consulta peor cubierta).
+# Medición completa y cómo reproducirla en docs/RAG_PIPELINE.md §6. Si cambia
+# el modelo de embeddings o el idioma del corpus, hay que repetir la medición:
+# los rangos de similitud coseno no son transferibles entre modelos.
+RELEVANCE_THRESHOLD = 0.30
 MAX_RESPONSE_TOKENS = 1000   # límite de tokens en la respuesta del LLM
 
 DEFAULT_SYSTEM_PROMPT = """Eres el asistente de IA interno de la empresa.

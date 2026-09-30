@@ -275,7 +275,65 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 
 - **Bajar el umbral** (ej. `0.20`): el LLM recibe más contexto, pero puede incluir chunks poco relacionados → más riesgo de respuestas imprecisas.
 - **Subir el umbral** (ej. `0.50`): más precisión, pero si ningún chunk supera el umbral el LLM responde "No encontré información..." aunque haya algo remotamente útil.
-- **`0.30`** es el balance empírico para preguntas en español con `text-embedding-3-small`.
+
+#### De dónde sale el `0.30`
+
+No es un valor por convención: cae en el centro de la banda que separa señal
+de ruido en el corpus indexado.
+
+Medición sobre el índice real de un asistente (70 chunks de documentos
+técnicos en español, embeddings `text-embedding-3-small`, `top_k=5`),
+lanzando tres familias de consultas:
+
+| Tipo de consulta | Ejemplos | score top-1 | score top-5 |
+|---|---|---|---|
+| **Cubierta por el corpus** | "¿qué son las GANs?", "¿qué es un VAE?" | 0.464 – 0.711 | **0.389** – 0.623 |
+| Tangencial al dominio | "¿qué es la arquitectura transformer?" | 0.542 – 0.575 | 0.459 – 0.502 |
+| **Ajena al corpus** | "¿cuál es la capital de Francia?", "¿cómo preparo una paella?" | 0.120 – **0.229** | 0.110 – 0.178 |
+
+Los dos extremos que importan:
+
+- **0.229** — score máximo alcanzado por una consulta irrelevante.
+- **0.389** — score mínimo de un chunk legítimamente recuperado (el quinto
+  resultado de la consulta peor cubierta, no el primero).
+
+Entre ambos queda una banda vacía cuyo punto medio es **0.309**. El umbral
+está en `0.30`, con `+0.071` de margen sobre el ruido y `+0.089` bajo la señal.
+
+Consecuencias de moverlo, según esos mismos datos:
+
+- **`0.25`** conserva la separación, pero deja solo `0.021` de margen sobre el
+  ruido máximo observado.
+- **`0.40`** empieza a descartar evidencia real: la consulta sobre modelos de
+  difusión tiene su quinto chunk en `0.389` y se perdería.
+
+**Cómo reproducirla.** Basta con lanzar consultas de los tres tipos contra el
+índice y quedarse con dos números: el score máximo de las ajenas y el score
+del quinto resultado de la peor cubierta. El umbral debe caer entre ambos; el
+punto medio maximiza el margen por los dos lados. Si se cambia el corpus,
+conviene recalcularlo — un umbral fuera de la banda deja pasar ruido o
+descarta evidencia legítima.
+
+**Alcance de esta medición.** Son 9 consultas sobre un corpus, no un benchmark
+formal con dataset de referencia (ver la limitación reconocida en
+`doc/DEFENSA_TFM.md` del repositorio frontend). Además, el umbral separa
+**tema de no-tema**, no respuesta precisa de respuesta vaga: las consultas
+tangenciales puntúan tan alto como las cubiertas — "¿qué es un transformer?"
+obtiene `0.575` frente al `0.503` de "¿qué es un VAE?". Filtrar ruido es su
+función; la pertinencia fina la cubre el prompt restrictivo, no el umbral.
+
+**Si cambias de modelo de embeddings o de idioma, esta medición deja de
+valer.** Los rangos de similitud coseno no son transferibles entre modelos:
+habría que repetir el ejercicio antes de reutilizar el `0.30`.
+
+#### Sobre `VERIFY_THRESHOLD = 0.70`
+
+Es otro umbral con otra finalidad: el `0.30` decide qué entra al contexto de
+una consulta; el `0.70` decide si una pregunta sin respuesta quedó realmente
+resuelta tras añadir documentación (`knowledge_gap_index_service.py`). Es
+deliberadamente más exigente, porque declarar cerrado un hueco de conocimiento
+requiere evidencia fuerte, no meramente relacionada. **Este valor no tiene la
+medición anterior detrás** — se fijó por criterio, y queda anotado como tal.
 
 ---
 
