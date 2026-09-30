@@ -1,6 +1,3 @@
-from datetime import datetime
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -19,15 +16,15 @@ class CountMetric(BaseModel):
     total: int
 
 
-class RecentActivityItem(BaseModel):
-    id: int
-    title: str
-    updated_at: datetime
-
-
 class DashboardMetrics(BaseModel):
+    """Lo que muestra el panel de inicio: documentos, usuarios y mensajes.
+
+    No incluye conversaciones ni actividad reciente a propósito. Abrir el chat
+    crea una conversación aunque no se pregunte nada, así que el recuento no
+    medía uso real y el listado de actividad se llenaba de conversaciones
+    vacías. Los mensajes sí reflejan uso.
+    """
+
     documents: DocumentMetrics
     users: CountMetric
-    conversations: CountMetric
     messages: CountMetric
-    recent_activity: List[RecentActivityItem]

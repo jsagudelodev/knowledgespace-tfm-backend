@@ -16,17 +16,9 @@ from app.db.models.document import Document
 from app.db.models.message import Message
 from app.db.models.user import User
 from app.routers.v1.security import get_current_user
-from app.schemas.dashboard import (
-    CountMetric,
-    DashboardMetrics,
-    DocumentMetrics,
-    RecentActivityItem,
-)
+from app.schemas.dashboard import CountMetric, DashboardMetrics, DocumentMetrics
 
 router = APIRouter()
-
-# Cuántas conversaciones recientes devuelve el panel de actividad.
-RECENT_ACTIVITY_LIMIT = 10
 
 
 def _documentos_por_estado(db: Session, company_id: int) -> Dict[str, int]:
@@ -76,13 +68,6 @@ async def get_metrics(
         db.query(func.count(User.id)).filter(User.company_id == company_id).scalar() or 0
     )
 
-    conversaciones = (
-        db.query(func.count(Conversation.id))
-        .filter(Conversation.company_id == company_id)
-        .scalar()
-        or 0
-    )
-
     # Los mensajes no llevan company_id: se llega a la empresa por su
     # conversación, lo que además garantiza el filtrado multi-tenant.
     mensajes = (
@@ -93,29 +78,8 @@ async def get_metrics(
         or 0
     )
 
-    # `updated_at` es NULL hasta la primera modificación (no tiene
-    # server_default, solo onupdate), así que se cae a `created_at` para que
-    # las conversaciones nuevas no queden al final del listado.
-    ultima_actividad = func.coalesce(Conversation.updated_at, Conversation.created_at)
-    recientes = (
-        db.query(
-            Conversation.id,
-            Conversation.title,
-            ultima_actividad.label("updated_at"),
-        )
-        .filter(Conversation.company_id == company_id)
-        .order_by(ultima_actividad.desc())
-        .limit(RECENT_ACTIVITY_LIMIT)
-        .all()
-    )
-
     return DashboardMetrics(
         documents=documentos,
         users=CountMetric(total=usuarios),
-        conversations=CountMetric(total=conversaciones),
         messages=CountMetric(total=mensajes),
-        recent_activity=[
-            RecentActivityItem(id=c.id, title=c.title, updated_at=c.updated_at)
-            for c in recientes
-        ],
     )
