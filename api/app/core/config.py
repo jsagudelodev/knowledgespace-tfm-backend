@@ -1,3 +1,22 @@
+"""Configuración de la aplicación, leída del entorno o del `.env`.
+
+Dos decisiones de diseño que explican el comportamiento al arrancar:
+
+- **Fallo temprano.** Los campos sin valor por defecto (`SECRET_KEY`,
+  `DATABASE_URL`, las credenciales de AWS) son obligatorios: si falta alguno,
+  la aplicación no llega a levantar. Se prefiere un error claro en el arranque
+  a un `None` que reviente en la primera petición que lo necesite, cuando ya
+  hay usuarios conectados.
+
+- **`env_file=".env"` es una ruta relativa**, y pydantic-settings la resuelve
+  contra el directorio de trabajo del proceso, no contra la ubicación de este
+  archivo. Por eso el servidor debe lanzarse desde `api/`: hacerlo desde la
+  raíz del repositorio encuentra los módulos pero no el `.env`, y la
+  aplicación falla con errores de validación de campos obligatorios. Ver
+  `COMO_ARRANCAR.md`.
+
+La lista completa de variables, con descripciones, está en `.env.example`.
+"""
 from functools import lru_cache
 from typing import List, Optional
 

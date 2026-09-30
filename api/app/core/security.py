@@ -1,3 +1,30 @@
+"""Primitivas de autenticación: hashing de contraseñas y firma de JWT.
+
+Este módulo solo emite y valida tokens. Quién puede acceder a qué se decide en
+`app/routers/v1/security.py`, que es donde se resuelve el usuario y de donde
+sale el `company_id` que aísla cada inquilino.
+
+Decisiones que conviene conocer antes de tocar nada:
+
+- **HS256, clave simétrica.** El mismo `SECRET_KEY` firma y verifica. Sirve
+  porque emisor y verificador son el mismo servicio; si algún día un tercero
+  tuviera que validar tokens sin poder emitirlos, habría que pasar a RS256.
+
+- **El JWT va firmado, no cifrado.** Cualquiera puede leer el payload
+  decodificando base64; nadie puede alterarlo sin la clave. Por eso el token
+  no transporta nada sensible: solo el email en `sub`.
+
+- **24 horas de expiración y sin refresh token.** Al caducar se vuelve a hacer
+  login. Un sistema de refresh añade revocación y rotación, complejidad que
+  queda fuera del alcance de este trabajo.
+
+- **Sin lista de revocación.** Un token robado es válido hasta que expira. Es
+  la contrapartida de no mantener estado de sesión en el servidor.
+
+- **bcrypt con `sha256_crypt` deprecado.** Ver el comentario de
+  `pwd_context`: permite migrar los hashes antiguos sin pedir a nadie que
+  cambie su contraseña.
+"""
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
