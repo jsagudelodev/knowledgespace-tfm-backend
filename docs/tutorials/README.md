@@ -14,28 +14,27 @@ Estos scripts te enseñan cómo funciona tu proyecto desde **el código real hac
 
 ## Cómo ejecutar
 
-### IMPORTANTE: Corre desde la carpeta `api`, no desde `docs/tutorials`
+Desde la raíz del repositorio, o desde cualquier otro directorio:
 
 ```bash
-cd D:\Proyectos\GitHub\Sass\KnowledgeSpace\api
-python ..\docs\tutorials\00_explorar_proyecto.py
+python docs/tutorials/00_explorar_proyecto.py
 ```
 
-**NO hagas esto:**
-```bash
-cd D:\Proyectos\GitHub\Sass\KnowledgeSpace\docs\tutorials
-python 00_explorar_proyecto.py  # ❌ Esto falla con "No module named 'app'"
-```
+Cada script se sitúa solo: calcula la ruta de `api/` a partir de su propia
+ubicación (`__file__`) y hace `chdir` ahí antes de importar nada. Eso es
+necesario porque los scripts importan el paquete `app`, que vive dentro de
+`api/`, y porque `app/core/config.py` carga el `.env` por ruta relativa al
+directorio de trabajo.
 
-Los scripts necesitan estar en la carpeta `api` para que puedan importar el módulo `app`.
+Requisito previo: `api/.env` configurado con las credenciales reales
+(`DATABASE_URL`, `OPENAI_API_KEY`, `PINECONE_API_KEY`). Ver `COMO_ARRANCAR.md`.
 
 ## Paso a paso
 
 ### 0️⃣ Preparación
 
 ```bash
-cd D:\Proyectos\GitHub\Sass\KnowledgeSpace\api
-python ..\docs\tutorials\00_explorar_proyecto.py
+python docs/tutorials/00_explorar_proyecto.py
 ```
 
 Esto te dirá:

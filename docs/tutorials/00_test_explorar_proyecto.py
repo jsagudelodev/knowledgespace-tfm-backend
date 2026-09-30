@@ -5,7 +5,7 @@ import sys
 
 
 sys.stdout.reconfigure(encoding='utf-8')
-os.chdir(r"D:\Proyectos\GitHub\Sass\KnowledgeSpace\api")
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "api"))
 sys.path.insert(0, os.getcwd())
 
 

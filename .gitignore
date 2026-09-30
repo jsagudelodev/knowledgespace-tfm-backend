@@ -91,3 +91,9 @@ coverage.xml
 # Material de práctica personal para la defensa — no es parte del código
 # entregado, se queda local (ver docs/practica-tfm/README.md)
 docs/practica-tfm/
+
+# Notas de estudio nuevas dentro de los tutoriales. Los 10 archivos ya
+# versionados de docs/tutorials/ siguen entregándose (son material de defensa,
+# citados desde ALCANCE_TFM.md); esta regla solo evita que se sumen archivos
+# nuevos sin decidirlo.
+docs/tutorials/

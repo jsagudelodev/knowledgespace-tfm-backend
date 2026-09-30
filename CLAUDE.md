@@ -79,7 +79,6 @@ KnowledgeSpace/
 │           ├── rag_service.py              # retrieval + generación del chat
 │           └── knowledge_gap_index_service.py  # candidatos/alias/respuesta/verificación de Preguntas sin respuesta — ver docs/RAG_PIPELINE.md §8
 ├── docs/                       # Documentación técnica
-├── venv/                       # Virtual environment (activar desde raíz)
 └── CLAUDE.md
 ```
 
@@ -109,14 +108,20 @@ Cada recurso está filtrado por `company_id` extraído del JWT, nunca del reques
 
 ## Development
 ```bash
-# Activar venv (desde raíz del proyecto)
-venv\Scripts\activate          # Windows
-source venv/bin/activate       # Linux/Mac
-
-# Arrancar servidor (desde api/)
+# Instalar dependencias (solo la primera vez)
 cd api
-uvicorn main:app --reload --port 8002
+pip install -r requirements.txt
+
+# Arrancar servidor — SIEMPRE desde api/
+python -m uvicorn main:app --host 127.0.0.1 --port 8002 --reload
 ```
+
+> El `cd api` no es opcional y resuelve dos cosas distintas: pone `api/` en
+> `sys.path` (para que `main` y el paquete `app` se importen) **y** deja el
+> directorio de trabajo donde está el `.env`, que `config.py` carga por ruta
+> relativa. Lanzar desde la raíz con `--app-dir api` arregla lo primero pero no
+> lo segundo, y la app falla con 5 errores de validación de Pydantic.
+> Ver `COMO_ARRANCAR.md` para el detalle.
 
 - **Swagger UI**: `http://127.0.0.1:8002/docs`
 - **Crear tablas**: `python create_tables.py` (desde `api/`)

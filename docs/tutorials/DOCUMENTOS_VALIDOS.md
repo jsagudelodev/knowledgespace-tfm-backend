@@ -51,7 +51,7 @@ Cualquiera de los documentos de arriba.
 ## Para Tutorial 4 (Alucinaciones)
 Sin dependencias. Corre directamente:
 ```bash
-python ..\docs\tutorials\04_alucinaciones.py
+python docs/tutorials/04_alucinaciones.py
 ```
 
 ---
@@ -70,7 +70,7 @@ cd api
 python << 'EOF'
 import sys, os
 sys.stdout.reconfigure(encoding='utf-8')
-os.chdir(r"D:\Proyectos\GitHub\Sass\KnowledgeSpace\api")
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "api"))
 sys.path.insert(0, os.getcwd())
 
 from app.core.database import SessionLocal

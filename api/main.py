@@ -15,7 +15,6 @@ from app.routers.v1.categories import router as categories_router
 from app.routers.v1.tags import router as tags_router
 from app.routers.v1.documents import router as documents_router
 from app.routers.v1.assistants import router as assistants_router
-from app.routers.v1.widgets import router as widgets_router
 from app.routers.v1.chat import router as chat_router
 from app.routers.v1.conversation import router as conversation_router
 from app.routers.v1.message import router as message_router
@@ -57,7 +56,6 @@ app.include_router(categories_router,   prefix="/api/v1/categories",    tags=["c
 app.include_router(tags_router,         prefix="/api/v1/tags",          tags=["tags"])
 app.include_router(documents_router,    prefix="/api/v1/documents",     tags=["documents"])
 app.include_router(assistants_router,   prefix="/api/v1/assistants",    tags=["assistants"])
-app.include_router(widgets_router,      prefix="/api/v1/widgets",       tags=["widgets"])
 app.include_router(chat_router,         prefix="/api/v1/chat",          tags=["chat"])
 app.include_router(conversation_router, prefix="/api/v1/conversations", tags=["conversations"])
 app.include_router(message_router,      prefix="/api/v1/messages",      tags=["messages"])

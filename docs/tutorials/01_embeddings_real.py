@@ -10,13 +10,12 @@ Edita DOCUMENT_ID abajo con el ID de un documento que ya tengas.
 Para ver IDs disponibles, corre: 00_explorar_proyecto.py
 
 Ejecutar:
-  cd D:\Proyectos\GitHub\Sass\KnowledgeSpace\api
-  python ..\docs\tutorials\01_embeddings_real.py
+  python docs/tutorials/01_embeddings_real.py
 """
 import os
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
-os.chdir(r"D:\Proyectos\GitHub\Sass\KnowledgeSpace\api")
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "api"))
 sys.path.insert(0, os.getcwd())
 
 from app.core.database import SessionLocal
@@ -69,7 +68,7 @@ except Exception as e:
     print(f"   2. El documento nunca se procesó completamente")
     print(f"   3. Credenciales de AWS inválidas en .env")
     print(f"\n   Intenta con otro documento que tenga estado 'completed'")
-    print(f"   Corre: python ..\docs\tutorials\00_explorar_proyecto.py")
+    print("   Corre: python docs/tutorials/00_explorar_proyecto.py")
     exit(1)
 
 # Paso 3: Extraer texto según tipo de archivo

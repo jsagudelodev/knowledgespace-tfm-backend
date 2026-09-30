@@ -23,6 +23,17 @@ Por ser decisiones de comercialización y no limitaciones técnicas o parte de
 la contribución académica (mismo criterio ya aplicado en el frontend al
 widget público embebible):
 
+- **Widget público embebible**: su router (`/api/v1/widgets`), su repositorio,
+  sus esquemas y el endpoint `GET /assistants/{id}/widgets` se retiraron de esta
+  entrega, en coherencia con el mismo criterio ya aplicado en el frontend.
+
+  **El modelo de datos permanece** (`app/db/models/widget.py`, la relación
+  `Assistant.widgets`, el conteo `widget_count` que impide borrar un asistente
+  con widgets vinculados, y los campos `widget_id` / `channel` en `feedback` y
+  `knowledge_gaps`). No es código olvidado: el canal de origen distingue si una
+  pregunta sin respuesta llegó desde un sitio público o desde el chat interno, y
+  esa distinción es parte de la lógica de knowledge gaps que sí se defiende.
+
 - Infraestructura de despliegue de producción (identificadores de proyecto
   cloud, URLs internas, cuentas de servicio, triggers de CI/CD).
 - El campo `plan` (`basic|pro|enterprise`) en `Company` es un modelo de datos

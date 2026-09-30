@@ -19,13 +19,12 @@ Este script demuestra 4 CONTROLES que prevenimos:
 4. CONTROL POR REGISTRO: preguntas sin respuesta se documentan
 
 Ejecutar:
-  cd D:\Proyectos\GitHub\Sass\KnowledgeSpace\api
-  python ..\docs\tutorials\04_alucinaciones.py
+  python docs/tutorials/04_alucinaciones.py
 """
 import os
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
-os.chdir(r"D:\Proyectos\GitHub\Sass\KnowledgeSpace\api")
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "api"))
 sys.path.insert(0, os.getcwd())
 
 from app.services.rag_service import RAGService, DEFAULT_SYSTEM_PROMPT, RELEVANCE_THRESHOLD
