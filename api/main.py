@@ -22,6 +22,7 @@ from app.routers.v1.feedback import router as feedback_router
 from app.routers.v1.notification import router as notification_router
 from app.routers.v1.knowledge_gaps import router as knowledge_gaps_router
 from app.routers.v1.cost_tracking import router as cost_tracking_router
+from app.routers.v1.dashboard import router as dashboard_router
 from app.routers.v1.setup import router as setup_router
 
 
@@ -63,6 +64,7 @@ app.include_router(feedback_router,       prefix="/api/v1/feedback",        tags
 app.include_router(notification_router,   prefix="/api/v1/notifications",   tags=["notifications"])
 app.include_router(knowledge_gaps_router, prefix="/api/v1/knowledge-gaps",   tags=["knowledge-gaps"])
 app.include_router(cost_tracking_router,  prefix="/api/v1/cost-tracking",    tags=["cost-tracking"])
+app.include_router(dashboard_router,      prefix="/api/v1/dashboard",        tags=["dashboard"])
 app.include_router(setup_router,          prefix="/api/v1/setup",            tags=["setup"])
 
 
