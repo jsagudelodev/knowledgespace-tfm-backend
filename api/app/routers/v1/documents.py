@@ -135,7 +135,7 @@ def _procesar_documento_background(
         pinecone_svc.upsert_vectores(vectores, namespace=namespace)
 
         # ── 6. Marcar como completado ──────────────────────────────────────
-        documento = db.query(Document).filter(Document.id == document_id).first()
+        documento = DocumentRepository(db).get(document_id)
         if documento:
             documento.status = "completed"
             documento.page_count = paginas
@@ -150,7 +150,7 @@ def _procesar_documento_background(
 
     except Exception as exc:
         logger.error(f"[RAG] ERROR document_id={document_id}: {exc}\n{traceback.format_exc()}")
-        documento = db.query(Document).filter(Document.id == document_id).first()
+        documento = DocumentRepository(db).get(document_id)
         if documento:
             documento.status = "failed"
             documento.error_message = str(exc)

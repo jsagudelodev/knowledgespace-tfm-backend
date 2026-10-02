@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.models.document import Document
 from app.repositories.base import BaseRepository
@@ -30,3 +31,25 @@ class DocumentRepository(BaseRepository[Document]):
 
     def count_by_company(self, company_id: int) -> int:
         return self.db.query(Document).filter(Document.company_id == company_id).count()
+
+    def count_grouped_by_status(self, company_id: int) -> Dict[str, int]:
+        """Recuento de documentos por estado, en una sola consulta agrupada en
+        vez de una por estado. Lo usa el panel de inicio."""
+        filas = (
+            self.db.query(Document.status, func.count(Document.id))
+            .filter(Document.company_id == company_id)
+            .group_by(Document.status)
+            .all()
+        )
+        return {estado: total for estado, total in filas}
+
+    def count_by_assistant(self, assistant_id: int) -> int:
+        return self.db.query(Document).filter(Document.assistant_id == assistant_id).count()
+
+    def get_by_assistant(self, assistant_id: int) -> List[Document]:
+        return (
+            self.db.query(Document)
+            .filter(Document.assistant_id == assistant_id)
+            .order_by(Document.created_at.desc())
+            .all()
+        )

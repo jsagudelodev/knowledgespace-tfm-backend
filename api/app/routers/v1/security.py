@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.db.models.user import User
+from app.repositories.user_repository import UserRepository
 
 security = HTTPBearer()
 
@@ -33,7 +34,7 @@ async def get_current_user(
     if not email:
         raise invalid
 
-    user = db.query(User).filter(User.email == email).first()
+    user = UserRepository(db).get_by_email(email)
     if not user:
         raise invalid
 

@@ -7,30 +7,17 @@ aplican el resto de routers (ver `security.get_current_user`).
 from typing import Dict
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.db.models.conversation import Conversation
-from app.db.models.document import Document
-from app.db.models.message import Message
 from app.db.models.user import User
+from app.repositories.document_repository import DocumentRepository
+from app.repositories.message_repository import MessageRepository
+from app.repositories.user_repository import UserRepository
 from app.routers.v1.security import get_current_user
 from app.schemas.dashboard import CountMetric, DashboardMetrics, DocumentMetrics
 
 router = APIRouter()
-
-
-def _documentos_por_estado(db: Session, company_id: int) -> Dict[str, int]:
-    """Cuenta los documentos agrupados por estado en una sola consulta, en vez
-    de lanzar una por estado."""
-    filas = (
-        db.query(Document.status, func.count(Document.id))
-        .filter(Document.company_id == company_id)
-        .group_by(Document.status)
-        .all()
-    )
-    return {estado: total for estado, total in filas}
 
 
 def _metricas_de_documentos(por_estado: Dict[str, int]) -> DocumentMetrics:
@@ -62,24 +49,10 @@ async def get_metrics(
 ):
     company_id = current_user.company_id
 
-    documentos = _metricas_de_documentos(_documentos_por_estado(db, company_id))
-
-    usuarios = (
-        db.query(func.count(User.id)).filter(User.company_id == company_id).scalar() or 0
-    )
-
-    # Los mensajes no llevan company_id: se llega a la empresa por su
-    # conversación, lo que además garantiza el filtrado multi-tenant.
-    mensajes = (
-        db.query(func.count(Message.id))
-        .join(Conversation, Message.conversation_id == Conversation.id)
-        .filter(Conversation.company_id == company_id)
-        .scalar()
-        or 0
-    )
+    por_estado = DocumentRepository(db).count_grouped_by_status(company_id)
 
     return DashboardMetrics(
-        documents=documentos,
-        users=CountMetric(total=usuarios),
-        messages=CountMetric(total=mensajes),
+        documents=_metricas_de_documentos(por_estado),
+        users=CountMetric(total=UserRepository(db).count_by_company(company_id)),
+        messages=CountMetric(total=MessageRepository(db).count_by_company(company_id)),
     )

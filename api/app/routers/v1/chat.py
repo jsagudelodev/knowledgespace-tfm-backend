@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.routers.v1.security import get_current_user
 from app.db.models.assistant import Assistant
 from app.db.models.user import User
+from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -25,17 +26,13 @@ def _resolve_assistant(db: Session, company_id: int, assistant_id: Optional[int]
     ningún asistente activo, se sigue permitiendo el chat con la
     configuración por defecto (namespace de empresa, prompt genérico).
     """
-    query = db.query(Assistant).filter(
-        Assistant.company_id == company_id,
-        Assistant.deleted_at.is_(None),
-        Assistant.is_active.is_(True),
-    )
+    repo = AssistantRepository(db)
     if assistant_id:
-        assistant = query.filter(Assistant.id == assistant_id).first()
+        assistant = repo.get_active_of_company(assistant_id, company_id)
         if not assistant:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asistente no encontrado o inactivo")
         return assistant
-    return query.order_by(Assistant.created_at.asc()).first()
+    return repo.get_first_active(company_id)
 
 
 @router.post("/message", response_model=ChatResponse, summary="Enviar mensaje al chat IA")

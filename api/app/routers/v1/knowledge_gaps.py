@@ -15,6 +15,7 @@ from app.db.models.user import User
 from app.db.models.document import Document
 from app.db.models.assistant import Assistant
 from app.db.models.notification import NotificationEntityType
+from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
 from app.schemas.knowledge_gap import (
     KnowledgeGapSummary,
     KnowledgeGapResponse,
@@ -72,12 +73,12 @@ def _enrich(gap: KnowledgeGap, db: Session) -> KnowledgeGapResponse:
 
 
 def _base(db: Session, company_id: int):
-    return db.query(KnowledgeGap).filter(KnowledgeGap.company_id == company_id)
+    return KnowledgeGapRepository(db).query_by_company(company_id)
 
 
 def _get_or_404(db: Session, gap_id: int, company_id: int) -> KnowledgeGap:
-    gap = db.get(KnowledgeGap, gap_id)
-    if not gap or gap.company_id != company_id:
+    gap = KnowledgeGapRepository(db).get_of_company(gap_id, company_id)
+    if not gap:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pregunta no encontrada")
     return gap
 

@@ -26,6 +26,12 @@ class UserRepository(BaseRepository[User]):
     def count_by_company(self, company_id: int) -> int:
         return self.db.query(User).filter(User.company_id == company_id).count()
 
+    def count_all(self) -> int:
+        """Total de usuarios del sistema, sin filtrar por empresa. Lo usa el
+        endpoint de bootstrap para saber si el sistema ya fue inicializado —
+        es el único caso legítimo de consulta sin aislamiento multi-tenant."""
+        return self.db.query(User).count()
+
     def get_active_by_company(self, company_id: int) -> List[User]:
         return (
             self.db.query(User)

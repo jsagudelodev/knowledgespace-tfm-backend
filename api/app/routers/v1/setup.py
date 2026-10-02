@@ -5,6 +5,7 @@ from app.core.database import get_db, Base, engine
 from app.core.security import get_password_hash, create_access_token
 from app.db.models.company import Company
 from app.db.models.user import User
+from app.repositories.user_repository import UserRepository
 from app.schemas.setup import SetupRequest, SetupResponse
 
 router = APIRouter()
@@ -20,7 +21,7 @@ async def setup(payload: SetupRequest, db: Session = Depends(get_db)):
     # Bloquear si ya existen usuarios — el sistema ya fue inicializado
     # Si las tablas no existen aún, el count falla y se permite continuar
     try:
-        if db.query(User).count() > 0:
+        if UserRepository(db).count_all() > 0:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="El sistema ya fue inicializado. Este endpoint está deshabilitado.",

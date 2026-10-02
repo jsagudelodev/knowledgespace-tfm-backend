@@ -2,16 +2,14 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.routers.v1.security import get_current_user
 from app.db.models.assistant import Assistant
-from app.db.models.document import Document
-from app.db.models.widget import Widget
 from app.db.models.user import User
 from app.repositories.assistant_repository import AssistantRepository
+from app.repositories.document_repository import DocumentRepository
 from app.schemas.assistant import AssistantCreate, AssistantUpdate, AssistantResponse
 from app.schemas.document import DocumentResponse
 
@@ -19,23 +17,15 @@ router = APIRouter()
 
 
 def _get_or_404(db: Session, assistant_id: int, company_id: int) -> Assistant:
-    assistant = (
-        db.query(Assistant)
-        .filter(
-            Assistant.id == assistant_id,
-            Assistant.company_id == company_id,
-            Assistant.deleted_at.is_(None),
-        )
-        .first()
-    )
+    assistant = AssistantRepository(db).get_of_company(assistant_id, company_id)
     if not assistant:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asistente no encontrado")
     return assistant
 
 
 def _with_counts(db: Session, assistant: Assistant) -> AssistantResponse:
-    doc_count = db.query(func.count(Document.id)).filter(Document.assistant_id == assistant.id).scalar() or 0
-    widget_count = db.query(func.count(Widget.id)).filter(Widget.assistant_id == assistant.id).scalar() or 0
+    doc_count = DocumentRepository(db).count_by_assistant(assistant.id)
+    widget_count = AssistantRepository(db).count_widgets(assistant.id)
     response = AssistantResponse.model_validate(assistant)
     return response.model_copy(update={"document_count": doc_count, "widget_count": widget_count})
 
@@ -59,13 +49,9 @@ async def list_assistants(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    query = db.query(Assistant).filter(
-        Assistant.company_id == current_user.company_id,
-        Assistant.deleted_at.is_(None),
+    assistants = AssistantRepository(db).list_by_company(
+        current_user.company_id, skip=skip, limit=limit, active_only=active_only
     )
-    if active_only:
-        query = query.filter(Assistant.is_active.is_(True))
-    assistants = query.order_by(Assistant.name).offset(skip).limit(limit).all()
     return [_with_counts(db, a) for a in assistants]
 
 
@@ -104,8 +90,8 @@ async def delete_assistant(
     # borrarlo mientras tenga documentos o widgets vinculados dejaría esos
     # registros huérfanos a nivel empresa, filtrándose luego a otros espacios
     # vía el namespace compartido. Se exige reasignarlos o borrarlos antes.
-    doc_count = db.query(func.count(Document.id)).filter(Document.assistant_id == assistant_id).scalar()
-    widget_count = db.query(func.count(Widget.id)).filter(Widget.assistant_id == assistant_id).scalar()
+    doc_count = DocumentRepository(db).count_by_assistant(assistant_id)
+    widget_count = AssistantRepository(db).count_widgets(assistant_id)
     if doc_count or widget_count:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -127,9 +113,4 @@ async def list_assistant_documents(
     current_user: User = Depends(get_current_user)
 ):
     _get_or_404(db, assistant_id, current_user.company_id)
-    return (
-        db.query(Document)
-        .filter(Document.assistant_id == assistant_id)
-        .order_by(Document.created_at.desc())
-        .all()
-    )
+    return DocumentRepository(db).get_by_assistant(assistant_id)

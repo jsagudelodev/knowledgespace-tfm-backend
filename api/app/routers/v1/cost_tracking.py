@@ -5,15 +5,12 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.routers.v1.security import get_current_admin_user
-from app.db.models.cost_tracking import CostTracking
 from app.db.models.user import User
-from app.db.models.document import Document
-from app.db.models.assistant import Assistant
+from app.repositories.cost_tracking_repository import CostTrackingRepository
 from app.schemas.cost_tracking import (
     CostTrackingDetailResponse,
     CostSummary,
@@ -38,27 +35,14 @@ async def list_cost_tracking(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ):
-    query = (
-        db.query(
-            CostTracking,
-            User.full_name.label("user_name"),
-            Document.original_filename.label("document_name"),
-            Assistant.name.label("assistant_name"),
-        )
-        .outerjoin(User, CostTracking.user_id == User.id)
-        .outerjoin(Document, CostTracking.document_id == Document.id)
-        .outerjoin(Assistant, CostTracking.assistant_id == Assistant.id)
-        .filter(
-            CostTracking.company_id == current_user.company_id,
-            CostTracking.created_at >= _period_start(days),
-        )
+    rows = CostTrackingRepository(db).list_detailed(
+        company_id=current_user.company_id,
+        desde=_period_start(days),
+        model=model,
+        assistant_id=assistant_id,
+        skip=skip,
+        limit=limit,
     )
-    if model:
-        query = query.filter(CostTracking.model == model)
-    if assistant_id:
-        query = query.filter(CostTracking.assistant_id == assistant_id)
-
-    rows = query.order_by(CostTracking.created_at.desc()).offset(skip).limit(limit).all()
 
     return [
         CostTrackingDetailResponse(
@@ -77,11 +61,9 @@ async def get_cost_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ):
-    base = db.query(CostTracking).filter(
-        CostTracking.company_id == current_user.company_id,
-        CostTracking.created_at >= _period_start(days),
+    rows = CostTrackingRepository(db).get_period(
+        current_user.company_id, _period_start(days)
     )
-    rows = base.all()
 
     total_cost = sum(float(r.total_cost) for r in rows)
     total_tokens = sum(r.input_tokens + r.output_tokens for r in rows)
@@ -108,20 +90,8 @@ async def get_daily_trend(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ):
-    results = (
-        db.query(
-            func.date(CostTracking.created_at).label("date"),
-            func.sum(CostTracking.total_cost).label("total_cost"),
-            func.sum(CostTracking.input_tokens + CostTracking.output_tokens).label("total_tokens"),
-            func.count(CostTracking.id).label("total_requests"),
-        )
-        .filter(
-            CostTracking.company_id == current_user.company_id,
-            CostTracking.created_at >= _period_start(days),
-        )
-        .group_by(func.date(CostTracking.created_at))
-        .order_by(func.date(CostTracking.created_at).asc())
-        .all()
+    results = CostTrackingRepository(db).daily_totals(
+        current_user.company_id, _period_start(days)
     )
 
     return [
