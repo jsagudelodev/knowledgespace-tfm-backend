@@ -115,17 +115,74 @@ class PDFService:
     # ── Chunking ─────────────────────────────────────────────────────────────
 
     @staticmethod
-    def dividir_en_chunks(texto: str, chunk_size: int = 1000, overlap: int = 200) -> List[str]:
+    def dividir_en_chunks_caracteres(
+        texto: str, chunk_size: int = 1000, overlap: int = 200
+    ) -> List[str]:
         """
-        Divide el texto en fragmentos con superposición.
-        El overlap evita que el contexto quede cortado entre chunks consecutivos.
+        Divide por caracteres fijos (ANTIGUO).
+        Rápido pero rompe oraciones a mitad.
+
+        Usado para: compatibilidad hacia atrás, comparativas (ejercicio 6.2).
         """
         chunks = []
         start = 0
         while start < len(texto):
-            chunks.append(texto[start: start + chunk_size])
+            chunks.append(texto[start : start + chunk_size])
             start += chunk_size - overlap
         return [c for c in chunks if c.strip()]
+
+    @staticmethod
+    def dividir_en_chunks_semantico(
+        texto: str, target_size: int = 1000, overlap: int = 200
+    ) -> List[str]:
+        """
+        Divide respetando oraciones (NUEVO, 6.1).
+        Agrupa oraciones hasta ~target_size caracteres.
+
+        Ventaja: mantiene contexto coherente, no corta en mitad de frase.
+        Desventaja: chunks pueden variar más en tamaño.
+
+        Usado para: mejor calidad de recuperación, defensa académica.
+        """
+        # Paso 1: divide en oraciones
+        oraciones = texto.split(".")
+        oraciones = [o.strip() + "." for o in oraciones if o.strip()]
+
+        # Paso 2: agrupa oraciones hasta target_size
+        chunks = []
+        chunk_actual = ""
+        for oracion in oraciones:
+            if len(chunk_actual) + len(oracion) <= target_size:
+                chunk_actual += " " + oracion
+            else:
+                if chunk_actual.strip():
+                    chunks.append(chunk_actual)
+                chunk_actual = oracion
+
+        # Paso 3: agrega el último chunk
+        if chunk_actual.strip():
+            chunks.append(chunk_actual)
+
+        return chunks
+
+    @staticmethod
+    def dividir_en_chunks(
+        texto: str,
+        chunk_size: int = 1000,
+        overlap: int = 200,
+        semantico: bool = True,
+    ) -> List[str]:
+        """
+        Divide el texto en fragmentos. Elige automáticamente entre:
+        - semantico=True  (defecto): agrupa oraciones (mejor calidad)
+        - semantico=False: corta por caracteres (más rápido, compatible)
+
+        El overlap se usa solo en modo caracteres (semántico lo ignora).
+        """
+        if semantico:
+            return PDFService.dividir_en_chunks_semantico(texto, target_size=chunk_size)
+        else:
+            return PDFService.dividir_en_chunks_caracteres(texto, chunk_size, overlap)
 
     # ── API pública ───────────────────────────────────────────────────────────
 
@@ -135,10 +192,19 @@ class PDFService:
         file_type: str = "pdf",
         chunk_size: int = 1000,
         overlap: int = 200,
+        semantico: bool = True,
     ) -> Tuple[List[str], int]:
         """
         Descarga el archivo desde S3, extrae texto y devuelve (chunks, páginas).
         Soporta: pdf, docx, txt.
+
+        Parámetros:
+            s3_key: ruta del archivo en S3
+            file_type: 'pdf', 'docx' o 'txt'
+            chunk_size: tamaño aproximado de chunks (caracteres)
+            overlap: superposición (solo usado en modo caracteres)
+            semantico: True = agrupa oraciones (defecto, mejor calidad)
+                       False = corta por caracteres (rápido, compatible)
         """
         buffer = PDFService._obtener_buffer(s3_key)
 
@@ -157,4 +223,7 @@ class PDFService:
         if not texto.strip():
             raise Exception("No se pudo extraer texto del documento")
 
-        return PDFService.dividir_en_chunks(texto, chunk_size, overlap), paginas
+        return (
+            PDFService.dividir_en_chunks(texto, chunk_size, overlap, semantico),
+            paginas,
+        )
