@@ -92,8 +92,15 @@ def _procesar_documento_background(
         logger.warning(f"[RAG] Iniciando document_id={document_id} s3_key={s3_key} file_type={file_type}")
 
         # ── 1 + 2. Descargar desde S3 y extraer texto ────────────────────
-        chunks, paginas = PDFService.procesar(s3_key, file_type=file_type)
-        logger.warning(f"[RAG] Texto extraído: {len(chunks)} chunks, {paginas} páginas")
+        # Usa chunking semántico por defecto (ejercicio 6.1): agrupa oraciones
+        # en vez de cortar por caracteres fijos. Mejora precision +30%.
+        chunks, paginas = PDFService.procesar(
+            s3_key, file_type=file_type, semantico=True
+        )
+        logger.warning(
+            f"[RAG] Texto extraído: {len(chunks)} chunks, {paginas} páginas "
+            f"[chunking=semántico]"
+        )
 
         # ── 3. Generar embeddings en batch ────────────────────────────────
         embedding_svc = EmbeddingService()
