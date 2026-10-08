@@ -71,6 +71,15 @@ class FeedbackRepository(BaseRepository[Feedback]):
             q = q.filter(Feedback.assistant_id == assistant_id)
         if rating is not None:
             q = q.filter(Feedback.rating == rating)
+
+        # El período se recibía y no se aplicaba: `?period=90d` y `?period=12m`
+        # devolvían lo mismo, y la exportación CSV heredaba el fallo porque
+        # delega en este método. Se usa el mismo `_period_dates` que las
+        # estadísticas, de modo que la tabla y los KPI hablan del mismo tramo
+        # de tiempo.
+        period_start, _, _ = _period_dates(period)
+        q = q.filter(Feedback.created_at >= period_start)
+
         feedbacks = q.order_by(Feedback.created_at.desc()).offset(skip).limit(limit).all()
         self._enrich(feedbacks)
         return feedbacks
@@ -122,9 +131,21 @@ class FeedbackRepository(BaseRepository[Feedback]):
         delta      = round(avg_period - avg_prev, 2) if avg_prev is not None else None
 
         # KPI 2 – % mensajes calificados en el período
+        #
+        # El denominador es siempre el total de la empresa, también cuando se
+        # filtra por asistente: ni `Message` ni `Conversation` guardan
+        # `assistant_id`, así que no hay forma de saber qué asistente generó un
+        # mensaje. Solo el `Feedback` lo sabe, porque lo registra al calificar.
+        #
+        # Antes se intentaba filtrar con un join sobre `Conversation.assistant_id`,
+        # una columna que no existe: cualquier consulta con `assistant_id`
+        # respondía 500. Al quitarlo, el porcentaje queda comparando el feedback
+        # de un asistente contra los mensajes de toda la empresa, así que con
+        # filtro activo se devuelve `None` en vez de una cifra que no significa
+        # nada.
         from app.db.models.message import Message
         from app.db.models.conversation import Conversation
-        msg_q = (
+        messages_count = (
             self.db.query(Message)
             .join(Conversation, Message.conversation_id == Conversation.id)
             .filter(
@@ -132,13 +153,13 @@ class FeedbackRepository(BaseRepository[Feedback]):
                 Message.role == "assistant",
                 Message.created_at >= period_start,
             )
+            .count()
         )
+        rated_count = total
         if assistant_id is not None:
-            from app.db.models.assistant import Assistant
-            msg_q = msg_q.join(Assistant, Conversation.assistant_id == assistant_id)
-        messages_count = msg_q.count()
-        rated_count    = total
-        rated_pct      = round((rated_count / messages_count * 100), 1) if messages_count else 0.0
+            rated_pct = None
+        else:
+            rated_pct = round((rated_count / messages_count * 100), 1) if messages_count else 0.0
 
         # KPI 3 & thumbs
         thumbs_up   = sum(1 for r in ratings if r >= 4)

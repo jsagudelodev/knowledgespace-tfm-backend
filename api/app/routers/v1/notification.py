@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.db.models.user import User
 from app.routers.v1.security import get_current_user
 from app.services.notification_service import NotificationService
-from app.schemas.notification import NotificationCreate, NotificationResponse, NotificationUnreadCount, NotificationCounts
+from app.schemas.notification import NotificationResponse, NotificationUnreadCount, NotificationCounts
 
 router = APIRouter()
 
@@ -68,17 +68,14 @@ async def list_notifications(
     )
 
 
-@router.post(
-    "/",
-    response_model=NotificationResponse,
-    summary="Crear una notificación",
-)
-async def create_notification(
-    notification: NotificationCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    return NotificationService(db).create(notification)
+# No hay endpoint para crear notificaciones, y es deliberado.
+#
+# El que había aceptaba `company_id` y `user_id` del cuerpo de la petición sin
+# compararlos con el token, así que cualquier usuario autenticado podía insertar
+# notificaciones en otra empresa. Eso contradice la regla del proyecto —el
+# `company_id` sale del JWT, nunca del cuerpo— y además nadie lo llamaba: las
+# notificaciones las crea el backend al procesar un documento o resolver una
+# pregunta sin respuesta, a través de `NotificationService.create`.
 
 
 @router.patch(

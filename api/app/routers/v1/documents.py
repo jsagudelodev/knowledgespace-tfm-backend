@@ -346,6 +346,10 @@ async def retry_document(
     documento.error_message = None
     repo.update(documento)
 
+    # `uploaded_by` es obligatorio en la tarea y se le pasa el dueño original
+    # del documento, no quien reintenta: el reproceso no cambia la autoría.
+    # Faltaba, y la tarea moría con TypeError en segundo plano — el documento
+    # se quedaba en `processing` para siempre y el usuario no veía ningún error.
     background_tasks.add_task(
         _procesar_documento_background,
         document_id=documento.id,
@@ -354,6 +358,7 @@ async def retry_document(
         company_id=documento.company_id,
         assistant_id=documento.assistant_id,
         original_filename=documento.original_filename,
+        uploaded_by=documento.uploaded_by,
     )
 
     return documento

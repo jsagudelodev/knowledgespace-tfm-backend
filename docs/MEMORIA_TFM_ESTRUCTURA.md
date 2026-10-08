@@ -143,25 +143,86 @@ Docker y el procedimiento de arranque.
 
 ---
 
-## Cap. 5 — Evaluación y experimentos (9 págs) 🔒
+## Cap. 5 — Evaluación y experimentos (9 págs) 🟡
 
-**Bloqueado hasta ejecutar el harness real.** No se redacta antes.
+**Parcialmente desbloqueado.** El experimento de calidad estructural del
+chunking ya está ejecutado (`api/experimentos/resultados/chunking_2026-10-07.json`)
+y su lectura está redactada en `api/experimentos/README.md`. Con ese material se
+pueden escribir ya 5.1 y 5.4. Solo 5.3 espera números nuevos.
 
 ### 5.1 Metodología de evaluación (2)
 Corpus, construcción del ground truth con frases ancla, y por qué no se usaron
-identificadores de chunk. Base conceptual: `GLOSARIO.md` §5.
+identificadores de chunk. Base conceptual: `practica-tfm/GLOSARIO.md` §5.
+
+> El argumento central: se comparan **dos estrategias de chunking**, y el chunk
+> nº 3 de una no tiene contraparte en la otra. Un identificador de chunk solo
+> valdría para una de las dos y haría imposible el A/B. La frase ancla es
+> invariante a la partición, porque es un fragmento literal del documento
+> origen. Hay que declarar aquí la normalización aplicada al comparar
+> (colapsado de espacios en blanco y paso a minúsculas), obligada porque la
+> extracción del PDF introduce saltos de línea dentro de las frases.
 
 ### 5.2 Métricas empleadas (1,5)
-Precision@k, Recall@k, MRR, latencia p50/p95, faithfulness — y **por qué cada
-una**, no solo su fórmula.
+
+Cuatro familias, y **por qué cada una**, no solo su fórmula:
+
+| Métrica | Qué mide | Coste |
+|---|---|---|
+| `hit@1`, `hit@3`, MRR | Calidad de recuperación | Céntimos |
+| Latencia p50/p95 | Rendimiento percibido | Gratis |
+| Tasa de abstención correcta | **Mitigación de alucinaciones** | Gratis |
+| Fidelidad al contexto (rúbrica manual de 3 niveles) | Calidad de la respuesta | Tiempo |
+
+**Precision@k y Recall@k se declaran y se descartan**, con el motivo escrito:
+con un único chunk relevante por pregunta son degeneradas — `precision@5` no
+puede superar 0,2 y `recall@5` solo toma los valores 0 o 1. `hit@k` dice lo
+mismo sin el artefacto.
+
+**La tasa de abstención correcta es la métrica que evalúa la contribución
+principal del trabajo.** Sobre las preguntas de tipo `sin_respuesta`, mide
+cuántas veces el sistema respondió "No encontré información..." en lugar de
+inventar. Es objetiva, no necesita juez, y es la verificación directa del umbral
+de relevancia y de las capas de validación — es decir, de la mitigación de
+alucinaciones que el proyecto declara como aportación.
+
+**La fidelidad se valora a mano, no con un LLM juez.** Sobre una muestra de este
+tamaño, una rúbrica de tres niveles (sostenida / parcialmente sostenida / no
+sostenida por el contexto recuperado) aplicada por una persona es más defendible
+que un modelo evaluando a otro modelo. El criterio de cada nivel se escribe
+aquí, antes de puntuar, no se improvisa al puntuar.
 
 ### 5.3 Resultados (3)
-Tabla comparativa de configuraciones con los números que salgan del harness.
-Gráficas. Enlace al JSON de resultados versionado.
+Tabla comparativa de las dos estrategias de chunking con los números del
+harness. Gráficas. Enlace al JSON versionado en `experimentos/resultados/`.
+
+Incluye la **revalidación del umbral de relevancia**: el `0.30` de
+`rag_service.py` se midió sobre un índice construido con chunking por
+caracteres, antes de que existiera `dividir_en_chunks_semantico`. Repetir las
+tres familias de consultas de `RAG_PIPELINE.md` §6 sobre el índice reconstruido
+y confirmar o corregir el valor. Si no se hace, los capítulos 3 y 4 afirman que
+el umbral está justificado por medición mientras el capítulo 5 defiende la otra
+estrategia de chunking: una incoherencia que un revisor cruza en un minuto.
 
 ### 5.4 Análisis de errores y limitaciones (2,5)
-Ground truth pequeño, un solo corpus, emparejamiento literal de la frase ancla,
-el LLM juez como evaluador imperfecto.
+Ground truth pequeño, un solo corpus, emparejamiento literal de la frase ancla.
+
+Material ya escrito en `api/experimentos/README.md` que va aquí:
+
+- Muestra pequeña: 3 documentos, 24 chunks. La diferencia medida es grande, pero
+  no autoriza a generalizar a cualquier corpus.
+- La división por oraciones no conserva el texto exactamente (cobertura entre
+  99,1 % y 100,4 %): `split(".")` altera alrededor del 1 % del contenido.
+- **La hipótesis previa que resultó falsa**: se esperaba que las diapositivas
+  tuvieran menos puntos que la prosa y tienen más (15,6 por mil frente a 4,9 y
+  6,7). Darle párrafo propio — una hipótesis fallida reportada es la señal más
+  difícil de fingir de que se midió de verdad.
+
+Y la que nace de la decisión del 5.2:
+
+- **Evaluador único y no ciego.** Al valorar la fidelidad a mano, el autor juzga
+  su propio sistema. Se gana en interpretabilidad lo que se pierde en
+  independencia; la alternativa, un LLM juez, cambia un sesgo por otro y además
+  es más atacable en la defensa.
 
 > Un resultado modesto medido con rigor vale más que una mejora grande sin
 > respaldo. Si el chunking semántico mejora un 12%, se defiende el 12%.

@@ -71,9 +71,15 @@ class FeedbackStats(BaseModel):
     average_rating_delta: Optional[float] = None
 
     # KPI 2 – Respuestas calificadas
+    #
+    # `rated_pct` es None cuando se filtra por asistente: el denominador
+    # (mensajes del asistente) no se puede calcular, porque ni `Message` ni
+    # `Conversation` guardan `assistant_id`. Se devuelve nulo en vez de un
+    # porcentaje que compararía el feedback de un asistente contra los
+    # mensajes de toda la empresa.
     rated_count: int
     messages_count: int
-    rated_pct: float
+    rated_pct: Optional[float] = None
 
     # KPI 3 – Negativas
     negatives: int
