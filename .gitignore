@@ -33,6 +33,22 @@ ENV/
 # IDE
 .vscode/
 .idea/
+
+# Configuracion local de Claude Code: son permisos de la maquina de cada uno,
+# con rutas absolutas. No pertenece al repositorio.
+.claude/
+
+# Copias de seguridad manuales de la memoria (Memoria_TFM_RESPALDO.docx,
+# Memoria_TFM_PREVIO.docx, Memoria_TFM_ANTES_11.docx y las que vengan).
+# El patron exige el guion bajo, de modo que `Memoria_TFM.docx` -el documento
+# de trabajo- no queda ignorado y se puede versionar.
+docs/Memoria_TFM_*.docx
+
+# Documentos de prueba para los experimentos. Son material docente de terceros
+# y el repositorio se entrega con el TFM, asi que no se publican. Las cifras que
+# produjeron estan en `api/experimentos/resultados/`, y el README de ese
+# directorio describe el corpus usado.
+docs/Test-Documentos/
 *.swp
 *.swo
 *~

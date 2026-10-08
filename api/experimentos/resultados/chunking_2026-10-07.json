@@ -1,0 +1,121 @@
+{
+  "fecha": "2026-10-07",
+  "target_size": 1000,
+  "overlap": 200,
+  "documentos": [
+    {
+      "documento": "1 - Diapositivas_Tema1_Clase1_PDF.pdf",
+      "kb": 2719.8,
+      "paginas": 31,
+      "caracteres": {
+        "chunks": 11,
+        "tamanio_medio": 966.3,
+        "tamanio_mediana": 1000,
+        "tamanio_desviacion": 106.7,
+        "tamanio_min": 629,
+        "tamanio_max": 1000,
+        "cortan_palabra": 10,
+        "cortan_palabra_pct": 90.9,
+        "cortan_frase": 10,
+        "cortan_frase_pct": 90.9,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 10629,
+        "cobertura_pct": 123.2
+      },
+      "densidad_puntos_por_mil": 15.6,
+      "oraciones": {
+        "chunks": 10,
+        "tamanio_medio": 866.1,
+        "tamanio_mediana": 947.0,
+        "tamanio_desviacion": 227.6,
+        "tamanio_min": 200,
+        "tamanio_max": 993,
+        "cortan_palabra": 0,
+        "cortan_palabra_pct": 0.0,
+        "cortan_frase": 0,
+        "cortan_frase_pct": 0.0,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 8661,
+        "cobertura_pct": 100.4
+      }
+    },
+    {
+      "documento": "Resumen Clase 2 - Tema 1.pdf",
+      "kb": 134.3,
+      "paginas": 2,
+      "caracteres": {
+        "chunks": 6,
+        "tamanio_medio": 892.8,
+        "tamanio_mediana": 1000.0,
+        "tamanio_desviacion": 239.6,
+        "tamanio_min": 357,
+        "tamanio_max": 1000,
+        "cortan_palabra": 3,
+        "cortan_palabra_pct": 50.0,
+        "cortan_frase": 4,
+        "cortan_frase_pct": 66.7,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 5357,
+        "cobertura_pct": 123.0
+      },
+      "densidad_puntos_por_mil": 6.7,
+      "oraciones": {
+        "chunks": 5,
+        "tamanio_medio": 866.2,
+        "tamanio_mediana": 954,
+        "tamanio_desviacion": 127.6,
+        "tamanio_min": 660,
+        "tamanio_max": 977,
+        "cortan_palabra": 0,
+        "cortan_palabra_pct": 0.0,
+        "cortan_frase": 0,
+        "cortan_frase_pct": 0.0,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 4331,
+        "cobertura_pct": 99.4
+      }
+    },
+    {
+      "documento": "Resumen de Clase 3 - Tema 1.pdf",
+      "kb": 130.7,
+      "paginas": 2,
+      "caracteres": {
+        "chunks": 7,
+        "tamanio_medio": 894.7,
+        "tamanio_mediana": 1000,
+        "tamanio_desviacion": 257.9,
+        "tamanio_min": 263,
+        "tamanio_max": 1000,
+        "cortan_palabra": 6,
+        "cortan_palabra_pct": 85.7,
+        "cortan_frase": 6,
+        "cortan_frase_pct": 85.7,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 6263,
+        "cobertura_pct": 123.7
+      },
+      "densidad_puntos_por_mil": 4.9,
+      "oraciones": {
+        "chunks": 6,
+        "tamanio_medio": 836.5,
+        "tamanio_mediana": 799.0,
+        "tamanio_desviacion": 109.3,
+        "tamanio_min": 731,
+        "tamanio_max": 997,
+        "cortan_palabra": 0,
+        "cortan_palabra_pct": 0.0,
+        "cortan_frase": 0,
+        "cortan_frase_pct": 0.0,
+        "exceden_objetivo": 0,
+        "exceden_objetivo_pct": 0.0,
+        "caracteres_indexados": 5019,
+        "cobertura_pct": 99.1
+      }
+    }
+  ]
+}

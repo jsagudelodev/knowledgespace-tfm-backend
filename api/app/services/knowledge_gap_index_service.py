@@ -6,15 +6,34 @@ from typing import List, Optional
 
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
+from app.services.rag_service import RELEVANCE_THRESHOLD
 
-# Mismo umbral que RAGService.RELEVANCE_THRESHOLD — por debajo, se considera
-# que el índice no tiene contenido relevante para la pregunta.
-RELEVANCE_THRESHOLD = 0.30
+# El umbral se importa de `rag_service`, que es su dueño: allí está la medición
+# que lo justifica. Este módulo tiene que usar el mismo criterio que el chat —
+# si considerara "relevante" algo que el chat descarta, detectaría huecos de
+# conocimiento con una vara distinta a la que usa para responder. Mantenerlo
+# duplicado dejaba que las dos copias se separasen sin que nada avisara.
 
 
 def _search(question: str, company_id: int, assistant_id: Optional[int], top_k: int) -> List:
-    """Busca en el namespace del asistente con fallback al de la empresa,
-    igual que RAGService.generate_response."""
+    """Busca en el namespace del asistente y, si no hay resultados, en el de la
+    empresa.
+
+    **Este fallback es deliberado y es lo contrario de lo que hace el chat.**
+    `RAGService.generate_response` no cae al namespace de empresa: si el espacio
+    del asistente no tiene nada relevante, responde que no encontró información,
+    porque un asistente sin match llegaba a mostrar contenido de otros espacios.
+
+    Aquí se admite porque quien decide es distinto. El chat responde solo, sin
+    nadie revisando, así que no puede permitirse cruzar espacios. Este módulo
+    alimenta el panel de "Preguntas sin respuesta", donde un administrador ve el
+    nombre del documento candidato y decide si encaja: ampliar la búsqueda le da
+    opciones que puede descartar.
+
+    Limitación conocida: hoy no hay roles ni permisos documentales, de modo que
+    cualquier administrador ve todos los espacios de su empresa. Si se añadieran
+    permisos por usuario, este fallback tendría que filtrarse por ellos.
+    """
     embedding = EmbeddingService().generar_embedding(question)
     pinecone_svc = PineconeService()
 
