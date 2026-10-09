@@ -1,8 +1,8 @@
 # Funcionalidades del TFM — Inventario completo
 
-**Documento:** Registro de todas las funcionalidades implementadas, en progreso y planificadas.  
-**Última actualización:** 2026-10-03  
-**Responsable:** Estudiante TFM
+**Documento:** Registro de las funcionalidades implementadas y de las que
+quedaron fuera de alcance, con el motivo.  
+**Última actualización:** 2026-10-08
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Completadas | En progreso | Planificadas | Total |
 |---|---|---|---|
-| **10** | **0** | **3** | **13** |
+| **14** | **0** | **2** | **16** |
 
 ---
 
@@ -167,6 +167,31 @@
 - **Uso:** Compatible hacia atrás, permite comparativas
 - **Estado:** ✅ Implementado y en producción
 - **Código:** `api/app/services/pdf_service.py`
+- **Matiz:** ningún llamador productivo pasa `semantico=False` — `documents.py`
+  lo fija en `True`. La estrategia antigua se conserva para poder comparar las
+  dos sobre los mismos documentos, que es lo que hace
+  `api/experimentos/medir_chunking.py`.
+
+---
+
+### **F15: Memoria Conversacional en RAG**
+- **Descripción:** El historial de la conversación entra en el contexto del RAG
+- **Uso:** Preguntas encadenadas coherentes — "¿y eso cuánto cuesta?" entiende
+  de qué se habla
+- **Componentes:**
+  - `chat.py` recupera los 20 mensajes previos **antes** de añadir el actual,
+    para no duplicarlo en el prompt
+  - `rag_service.generate_response()` lo recibe y `_build_messages()` lo coloca
+    después del contexto y antes de la pregunta: lo más cercano a la pregunta
+    es la conversación reciente, que es lo que da sentido a las referencias
+- **Costo:** +0 llamadas; solo ocupa contexto
+- **Estado:** ✅ Implementado
+- **Código:** `api/app/routers/v1/chat.py:61-62,70`,
+  `api/app/services/rag_service.py:56,82,165-166`
+
+> Esta funcionalidad figuraba como planificada "después de la defensa" cuando
+> ya estaba implementada. Se corrigió al revisar la coherencia entre el
+> documento y el código.
 
 ---
 
@@ -192,19 +217,6 @@ Ninguna actualmente.
 
 ---
 
-### **F15: Memoria Conversacional en RAG** (Baja prioridad, UX)
-- **Descripción:** Integrar historial de conversación en el contexto del RAG
-- **Uso:** Preguntas multi-turn coherentes ("siguiente pregunta" entiende contexto)
-- **Componentes:**
-  - Pasar `conversation_history` a `generate_response()`
-  - Incluir en el prompt del LLM
-- **Mejora esperada:** UX +50% (subjetivo)
-- **Costo:** +0 (solo llena contexto)
-- **Esfuerzo:** 1 hora
-- **Decisión:** ⏳ DESPUÉS DE DEFENSA
-
----
-
 ### **F16: Fine-tuning de Embeddings** (Baja prioridad, producción)
 - **Descripción:** Entrenar embeddings custom en el corpus de la empresa
 - **Uso:** Mejorar precision en el dominio específico
@@ -217,39 +229,42 @@ Ninguna actualmente.
 
 ## 🎯 Roadmap por fase
 
-### **Fase 1: Completada (Hoy)**
-- ✅ F1-F13: Todas las funcionalidades críticas para defensa
-- ✅ Código integrado en producción
+### **Fase 1: Completada**
+- ✅ F1-F13 y F15: todas las funcionalidades críticas para la defensa
+- ✅ Código integrado
 - ✅ Documentación completa
 
-### **Fase 2: PRE-DEFENSA (Próximos días)**
-- ⏳ F14 (Reranking): **DECIDIR AHORA** si se implementa
-- 📖 Practicar SIMULACRO_DEFENSA.md
-- 🎯 Preparar presentación
+### **Fase 2: Pre-defensa**
+- 📖 Practicar el simulacro de defensa
+- 🎯 Preparar la presentación
 
-### **Fase 3: POST-DEFENSA (Después de pasar)**
-- 🟢 F15 (Memoria conversacional): UX improvement
-- 🟢 F16 (Fine-tuning embeddings): Para producción real
+### **Fase 3: Post-defensa**
+- 🟢 F14 (Reranking con LLM)
+- 🟢 F16 (Fine-tuning de embeddings): para producción real
 
 ---
 
 ## 📊 Matriz de priorización
 
-| Feature | Para defensa | Para usuarios | Esfuerzo | Recomendación |
+| Feature | Para la defensa | Para usuarios | Esfuerzo | Estado |
 |---|---|---|---|---|
-| F1-F13 | ✅ Críticas | ✅ Esencial | ✅ Done | **DONE** |
-| F14 (Reranking) | ⭐⭐⭐ Fortalece | ⭐⭐ Mejora | 2-3h | 🎯 **SÍ, AHORA** |
-| F15 (Memoria) | ⭐ Bonus | ⭐⭐⭐ Mejora | 1h | ⏳ Después |
-| F16 (Fine-tune) | ⭐ Bonus | ⭐⭐ Mejora | 8h | ⏳ Después |
+| F1-F13, F15 | ✅ Críticas | ✅ Esencial | — | **Implementadas** |
+| F14 (Reranking) | ⭐⭐⭐ Fortalece | ⭐⭐ Mejora | 2-3 h | Fuera de alcance |
+| F16 (Fine-tuning) | ⭐ Extra | ⭐⭐ Mejora | 8 h | Fuera de alcance |
 
 ---
 
-## ✋ Próximas decisiones
+## Qué quedó fuera y por qué
 
-**¿Implementamos F14 (Reranking) ahora?**
+**F14, reranking con LLM.** Añadiría una segunda pasada del modelo para reordenar
+los chunks recuperados. Se descartó para esta entrega: el umbral de relevancia ya
+filtra la evidencia débil y la mejora no está medida sobre este corpus, así que
+habría sido una afirmación sin respaldo. Es el siguiente paso natural si el
+porcentaje de respuestas útiles se queda corto.
 
-- **SÍ:** +10% precision, fortalece defensa, 2-3h, bajo riesgo
-- **NO:** primero defensa, luego optimizaciones
+**F16, fine-tuning de embeddings.** Requiere un conjunto de entrenamiento propio
+y un coste de entrenamiento que no se justifica con el volumen actual de
+documentos.
 
 **Recomendación:** **SÍ**, porque es bajo riesgo y fortalece la defensa.
 

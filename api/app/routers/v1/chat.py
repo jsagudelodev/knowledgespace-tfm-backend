@@ -93,6 +93,21 @@ async def chat_message(
         assistant_id=assistant.id if assistant else None,
     )
 
+    # Embeber la pregunta es una segunda llamada de pago a OpenAI, aparte de la
+    # del modelo generativo. Se registra aparte para que `operation` distinga
+    # ambas. El importe redondea a cero por la precisión de la columna
+    # (Numeric(12,6)), pero los tokens quedan exactos: el costo real siempre es
+    # recomputable a partir de ellos y del modelo, ambos almacenados.
+    CostTrackingService(db).record(
+        company_id=current_user.company_id,
+        model=result["embedding_model"],
+        operation="embedding",
+        input_tokens=result["embedding_tokens"],
+        user_id=current_user.id,
+        conversation_id=conversation.id,
+        assistant_id=assistant.id if assistant else None,
+    )
+
     return ChatResponse(
         message_id=assistant_message.id,
         conversation_id=conversation.id,

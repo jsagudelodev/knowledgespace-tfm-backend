@@ -3,9 +3,12 @@
 -- propia copia de modelo/prompt. Ver docs/MODELO_DATOS.md §2.9 para el
 -- razonamiento completo.
 --
--- Este proyecto no usa Alembic (ver CLAUDE.md), así que create_tables.py
--- (Base.metadata.create_all) no altera una tabla que ya existe — de ahí
+-- Este proyecto no usa Alembic (ver CLAUDE.md), y el `create_all` del endpoint
+-- de setup solo crea tablas que falten: no altera una que ya existe — de ahí
 -- esta migración manual.
+--
+-- La tabla `widgets` se conserva pero esta entrega no la escribe: el widget
+-- público quedó fuera del alcance del TFM. Ver ALCANCE_TFM.md.
 --
 -- NO es idempotente en el DELETE (solo debe correr una vez, sobre el
 -- estado real detectado antes de escribir este archivo: 1 widget huérfano

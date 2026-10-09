@@ -5,7 +5,7 @@
 - **Versión**: 12.3
 - **Estado**: Verificado contra el esquema real de Supabase (introspección directa vía `DATABASE_URL`), incluyendo `cost_tracking` (§2.15) confirmado en producción.
 - **Cambios v12.3**: `cost_tracking` pasó de "tabla sin modelo ORM" a módulo completo — modelo, `CostTrackingService`, router (`GET /`, `/summary`, `/daily-trend`) e instrumentación real en `chat.py` y `documents.py`. Ganó la columna `operation` (`chat`/`embedding`) vía `ALTER TABLE`, aplicada y verificada contra la BD real — ver sección 2.15.
-- **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. **Ya están en `app/db/models/knowledge_gap.py`, pero no necesariamente en la tabla real de Supabase**: `create_tables.py` no hace `ALTER TABLE`. Correr `python migrate_knowledge_gaps.py` en cada entorno antes de asumir que esta sección refleja la BD real.
+- **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. **Ya están en `app/db/models/knowledge_gap.py`, pero no necesariamente en la tabla real de Supabase**: `create_all` no hace `ALTER TABLE`. Aplicar `api/migrate_knowledge_gaps.sql` en cada entorno antes de asumir que esta sección refleja la BD real.
 - **Cambios v12.1**: se agregó `assistants.quick_prompts` (columna real usada por el código, ausente en v12.0) y se marcó `assistants.suggested_prompts` como columna huérfana — ver sección 2.8.
 
 ---
@@ -714,9 +714,8 @@ es el patrón de consulta más frecuente de la pantalla (lista filtrada por pest
 
 **Nota:** las columnas `resolved_document_id` en adelante no existían en el modelo
 original — se agregaron para el módulo "Preguntas sin respuesta". Si la tabla ya
-existe en un entorno desplegado, `create_tables.py` no las agrega (solo hace
-`CREATE TABLE IF NOT EXISTS`); correr `python migrate_knowledge_gaps.py` para
-aplicarlas con `ALTER TABLE`.
+existe en un entorno desplegado, `create_all` no las agrega (solo crea tablas que
+falten); aplicar `api/migrate_knowledge_gaps.sql` con `ALTER TABLE`.
 
 **Jobs pendientes** (no implementados — hoy `candidates`/`verify_score_after` solo
 se calculan cuando el usuario actúa, no en segundo plano):
@@ -756,22 +755,30 @@ class NotificationType(Base):
 | `color` | String(7) | Hex color: `"#3B82F6"` |
 | `is_active` | Boolean | Default True — desactivar sin eliminar |
 
-**Filas de seed iniciales** (script: `create_tables.py`):
+**Filas de seed iniciales.** Las siembra `POST /api/v1/setup`
+(`app/routers/v1/setup.py` → `TIPOS_DE_NOTIFICACION`), junto a la creación de
+tablas. Son **los cinco tipos que el código emite**, ni uno más:
 
-| name | label | color |
-|------|-------|-------|
-| `document_uploaded` | Documento subido | `#3B82F6` |
-| `document_processed` | Documento procesado | `#10B981` |
-| `document_failed` | Error en documento | `#EF4444` |
-| `document_deleted` | Documento eliminado | `#6B7280` |
-| `budget_warning` | Advertencia de presupuesto | `#F59E0B` |
-| `budget_exceeded` | Límite de presupuesto | `#EF4444` |
-| `budget_reset` | Presupuesto reiniciado | `#3B82F6` |
-| `knowledge_gap_found` | Brecha de conocimiento | `#8B5CF6` |
-| `knowledge_gap_resolved` | Brecha resuelta | `#10B981` |
-| `user_invited` | Usuario invitado | `#3B82F6` |
-| `user_joined` | Usuario registrado | `#10B981` |
-| `system_alert` | Alerta del sistema | `#6B7280` |
+| name | label | color | Quién la emite |
+|------|-------|-------|----------------|
+| `document_processed` | Documento procesado | `#10B981` | `documents.py` al terminar la ingesta |
+| `document_failed` | Error al procesar documento | `#EF4444` | `documents.py` si falla la ingesta |
+| `document_deleted` | Documento eliminado | `#6B7280` | `documents.py` al borrar |
+| `knowledge_gap_found` | Pregunta sin respuesta | `#8B5CF6` | `feedback.py` al convertir en gap |
+| `knowledge_gap_resolved` | Pregunta resuelta | `#10B981` | `knowledge_gaps.py` al resolver |
+
+> **Por qué el seed importa.** El tipo no es un enum del código: el servicio lo
+> resuelve por nombre contra esta tabla y lanza `ValueError` si no existe. Como
+> los llamadores capturan ese error —una notificación nunca debe romper la
+> operación que la origina—, una base sin estas filas se queda **sin
+> notificaciones y sin avisar**. Durante un tiempo fue el caso: la documentación
+> atribuía el seed a un `create_tables.py` que nunca existió en el repositorio.
+>
+> Versiones anteriores de este documento listaban también `document_uploaded`,
+> `budget_warning`, `budget_exceeded`, `budget_reset`, `user_invited`,
+> `user_joined` y `system_alert`. Ningún punto del código los emite —no hay
+> control de presupuesto ni invitaciones— así que no se siembran: serían filas
+> muertas que sugerirían funciones inexistentes.
 
 ---
 

@@ -11,8 +11,13 @@ evolucionando por separado.
   vectorial (Pinecone) — ver `docs/RAG_PIPELINE.md`.
 - **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por
   `company_id` extraído del JWT en cada recurso — ver `docs/MODELO_DATOS.md`.
-- **Mitigación de alucinaciones**: umbral de relevancia y capas de validación
-  sobre la respuesta del LLM — ver `docs/tutorials/04_alucinaciones.py`.
+- **Mitigación de alucinaciones**: umbral de relevancia medido sobre el corpus
+  (`RAGService.RELEVANCE_THRESHOLD`, con la justificación en
+  `docs/RAG_PIPELINE.md` §6) y un prompt restrictivo que prohíbe responder fuera
+  del contexto recuperado. **No hay validación posterior sobre la respuesta
+  generada**: el LLM-as-judge existe como ejercicio en
+  `docs/practica-tfm/5.5_llm_as_judge.py`, no en el código productivo. Ver
+  `docs/tutorials/04_alucinaciones.py`.
 - **Tracking de costo por solicitud LLM** — ver `app/services/cost_tracking_service.py`.
 - **Knowledge gaps** (preguntas sin respuesta satisfactoria, para retroalimentar
   la base de conocimiento).
@@ -52,7 +57,16 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 4 archivos de test unitario sobre lógica pura (RAG,
-  costos, namespaces de Pinecone) — sin tests de integración end-to-end.
+- Cobertura de tests: 5 archivos y 21 tests unitarios sobre lógica pura
+  —construcción del contexto RAG, cálculo de costos, namespaces de Pinecone,
+  métricas del dashboard y períodos de knowledge gaps—. **Sin tests de
+  integración**: ninguno levanta la aplicación ni toca la base de datos, en
+  parte porque `Base.metadata.create_all` no funciona sobre SQLite
+  (`assistants.quick_prompts` usa `JSONB`, exclusivo de Postgres), así que una
+  base en memoria para pruebas exigiría declarar variantes por dialecto.
 - Sin CI/CD automatizado en este repositorio (el pipeline de Cloud Build
   pertenece a la infraestructura comercial, excluida por lo anterior).
+- El aislamiento entre empresas se apoya en la comprobación explícita de
+  `company_id` en cada router y en los namespaces de Pinecone, no en
+  permisos a nivel de fila ni en roles sobre documentos: cualquier
+  administrador ve todos los espacios de su propia empresa.

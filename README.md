@@ -28,7 +28,13 @@ Backend REST API construido con FastAPI y desplegado en Google Cloud Run.
 | Servidor        | Gunicorn + Uvicorn workers        |
 | Contenedor      | Docker (multi-stage build)        |
 | Deploy          | Google Cloud Run                  |
-| CI/CD           | Google Cloud Build (trigger: `main`) |
+| CI/CD           | — (ver nota)                      |
+
+> **Sobre el CI/CD.** El producto comercial se despliega con Google Cloud Build
+> disparado por `main`, pero **ese pipeline no forma parte de esta entrega**: la
+> infraestructura de despliegue quedó fuera de alcance junto con los
+> identificadores de proyecto cloud y las cuentas de servicio. En este
+> repositorio no hay triggers ni workflows. Ver `ALCANCE_TFM.md`.
 
 ---
 
@@ -39,7 +45,7 @@ KnowledgeSpace/
 ├── api/                        # Servicio backend
 │   ├── main.py                 # Entrada FastAPI + registro de routers
 │   ├── requirements.txt
-│   ├── create_tables.py        # Script de migración (bloqueado en producción)
+│   ├── migrate_*.sql           # Migraciones manuales (no hay Alembic)
 │   ├── .env.example            # Variables de entorno requeridas
 │   └── app/
 │       ├── core/               # Configuración, base de datos, seguridad JWT

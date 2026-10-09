@@ -59,7 +59,7 @@ class RAGService:
         model_override: Optional[str] = None,
         temperature_override: Optional[float] = None,
     ) -> Dict[str, Any]:
-        query_embedding = self.embedding_service.generar_embedding(query)
+        query_embedding,embedding_tokens  = self.embedding_service.generar_embedding_con_uso(query)
 
         # Cada asistente es un espacio de conocimiento aislado: si se pide un
         # assistant_id, la búsqueda se queda en su namespace exclusivamente.
@@ -106,6 +106,8 @@ class RAGService:
             "input_tokens": response.usage.prompt_tokens,
             "output_tokens": response.usage.completion_tokens,
             "model": effective_model,
+            "embedding_model": self.embedding_service.modelo,
+            "embedding_tokens": embedding_tokens,
         }
 
     @staticmethod

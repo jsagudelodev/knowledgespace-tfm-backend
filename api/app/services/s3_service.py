@@ -33,10 +33,18 @@ class S3Service:
         """
         Construye la ruta (key) del objeto dentro del bucket.
 
-        Organizar por empresa garantiza aislamiento multi-tenant:
-        cada empresa solo puede ver sus propios archivos.
-
         Ejemplo: company-5/abc123def456.pdf
+
+        **El prefijo organiza, no aísla.** Hay un único bucket y un único par de
+        credenciales, así que cualquier código con este servicio en la mano puede
+        leer la key de otra empresa si la conoce. El aislamiento real lo impone
+        la comprobación `documento.company_id != current_user.company_id` que
+        hacen los routers antes de pedir nada a S3, y el `company_id` sale del
+        token, no de la petición.
+
+        Lo que sí aporta el prefijo: que una fuga sea evidente al inspeccionar
+        el bucket, y poder aplicar políticas por prefijo si algún día se separan
+        las credenciales por empresa.
         """
         return f"company-{company_id}/{nombre_archivo}"
 

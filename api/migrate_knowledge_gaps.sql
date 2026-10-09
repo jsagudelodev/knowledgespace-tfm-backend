@@ -1,6 +1,6 @@
 -- Migración manual de la tabla knowledge_gaps — módulo "Preguntas sin respuesta".
--- Este proyecto no usa Alembic (ver CLAUDE.md), así que create_tables.py
--- (Base.metadata.create_all) no altera una tabla que ya existe.
+-- Este proyecto no usa Alembic (ver CLAUDE.md), y el `create_all` del endpoint
+-- de setup solo crea tablas que falten: no altera una que ya existe.
 --
 -- Idempotente: ADD COLUMN IF NOT EXISTS / CREATE INDEX IF NOT EXISTS,
 -- se puede correr más de una vez sin efectos secundarios.

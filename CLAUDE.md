@@ -9,7 +9,7 @@ KnowledgeSpace/
 ├── api/                        # Python FastAPI backend (deployable unit)
 │   ├── main.py                 # FastAPI app entry point, router registration
 │   ├── requirements.txt
-│   ├── create_tables.py        # Script: crea tablas y seed de notification_types
+│   ├── migrate_*.sql           # Migraciones manuales (no hay Alembic)
 │   ├── Dockerfile              # Multi-stage build para Cloud Run
 │   ├── .dockerignore
 │   ├── .env                    # Variables locales (no commitear)
@@ -124,7 +124,10 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8002 --reload
 > Ver `COMO_ARRANCAR.md` para el detalle.
 
 - **Swagger UI**: `http://127.0.0.1:8002/docs`
-- **Crear tablas**: `python create_tables.py` (desde `api/`)
+- **Crear tablas y sembrar datos iniciales**: `POST /api/v1/setup` — no hay
+  script. El endpoint de bootstrap hace `Base.metadata.create_all`, siembra los
+  tipos de notificación y crea la primera empresa con su superadmin. Solo
+  funciona si no existe ningún usuario; ver `README.md`.
 
 ## Deploy — GCP Cloud Run
 ```bash

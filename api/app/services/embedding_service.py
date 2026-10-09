@@ -21,15 +21,32 @@ class EmbeddingService:
         self.modelo = settings.OPENAI_EMBEDDING_MODEL   # text-embedding-3-small → 1536 dimensiones
 
     def generar_embedding(self, texto: str) -> List[float]:
-        """Genera el embedding de un solo texto."""
+        """Genera el embedding de un solo texto. Ver `generar_embedding_con_uso`
+        si además se necesita el conteo de tokens (p. ej. para cost tracking)."""
+        embedding, _ = self.generar_embedding_con_uso(texto)
+        return embedding
+
+    def generar_embedding_con_uso(self, texto: str) -> Tuple[List[float], int]:
+        """
+        Genera el embedding de un solo texto, junto con los tokens consumidos.
+
+        Embeber la pregunta del usuario es una llamada de pago a OpenAI, igual
+        que la del modelo generativo. Sin este conteo quedaba fuera del registro
+        de costos, que es una de las contribuciones declaradas del trabajo.
+        """
         try:
             respuesta = self.cliente.embeddings.create(
                 model=self.modelo,
                 input=texto,
             )
-            return respuesta.data[0].embedding
+            return respuesta.data[0].embedding, respuesta.usage.total_tokens
         except Exception as e:
             raise Exception(f"Error generando embedding: {str(e)}")
+        
+
+
+
+
 
     def generar_embeddings_batch(self, textos: List[str], batch_size: int = 100) -> List[List[float]]:
         """Genera embeddings para múltiples textos en batches. Ver `generar_embeddings_batch_con_uso`
