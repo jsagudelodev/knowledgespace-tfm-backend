@@ -92,8 +92,15 @@ def _procesar_documento_background(
         logger.warning(f"[RAG] Iniciando document_id={document_id} s3_key={s3_key} file_type={file_type}")
 
         # ── 1 + 2. Descargar desde S3 y extraer texto ────────────────────
-        # Usa chunking semántico por defecto (ejercicio 6.1): agrupa oraciones
-        # en vez de cortar por caracteres fijos. Mejora precision +30%.
+        # Usa chunking semántico: agrupa oraciones en vez de cortar por
+        # caracteres fijos. Medido el 2026-10-07 sobre el corpus de evaluación
+        # (3 documentos, 24 fragmentos): los cortes a mitad de palabra pasan
+        # del 79,2 % al 0,0 %, y se indexa un 19 % menos de texto al no
+        # necesitar solapamiento. La contrapartida es menor regularidad de
+        # tamaño: la desviación típica sube de 107 a 228 caracteres en
+        # material esquemático.
+        # Cifras y método en experimentos/resultados/chunking_2026-10-07.json
+        # y experimentos/README.md.
         chunks, paginas = PDFService.procesar(
             s3_key, file_type=file_type, semantico=True
         )

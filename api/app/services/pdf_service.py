@@ -132,17 +132,33 @@ class PDFService:
         return [c for c in chunks if c.strip()]
 
     @staticmethod
-    def dividir_en_chunks_semantico(
-        texto: str, target_size: int = 1000, overlap: int = 200
-    ) -> List[str]:
+    def dividir_en_chunks_semantico(texto: str, target_size: int = 1000) -> List[str]:
         """
-        Divide respetando oraciones (NUEVO, 6.1).
-        Agrupa oraciones hasta ~target_size caracteres.
+        Divide agrupando oraciones completas hasta ~target_size caracteres.
 
-        Ventaja: mantiene contexto coherente, no corta en mitad de frase.
-        Desventaja: chunks pueden variar más en tamaño.
+        **No recibe `overlap`, y no es un olvido.** El solapamiento existe en la
+        división por caracteres para compensar que corta a ciegas: al partir
+        cada 1.000 caracteres una idea queda cortada y ninguno de los dos
+        fragmentos la contiene entera, así que se repiten 200 caracteres para
+        que al menos uno la tenga completa. Eso se paga: la medición del
+        2026-10-07 da una cobertura del 123,2 % —se indexa un 23 % de texto
+        duplicado— frente al ~100 % de este método.
 
-        Usado para: mejor calidad de recuperación, defensa académica.
+        Aquí ese remedio no hace falta, porque no se corta a ciegas: se corta
+        donde el propio texto se corta. Por eso puede prescindir del
+        solapamiento, y por eso el 0 % de cortes a mitad de palabra y el ahorro
+        de volumen indexado son el mismo fenómeno visto por dos lados.
+
+        Contrapartida medida: los fragmentos quedan menos regulares. En
+        material esquemático la desviación típica de tamaño sube de 107 a 228
+        caracteres, porque agrupar oraciones enteras impide ajustar cada
+        fragmento al objetivo.
+
+        Limitación conocida: `split(".")` no conserva el texto exactamente. La
+        cobertura oscila entre 99,1 % y 100,4 % según el documento, es decir
+        alrededor de un 1 % del contenido alterado.
+
+        Cifras y método en `experimentos/resultados/chunking_2026-10-07.json`.
         """
         # Paso 1: divide en oraciones
         oraciones = texto.split(".")
