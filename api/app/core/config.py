@@ -78,6 +78,21 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     SMTP_FROM: str = "noreply@knowspace.app"
 
+    # ── Observabilidad / Langfuse (opcional) ──────────────────────────────────
+    # Trazas del pipeline RAG: consulta, fragmentos recuperados con su
+    # puntuación, contexto construido y generación.
+    #
+    # Está DESACTIVADO por defecto y las claves son opcionales a propósito.
+    # Quien clone el repositorio debe poder levantar la aplicación sin dar de
+    # alta una cuenta en un servicio de terceros; el resto de credenciales son
+    # obligatorias porque sin ellas el sistema no funciona, mientras que sin
+    # esta solo se pierden las trazas. El registro básico por `logger` sigue
+    # estando disponible en cualquier caso.
+    LANGFUSE_ENABLED: bool = False
+    LANGFUSE_PUBLIC_KEY: str = ""
+    LANGFUSE_SECRET_KEY: str = ""
+    LANGFUSE_HOST: str = "https://cloud.langfuse.com"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

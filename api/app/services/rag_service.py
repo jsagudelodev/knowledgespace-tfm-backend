@@ -3,9 +3,8 @@ con OpenAI. Es el núcleo del producto — ver `docs/RAG_PIPELINE.md` §4."""
 import logging
 from typing import Any, Dict, List, Optional
 
-from openai import OpenAI
-
 from app.core.config import settings
+from app.core import observabilidad
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
 
@@ -90,10 +89,13 @@ class RAGService:
     """
 
     def __init__(self):
-        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        # La clase la decide `observabilidad`: con Langfuse activo devuelve su
+        # envoltorio, que traza cada generacion sin cambiar como se la llama.
+        self.client = observabilidad.cliente_openai()(api_key=settings.OPENAI_API_KEY)
         self.embedding_service = EmbeddingService()
         self.pinecone_service = PineconeService()
 
+    @observabilidad.observar("rag.consulta")
     def generate_response(
         self,
         query: str,
@@ -105,7 +107,10 @@ class RAGService:
         temperature_override: Optional[float] = None,
     ) -> Dict[str, Any]:
         try:
-            query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
+            with observabilidad.paso("embedding_consulta", entrada=query) as traza:
+                query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
+                traza["tokens"] = embedding_tokens
+                traza["dimensiones"] = len(query_embedding)
         except Exception as e:
             logger.error("[RAG] Falló el embedding de la consulta: %s", e, exc_info=True)
             raise RAGUnavailableError("embedding de la consulta", e) from e
@@ -122,9 +127,19 @@ class RAGService:
             namespace = PineconeService.construir_namespace(company_id)
 
         try:
-            raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
-                query_embedding, top_k=5, namespace=namespace
-            )
+            with observabilidad.paso("recuperacion", entrada={"namespace": namespace, "top_k": 5}) as traza:
+                raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
+                    query_embedding, top_k=5, namespace=namespace
+                )
+                traza["fragmentos"] = [
+                    {
+                        "documento": (d.metadata or {}).get("document_name", "?"),
+                        "score": round(float(getattr(d, "score", 0)), 3),
+                        "supera_umbral": float(getattr(d, "score", 0)) >= RELEVANCE_THRESHOLD,
+                    }
+                    for d in raw_docs
+                ]
+                traza["umbral"] = RELEVANCE_THRESHOLD
         except Exception as e:
             logger.error("[RAG] Falló la búsqueda en Pinecone (namespace=%s): %s", namespace, e, exc_info=True)
             raise RAGUnavailableError("búsqueda vectorial", e) from e
@@ -147,6 +162,22 @@ class RAGService:
                 "responderá sin contexto y debe abstenerse.",
                 max(puntuaciones, default=0),
             )
+
+        # Identificadores para filtrar en Langfuse. La etiqueta `sin_contexto`
+        # permite localizar de un vistazo las consultas en las que el sistema
+        # deberia haberse abstenido, que son las que hay que revisar.
+        etiquetas = ["rag"] + ([] if relevant_docs else ["sin_contexto"])
+        observabilidad.anotar_traza(
+            sesion=f"company-{company_id}",
+            etiquetas=etiquetas,
+            metadatos={
+                "company_id": company_id,
+                "assistant_id": assistant_id,
+                "namespace": namespace,
+                "recuperados": len(raw_docs),
+                "sobre_umbral": len(relevant_docs),
+            },
+        )
 
         context = self._build_context(relevant_docs)
         messages = self._build_messages(query, context, conversation_history, system_prompt_override)

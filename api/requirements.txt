@@ -38,5 +38,14 @@ pinecone==9.1.0
 # con openai 2.53.0 (>=0.23,<1). NO retirar por "no usado".
 httpx>=0.27,<1.0
 
+# ── Observabilidad ────────────────────────────────────────────────────────────
+# Trazas del pipeline RAG. Es una dependencia OPCIONAL en tiempo de ejecución:
+# sin `LANGFUSE_ENABLED=true` la aplicación arranca y funciona igual, con el
+# registro por `logger` como única observabilidad. Se instala siempre para que
+# el módulo `app/core/observabilidad.py` pueda importarla cuando toque.
+# Arrastra la pila de OpenTelemetry (14 paquetes): es el estándar de trazas
+# sobre el que Langfuse se apoya.
+langfuse==4.17.0
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 pytest==9.0.3
