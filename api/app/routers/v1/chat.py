@@ -13,7 +13,7 @@ from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services.rag_service import RAGService
+from app.services.rag_service import RAGService, RAGUnavailableError
 from app.services.cost_tracking_service import CostTrackingService
 
 router = APIRouter()
@@ -63,16 +63,34 @@ async def chat_message(
 
     msg_repo.create_message(conversation_id=conversation.id, role="user", content=payload.message)
 
+    # El pipeline depende de dos servicios externos —OpenAI y Pinecone— que
+    # pueden fallar por cuota, tiempo de espera o caída. Sin esta traducción, el
+    # cliente recibía un 500 con la traza en lugar de un mensaje accionable.
+    # Se responde 503 y no 500 porque el fallo es de disponibilidad y reintentar
+    # tiene sentido; el detalle técnico queda en el log, no en la respuesta.
+    #
+    # El mensaje del usuario ya se guardó arriba y se conserva aunque esto
+    # falle: la pregunta se hizo, y perderla haría que el reintento no tuviera
+    # el historial completo.
     rag = RAGService()
-    result = rag.generate_response(
-        query=payload.message,
-        company_id=current_user.company_id,
-        conversation_history=conversation_history,
-        assistant_id=assistant.id if assistant else None,
-        system_prompt_override=assistant.system_prompt if assistant else None,
-        model_override=assistant.model if assistant else None,
-        temperature_override=float(assistant.temperature) if assistant and assistant.temperature is not None else None,
-    )
+    try:
+        result = rag.generate_response(
+            query=payload.message,
+            company_id=current_user.company_id,
+            conversation_history=conversation_history,
+            assistant_id=assistant.id if assistant else None,
+            system_prompt_override=assistant.system_prompt if assistant else None,
+            model_override=assistant.model if assistant else None,
+            temperature_override=float(assistant.temperature) if assistant and assistant.temperature is not None else None,
+        )
+    except RAGUnavailableError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "El asistente no está disponible en este momento "
+                f"(falló la etapa: {e.etapa}). Vuelve a intentarlo en unos segundos."
+            ),
+        ) from e
 
     assistant_message = msg_repo.create_message(
         conversation_id=conversation.id,

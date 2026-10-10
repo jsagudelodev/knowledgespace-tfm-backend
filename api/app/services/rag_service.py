@@ -1,5 +1,6 @@
 """Etapa de consulta del pipeline RAG: recuperación en Pinecone + generación
 con OpenAI. Es el núcleo del producto — ver `docs/RAG_PIPELINE.md` §4."""
+import logging
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
@@ -8,13 +9,57 @@ from app.core.config import settings
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
 
+logger = logging.getLogger("uvicorn.error")
+
+
+class RAGUnavailableError(Exception):
+    """Un servicio externo del pipeline (OpenAI o Pinecone) no respondió.
+
+    Se distingue de cualquier otro error para que el router pueda traducirla a
+    un 503 con un mensaje entendible, en vez de dejar escapar un 500 con la
+    traza. Lleva `etapa` para saber dónde se rompió sin leer los logs.
+
+    Los puntos de captura usan `except Exception` a secas porque los servicios
+    de los que depende el pipeline (`embedding_service`, `pinecone_service`)
+    envuelven cualquier fallo en una `Exception` genérica, de modo que no hay un
+    tipo más fino al que atender. El riesgo es enmascarar un defecto propio —un
+    `TypeError`, por ejemplo— como una caída transitoria del servicio. Por eso
+    los tres registran con `exc_info=True`: el cliente recibe un mensaje suave,
+    pero la traza real queda en el log y el bug sigue siendo diagnosticable.
+
+    El arreglo de fondo sería tipar las excepciones de esos servicios
+    (`EmbeddingError`, `VectorStoreError`, `StorageError`) y capturar solo esas.
+    Queda pendiente: hoy hay doce `raise Exception` genéricos repartidos en
+    cuatro servicios.
+    """
+
+    def __init__(self, etapa: str, causa: Exception):
+        self.etapa = etapa
+        self.causa = causa
+        super().__init__(f"Fallo en la etapa '{etapa}' del pipeline RAG: {causa}")
+
 # Umbral mínimo de similitud coseno para descartar evidencia débil antes de
-# construir el contexto. El 0.30 no es convencional: cae en el centro de la
-# banda vacía entre el ruido máximo medido (0.229, consultas ajenas al corpus)
-# y la señal mínima (0.389, quinto chunk de la consulta peor cubierta).
-# Medición completa y cómo reproducirla en docs/RAG_PIPELINE.md §6. Si cambia
-# el modelo de embeddings o el idioma del corpus, hay que repetir la medición:
-# los rangos de similitud coseno no son transferibles entre modelos.
+# construir el contexto. El 0.30 no es convencional: cae dentro de la banda
+# vacía que separa el ruido de la señal en el corpus indexado.
+#
+# Revalidado el 2026-10-09 sobre el índice fragmentado por oraciones (87
+# fragmentos): ruido máximo 0.258, señal mínima 0.393, banda de 0.135 con
+# centro en 0.326. El umbral queda con +0.042 de margen sobre el ruido y
+# +0.093 bajo la señal.
+#
+# La medición anterior, de junio y sobre fragmentación por caracteres, daba
+# 0.229 / 0.389 y centro en 0.309. La banda se estrechó un 16 % al cambiar la
+# fragmentación: prueba de que este valor depende de la configuración y no es
+# una constante del dominio. Se mantiene en 0.30 y no se sube al centro porque,
+# dentro de la banda, descartar evidencia válida es peor que admitir un
+# fragmento mediocre — del segundo ya protege el prompt restrictivo.
+#
+# Reproducir: `python experimentos/medir_umbral.py --empresa N --asistente M`.
+# Razonamiento completo y comparativa en docs/RAG_PIPELINE.md §6.
+#
+# Hay que repetir la medición si cambia el corpus, la fragmentación, el modelo
+# de embeddings o el idioma: los rangos de similitud coseno no son
+# transferibles, y nada en el sistema avisa de que el umbral dejó de valer.
 RELEVANCE_THRESHOLD = 0.30
 MAX_RESPONSE_TOKENS = 1000   # límite de tokens en la respuesta del LLM
 
@@ -59,7 +104,11 @@ class RAGService:
         model_override: Optional[str] = None,
         temperature_override: Optional[float] = None,
     ) -> Dict[str, Any]:
-        query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
+        try:
+            query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
+        except Exception as e:
+            logger.error("[RAG] Falló el embedding de la consulta: %s", e, exc_info=True)
+            raise RAGUnavailableError("embedding de la consulta", e) from e
 
         # Cada asistente es un espacio de conocimiento aislado: si se pide un
         # assistant_id, la búsqueda se queda en su namespace exclusivamente.
@@ -72,11 +121,32 @@ class RAGService:
         else:
             namespace = PineconeService.construir_namespace(company_id)
 
-        raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
-            query_embedding, top_k=5, namespace=namespace
-        )
+        try:
+            raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
+                query_embedding, top_k=5, namespace=namespace
+            )
+        except Exception as e:
+            logger.error("[RAG] Falló la búsqueda en Pinecone (namespace=%s): %s", namespace, e, exc_info=True)
+            raise RAGUnavailableError("búsqueda vectorial", e) from e
 
         relevant_docs = [d for d in raw_docs if getattr(d, "score", 0) >= RELEVANCE_THRESHOLD]
+
+        # Traza de la recuperación. Es la única forma de reconstruir después por
+        # qué una respuesta salió como salió: con qué puntuaciones se recuperó y
+        # cuántos fragmentos sobrevivieron al umbral. Sin esto, un "no encontré
+        # información" es indistinguible de un fallo de indexación.
+        puntuaciones = [round(getattr(d, "score", 0), 3) for d in raw_docs]
+        logger.info(
+            "[RAG] namespace=%s | recuperados=%d | sobre umbral %.2f=%d | scores=%s | consulta=%r",
+            namespace, len(raw_docs), RELEVANCE_THRESHOLD, len(relevant_docs),
+            puntuaciones, query[:80],
+        )
+        if not relevant_docs:
+            logger.info(
+                "[RAG] Ningún fragmento supera el umbral (máximo=%s). El modelo "
+                "responderá sin contexto y debe abstenerse.",
+                max(puntuaciones, default=0),
+            )
 
         context = self._build_context(relevant_docs)
         messages = self._build_messages(query, context, conversation_history, system_prompt_override)
@@ -84,11 +154,21 @@ class RAGService:
         effective_model = model_override or settings.OPENAI_CHAT_MODEL
         effective_temperature = temperature_override if temperature_override is not None else 0.7
 
-        response = self.client.chat.completions.create(
-            model=effective_model,
-            messages=messages,
-            temperature=effective_temperature,
-            max_tokens=MAX_RESPONSE_TOKENS,
+        try:
+            response = self.client.chat.completions.create(
+                model=effective_model,
+                messages=messages,
+                temperature=effective_temperature,
+                max_tokens=MAX_RESPONSE_TOKENS,
+            )
+        except Exception as e:
+            logger.error("[RAG] Falló la generación con %s: %s", effective_model, e, exc_info=True)
+            raise RAGUnavailableError("generación de la respuesta", e) from e
+
+        logger.info(
+            "[RAG] modelo=%s | temperatura=%.2f | tokens entrada=%d salida=%d",
+            effective_model, effective_temperature,
+            response.usage.prompt_tokens, response.usage.completion_tokens,
         )
 
         return {

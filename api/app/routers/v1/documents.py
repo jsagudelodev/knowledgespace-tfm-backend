@@ -144,8 +144,24 @@ def _procesar_documento_background(
         ]
 
         # ── 5. Subir a Pinecone ────────────────────────────────────────────
-        logger.warning(f"[RAG] Subiendo {len(vectores)} vectores a Pinecone namespace={namespace}")
         pinecone_svc = PineconeService()
+
+        # Se borran primero los vectores que este documento tuviera indexados.
+        # El id de cada vector es `doc-{id}-chunk-{i}`, es decir, depende de la
+        # POSICIÓN del fragmento. Un `upsert` sobrescribe las posiciones que
+        # vuelve a generar, pero deja vivas las sobrantes: si el documento se
+        # reprocesa y produce menos fragmentos que antes —lo que ocurre al
+        # pasar de fragmentación por caracteres a por oraciones, que genera un
+        # 12,5 % menos—, las posiciones finales quedan huérfanas en el índice
+        # con el texto de la versión anterior, y siguen compitiendo en las
+        # búsquedas. El borrado previo hace que reindexar sea idempotente.
+        #
+        # Va aquí, después de generar los embeddings y no antes: si la
+        # extracción o la llamada a OpenAI fallan, el índice se queda como
+        # estaba en vez de perder el documento.
+        pinecone_svc.eliminar_por_documento(document_id, namespace=namespace)
+
+        logger.warning(f"[RAG] Subiendo {len(vectores)} vectores a Pinecone namespace={namespace}")
         pinecone_svc.upsert_vectores(vectores, namespace=namespace)
 
         # ── 6. Marcar como completado ──────────────────────────────────────
