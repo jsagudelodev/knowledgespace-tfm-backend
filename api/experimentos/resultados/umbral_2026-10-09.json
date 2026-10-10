@@ -1,0 +1,192 @@
+{
+  "fecha": "2026-10-09",
+  "namespace": "company-8-assistant-1",
+  "top_k": 5,
+  "umbral_vigente": 0.3,
+  "analisis": {
+    "ruido_maximo": 0.258,
+    "senal_minima": 0.393,
+    "banda_vacia": 0.135,
+    "centro_de_la_banda": 0.326,
+    "hay_banda": true
+  },
+  "consultas": {
+    "cubierta": [
+      {
+        "consulta": "que son las GANs",
+        "scores": [
+          0.584,
+          0.545,
+          0.537,
+          0.494,
+          0.47
+        ],
+        "top_1": 0.584,
+        "top_k": 0.47,
+        "documentos": [
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen Clase 2 - Tema 3.pdf"
+        ]
+      },
+      {
+        "consulta": "que es un VAE",
+        "scores": [
+          0.487,
+          0.474,
+          0.472,
+          0.46,
+          0.436
+        ],
+        "top_1": 0.487,
+        "top_k": 0.436,
+        "documentos": [
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+        ]
+      },
+      {
+        "consulta": "que son los modelos de difusion",
+        "scores": [
+          0.589,
+          0.415,
+          0.404,
+          0.402,
+          0.393
+        ],
+        "top_1": 0.589,
+        "top_k": 0.393,
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+        ]
+      },
+      {
+        "consulta": "que es la geometria semantica",
+        "scores": [
+          0.561,
+          0.47,
+          0.457,
+          0.451,
+          0.447
+        ],
+        "top_1": 0.561,
+        "top_k": 0.447,
+        "documentos": [
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      }
+    ],
+    "tangencial": [
+      {
+        "consulta": "que es la arquitectura transformer",
+        "scores": [
+          0.566,
+          0.416,
+          0.406,
+          0.404,
+          0.359
+        ],
+        "top_1": 0.566,
+        "top_k": 0.359,
+        "documentos": [
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen Tema 4 Clase 5.pdf"
+        ]
+      },
+      {
+        "consulta": "como se entrena una red neuronal",
+        "scores": [
+          0.531,
+          0.5,
+          0.485,
+          0.485,
+          0.482
+        ],
+        "top_1": 0.531,
+        "top_k": 0.482,
+        "documentos": [
+          "1 - Diapositivas_Tema2_Clase3.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "1 - Diapositivas_Tema2_Clase3.pdf",
+          "1 - Diapositivas_Tema2_Clase3.pdf",
+          "1 - Diapositivas_Tema2_Clase3.pdf"
+        ]
+      }
+    ],
+    "ajena": [
+      {
+        "consulta": "cual es la capital de Francia",
+        "scores": [
+          0.139,
+          0.138,
+          0.131,
+          0.125,
+          0.124
+        ],
+        "top_1": 0.139,
+        "top_k": 0.124,
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+        ]
+      },
+      {
+        "consulta": "como preparo una paella",
+        "scores": [
+          0.258,
+          0.22,
+          0.212,
+          0.193,
+          0.187
+        ],
+        "top_1": 0.258,
+        "top_k": 0.187,
+        "documentos": [
+          "Resumen Tema 4 Clase 5.pdf",
+          "Resumen Tema 4 Clase 5.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen Tema 4 Clase 5.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      },
+      {
+        "consulta": "cuanto cuesta un billete de tren a Madrid",
+        "scores": [
+          0.193,
+          0.163,
+          0.149,
+          0.145,
+          0.144
+        ],
+        "top_1": 0.193,
+        "top_k": 0.144,
+        "documentos": [
+          "1 - Diapositivas_Tema2_Clase3.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      }
+    ]
+  }
+}

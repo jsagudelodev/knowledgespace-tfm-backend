@@ -278,41 +278,87 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 
 #### De dónde sale el `0.30`
 
-No es un valor por convención: cae en el centro de la banda que separa señal
+No es un valor por convención: cae dentro de la banda vacía que separa señal
 de ruido en el corpus indexado.
 
-Medición sobre el índice real de un asistente (70 chunks de documentos
-técnicos en español, embeddings `text-embedding-3-small`, `top_k=5`),
-lanzando tres familias de consultas:
+**Medido dos veces, con dos configuraciones de fragmentación distintas.** La
+segunda medición se hizo precisamente porque la primera había quedado obsoleta:
+al pasar de fragmentación por caracteres a por oraciones cambia la distribución
+de similitudes, de modo que un umbral medido sobre la configuración anterior ya
+no describe el sistema.
+
+##### Medición vigente — 2026-10-09
+
+Índice `company-8-assistant-1`: 87 fragmentos, 8 documentos, fragmentación por
+oraciones, embeddings `text-embedding-3-small`, `top_k=5`. Nueve consultas en
+tres familias.
 
 | Tipo de consulta | Ejemplos | score top-1 | score top-5 |
 |---|---|---|---|
-| **Cubierta por el corpus** | "¿qué son las GANs?", "¿qué es un VAE?" | 0.464 – 0.711 | **0.389** – 0.623 |
-| Tangencial al dominio | "¿qué es la arquitectura transformer?" | 0.542 – 0.575 | 0.459 – 0.502 |
-| **Ajena al corpus** | "¿cuál es la capital de Francia?", "¿cómo preparo una paella?" | 0.120 – **0.229** | 0.110 – 0.178 |
+| **Cubierta por el corpus** | GANs, VAE, difusión, geometría semántica | 0.487 – 0.589 | **0.393** – 0.470 |
+| Tangencial al dominio | transformer, entrenar una red neuronal | 0.531 – 0.566 | 0.359 – 0.482 |
+| **Ajena al corpus** | capital de Francia, paella, billete de tren | 0.139 – **0.258** | 0.124 – 0.187 |
 
 Los dos extremos que importan:
 
-- **0.229** — score máximo alcanzado por una consulta irrelevante.
-- **0.389** — score mínimo de un chunk legítimamente recuperado (el quinto
-  resultado de la consulta peor cubierta, no el primero).
+- **0.258** — score máximo alcanzado por una consulta irrelevante ("¿cómo
+  preparo una paella?").
+- **0.393** — score mínimo de un fragmento legítimamente recuperado: el quinto
+  resultado de la consulta cubierta peor servida, no el primero. Se toma el
+  quinto porque un umbral que solo respetara el primer resultado descartaría la
+  evidencia complementaria que el modelo sí debe ver.
 
-Entre ambos queda una banda vacía cuyo punto medio es **0.309**. El umbral
-está en `0.30`, con `+0.071` de margen sobre el ruido y `+0.089` bajo la señal.
+Banda vacía de **0.135**, con centro en **0.326**. El umbral `0.30` cae dentro,
+con `+0.042` de margen sobre el ruido y `+0.093` bajo la señal.
 
-Consecuencias de moverlo, según esos mismos datos:
+**Separación limpia:** las cuatro consultas cubiertas pasan sus cinco
+fragmentos; las tres ajenas no pasan ninguno.
 
-- **`0.25`** conserva la separación, pero deja solo `0.021` de margen sobre el
-  ruido máximo observado.
-- **`0.40`** empieza a descartar evidencia real: la consulta sobre modelos de
-  difusión tiene su quinto chunk en `0.389` y se perdería.
+##### Comparación con la medición original — junio de 2026
 
-**Cómo reproducirla.** Basta con lanzar consultas de los tres tipos contra el
-índice y quedarse con dos números: el score máximo de las ajenas y el score
-del quinto resultado de la peor cubierta. El umbral debe caer entre ambos; el
-punto medio maximiza el margen por los dos lados. Si se cambia el corpus,
-conviene recalcularlo — un umbral fuera de la banda deja pasar ruido o
-descarta evidencia legítima.
+Aquella se hizo sobre 70 fragmentos troceados **por caracteres**.
+
+| | Junio (caracteres) | Octubre (oraciones) |
+|---|---|---|
+| Ruido máximo | 0.229 | **0.258** |
+| Señal mínima | 0.389 | 0.393 |
+| Banda vacía | 0.160 | **0.135** |
+| Centro de la banda | 0.309 | **0.326** |
+| Margen sobre el ruido | 0.071 | **0.042** |
+
+**Conclusión: el `0.30` sigue siendo válido, pero con menos holgura.** La banda
+se estrechó un 16 % y el margen frente al ruido cayó un 41 %. El umbral ya no
+está en el centro de la banda, sino desplazado hacia el lado permisivo.
+
+Se mantiene en `0.30` por una razón deliberada: dentro de la banda, un valor más
+bajo es más permisivo —deja pasar algún fragmento flojo— y uno más alto es más
+estricto —descarta evidencia complementaria—. Ante un sistema cuyo cometido es
+responder con documentación propia, el error de descartar evidencia válida es
+peor que el de incluir un fragmento mediocre, porque el *prompt* restrictivo ya
+protege del segundo. Subirlo a `0.33`, el centro medido, sería igual de
+defendible.
+
+**Un hallazgo de la segunda medición:** las consultas tangenciales bajaron
+mucho. "¿Qué es la arquitectura transformer?" pasó de `0.459–0.502` en el quinto
+fragmento a `0.359`. Siguen superando el umbral, pero por poco margen. La
+fragmentación por oraciones discrimina mejor lo que el corpus cubre de verdad
+frente a lo que solo roza.
+
+**Cómo reproducirla.** El experimento está automatizado:
+
+```bash
+cd api
+.venv\Scripts\python.exe experimentos\medir_umbral.py --empresa 8 --asistente 1
+```
+
+No llama al modelo generativo: solo genera los embeddings de las nueve
+consultas, cuyo coste es de millonésimas de dólar. Los resultados quedan
+versionados en `experimentos/resultados/umbral_AAAA-MM-DD.json`.
+
+**Cuándo hay que repetirla.** Siempre que cambie el corpus, la estrategia de
+fragmentación, el modelo de embeddings o el idioma. Un umbral fuera de la banda
+deja pasar ruido o descarta evidencia legítima, y nada en el sistema avisa de
+que ha dejado de ser válido — tal como ocurrió entre junio y octubre.
 
 **Alcance de esta medición.** Son 9 consultas sobre un corpus, no un benchmark
 formal con dataset de referencia (ver la limitación reconocida en
