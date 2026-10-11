@@ -197,7 +197,7 @@ Comparativa completa en `RAG_PIPELINE.md` §6.
 | Calidad estructural de la fragmentación | ✅ Medida el 2026-10-07, reproducida idéntica el 2026-10-09 |
 | Coste por consulta | ✅ Medido el 2026-10-08, registros 71-80 |
 | Dataset de evaluación | ❌ |
-| Langfuse | ❌ |
+| Langfuse | ✅ Instrumentado el 2026-10-09 |
 | RAGAS | ❌ |
 | Métricas de recuperación (`hit@k`, MRR) | ❌ |
 | Latencia p50 / p95 | ❌ |
@@ -270,8 +270,8 @@ constancia porque condicionaba el diseño del experimento.
 | Pieza | Estado |
 |---|---|
 | Seguimiento de coste por solicitud | ✅ |
-| Trazas del pipeline RAG | ❌ **Cero** |
-| Langfuse | ❌ |
+| Trazas del pipeline RAG | ✅ Cinco observaciones por consulta |
+| Langfuse | ✅ Instrumentado, dependencia opcional |
 
 **Dato de la auditoría:** `rag_service.py`, `chat.py` y `pinecone_service.py`
 tienen **0 llamadas a `logger`**. En toda la aplicación hay 5.
@@ -329,9 +329,11 @@ Coste total estimado: **menos de un céntimo** en *embeddings*.
       referencia, frase ancla y tipo. Repartidas según la taxonomía de
       `TUTORIAS.md`, **incluyendo preguntas sin respuesta en el corpus y al
       menos una compuesta**.
-- [ ] **A2. Langfuse.** Instrumentar el pipeline: la consulta, el vector, los
-      fragmentos recuperados con su puntuación, el contexto construido y la
-      respuesta. Resuelve a la vez la carencia de trazas.
+- [x] **A2. Langfuse instrumentado.** Cada consulta genera una traza con cinco
+      observaciones; el paso de recuperación guarda cada fragmento con su
+      puntuación y si supera el umbral, y las consultas sin contexto se
+      etiquetan aparte. Dependencia opcional: con `LANGFUSE_ENABLED=false` el
+      sistema funciona igual. Ver `OBSERVABILIDAD.md`. *2026-10-09.*
 - [ ] **A3. Dataset cargado en Langfuse** y apuntado contra el RAG.
 - [ ] **A4. RAGAS — línea base.** *Faithfulness*, *answer relevancy*, *context
       precision* y *context recall* sobre la configuración actual.
