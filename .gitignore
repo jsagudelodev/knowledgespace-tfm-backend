@@ -25,6 +25,11 @@ venv/
 env/
 ENV/
 .venv
+# El patrón `.venv` solo cubre una carpeta llamada exactamente así. El proyecto
+# usa además `.venv-eval` —el entorno aislado de RAGAS, con más de sesenta
+# dependencias y miles de ficheros— y cualquier variante futura. Ver
+# `api/experimentos/requirements-eval.txt` para reconstruirlo.
+.venv*/
 
 # Environment variables
 .env

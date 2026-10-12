@@ -1,0 +1,21 @@
+# Dependencias del ENTORNO DE EVALUACIÓN (.venv-eval), separado del de la API.
+#
+# Por qué aparte: ragas arrastra más de sesenta paquetes —LangChain, LangGraph,
+# pandas, numpy, scipy, pyarrow, datasets, huggingface-hub— y además cambiaría
+# la versión de tres que la aplicación ya usa, entre ellos pydantic-settings,
+# del que depende la carga de configuración. La evaluación no es parte del
+# producto y no debe imponerle sus dependencias.
+#
+# Instalación:
+#     cd api
+#     python -m venv .venv-eval
+#     .venv-eval\Scripts\python.exe -m pip install -r experimentos\requirements-eval.txt
+
+ragas==0.4.3
+
+# ragas 0.4.3 importa `langchain_community.chat_models.vertexai`, que la
+# versión 0.4 ya no incluye: el paquete está siendo retirado y sus
+# integraciones se han movido a paquetes independientes. Sin este límite, el
+# resolvedor instala la 0.4.2 y `import ragas` falla con ModuleNotFoundError.
+# NO retirar la restricción sin comprobar que ragas importa.
+langchain-community<0.4
