@@ -79,9 +79,9 @@ POST /api/v1/documents/upload
                          │      DOCX → python-docx paragraphs
                          │      TXT  → decode UTF-8
                          │
-                         ├─ 7. Dividir en chunks
-                         │      chunk_size = 1000 caracteres
-                         │      overlap    = 200 caracteres
+                         ├─ 7. Dividir en chunks  (semantico=True)
+                         │      agrupa oraciones completas hasta ~1000 chars
+                         │      SIN solapamiento — ver §6 y memoria 5.3
                          │
                          ├─ 8. Generar embeddings en batch (100 chunks/llamada)
                          │      modelo: text-embedding-3-small → 1536 dim
@@ -96,6 +96,13 @@ POST /api/v1/documents/upload
                                 status = "completed" + page_count + chunk_count
                                 (o "failed" + error_message si algo falla)
 ```
+
+> **Sobre el paso 7.** `dividir_en_chunks` acepta `semantico=False`, que trocea
+> por caracteres con solapamiento de 200. Esa rama **ya no se usa en la ingesta**
+> —`documents.py` llama siempre con `semantico=True`—, pero se conserva viva
+> porque es el término de comparación del primer experimento del capítulo 5:
+> fue la estrategia vigente hasta octubre de 2026 y las cifras del «antes» se
+> reproducen ejecutándola. Ver `PDFService.dividir_en_chunks_semantico`.
 
 ### Archivos involucrados
 
@@ -159,8 +166,9 @@ POST /api/v1/chat/message
                    │      text-embedding-3-small → vector de 1536 floats
                    │
                    ├─ 6. Búsqueda semántica en Pinecone (top_k = 5)
-                   │      Intenta primero el namespace del asistente
-                   │      Si no hay resultados → fallback al namespace de la empresa
+                   │      Namespace del asistente si se indicó uno; el de la
+                   │      empresa solo si NO se indicó. Sin fallback entre
+                   │      ambos — ver §5
                    │
                    ├─ 7. Filtrar por relevancia
                    │      Descartar chunks con score < 0.30 (RELEVANCE_THRESHOLD)
