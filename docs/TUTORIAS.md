@@ -2,7 +2,11 @@
 
 Acta de cada sesión con el tutor, las observaciones recibidas y el plan de
 acción derivado. Se actualiza el mismo día de cada reunión, mientras está
-fresca.
+fresca, y cada vez que se cierra alguno de los puntos pendientes.
+
+*Última actualización: 12 de octubre de 2026.* El acta de cada reunión se
+conserva tal como se escribió; lo que se actualiza es el estado de resolución,
+la ficha técnica y el plan.
 
 > **Fecha límite de entrega: `⟨PENDIENTE — confirmar⟩`.** El calendario de más
 > abajo está anclado al 9 de octubre de 2026 y asume unas seis semanas. Si la
@@ -38,22 +42,49 @@ métricas.** Esa es la brecha a cerrar.
    apuntado contra el RAG?
 7. ¿Se aplica un control mínimo de alucinaciones?
 
+### Estado de resolución de las siete — al 12 de octubre de 2026
+
+| # | Pregunta | Estado | Dónde queda respondida |
+|---|---|---|---|
+| 1 | Tipos de preguntas | **Resuelta y medida** | `DATASET_PREGUNTAS.md`; memoria 5.1. Tres categorías —literal, distribuida y sin respuesta—, con métricas desglosadas por categoría. |
+| 2 | Varias preguntas a la vez | **Resuelta e implementada** | Memoria 5.3; `NUCLEO_RAG.md` §8. Era un defecto medido (48 % de cobertura); con descomposición de consultas sube al 88 %. |
+| 3 | Arquitectura RAG | **Resuelta** | `ARQUITECTURAS_RAG.md`. Naive RAG con filtro por umbral, más una intervención previa a la recuperación en la clase avanzada. |
+| 4 | ¿Híbrido? | **Respondida: no** | Ficha técnica de abajo. Sin implementar; pendiente de que el tutor aclare si es obligatorio. |
+| 5 | Técnica de recuperación | **Resuelta** | `RAG_PIPELINE.md` §6. Densa por coseno, `top_k=5`, umbral 0,30 revalidado sobre el índice vigente. |
+| 6 | Langfuse + dataset apuntado al RAG | **Resuelta en lo esencial** | `OBSERVABILIDAD.md`. Langfuse instrumentado y activo durante la ejecución de las 18 preguntas, de modo que cada consulta dejó su traza. Falta usar la función *Datasets* de la propia herramienta. |
+| 7 | Control de alucinaciones | **Resuelta y medida** | Memoria 5.3 y 5.4. `faithfulness` 0,888, abstención correcta 6/6 y ninguna abstención indebida. |
+
+**El hallazgo que no se esperaba.** Al medir la abstención se vio que el umbral
+de relevancia solo produjo **2 de las 6** abstenciones correctas. En las otras
+cuatro la búsqueda devolvió cinco fragmentos por encima de 0,30 —uno a 0,534,
+más alto que el de varias preguntas legítimas— y fue el *prompt* restrictivo el
+que se abstuvo. Los dos mecanismos se reparten el trabajo: un sistema que
+confiara solo en el umbral habría respondido a las tres preguntas tangenciales.
+La puntuación de similitud mide proximidad temática, no capacidad de responder.
+
+---
+
 ### Las respuestas correctas — ficha técnica del proyecto
 
-Verificadas contra el código el 9 de octubre de 2026. Deben poder recitarse en
-cualquier reunión.
+Verificadas contra el código. Deben poder recitarse en cualquier reunión. La
+columna de la derecha señala lo que ha cambiado desde la reunión.
 
-| Pregunta | Respuesta |
-|---|---|
-| **Arquitectura** | Naive RAG con filtro post-recuperación por umbral de relevancia. |
-| **Técnica de recuperación** | Densa, por similitud coseno (`metric="cosine"` en Pinecone), `top_k=5`, con descarte por umbral de 0,30. |
-| **¿Híbrido?** | No. Densa pura, sin componente léxico (BM25). |
-| **¿Reranking?** | No implementado. Evaluado y descartado por coste por consulta. |
-| **¿Reescritura de consulta?** | No. La pregunta del usuario se vectoriza tal cual: sin expansión, sin multi-query, sin HyDE. |
-| **Fragmentación** | Por oraciones, objetivo de 1.000 caracteres, **sin solapamiento**. |
-| **Conversación** | Multiturno: se envían los 20 últimos mensajes al modelo. |
-| **Evaluación** | Medida la calidad estructural del chunking. La de recuperación y la de alucinaciones, pendientes. |
-| **Control de alucinaciones** | Tres mecanismos —umbral, *prompt* restrictivo que obliga a responder "No encontré información sobre este tema en los documentos de la empresa", y registro de *knowledge gaps*—. **Ninguno está medido.** |
+| Pregunta | Respuesta al 12 de octubre de 2026 | Cambio |
+|---|---|---|
+| **Arquitectura** | Naive RAG con filtro post-recuperación por umbral. Existe además `RAGServiceAvanzado`, que añade una intervención previa a la recuperación. | ⬆ |
+| **Técnica de recuperación** | Densa, por similitud coseno (`metric="cosine"` en Pinecone), `top_k=5`, con descarte por umbral de 0,30 **revalidado** sobre el índice por oraciones. | ⬆ |
+| **¿Híbrido?** | No. Densa pura, sin componente léxico (BM25). | = |
+| **¿Reranking?** | No implementado. Descartado por coste por consulta. | = |
+| **¿Reescritura de consulta?** | **Sí, en la clase avanzada:** descomposición de consultas (*multi-query*). La básica sigue vectorizando el mensaje tal cual. Sin expansión ni HyDE. | ⬆ |
+| **Fragmentación** | Por oraciones, objetivo de 1.000 caracteres, **sin solapamiento**. | = |
+| **Conversación** | Multiturno: se envían los 20 últimos mensajes al modelo. | = |
+| **Evaluación** | Chunking, umbral, preguntas compuestas, recuperación por frase ancla y generación con RAGAS. **Cinco experimentos, todos reproducibles.** | ⬆ |
+| **Control de alucinaciones** | Los mismos tres mecanismos, ahora **medidos**: `faithfulness` 0,888 y abstención correcta 6/6, sin abstenciones indebidas. | ⬆ |
+| **Observabilidad** | Langfuse sobre OpenTelemetry, cinco observaciones por consulta. Dependencia opcional. | ✚ |
+
+> La versión de esta ficha verificada el 9 de octubre decía «sin multi-query»,
+> «la evaluación de recuperación y alucinaciones, pendientes» y «ninguno está
+> medido». Las tres han dejado de ser ciertas.
 
 ### Taxonomía de preguntas del sistema
 
@@ -74,15 +105,24 @@ fragmento; síntesis de varios fragmentos sobre un mismo tema.
 **Preguntas compuestas.** El mensaje completo se convierte en un único vector.
 Ante *"¿qué es un VAE y cómo se entrena un transformer?"*, el vector resultante
 no se aproxima bien a ninguno de los dos temas y la recuperación se degrada.
-No estaba documentado. Es un experimento de diez minutos.
+No estaba documentado. **Cerrada el 12 de octubre:** medido el defecto
+(48 % de cobertura conjunta) e implementada la descomposición de consultas,
+que lo lleva al 88 % sin que ninguna de las seis parejas empeore.
 
 **Alucinación de alcance.** A la pregunta *"dame un resumen de la documentación
 disponible"*, el sistema respondió *"la documentación disponible se compone
 de…"* habiendo visto únicamente cinco fragmentos. No inventó contenido, pero
-sobredeclaró su cobertura. Es el tipo de fallo que RAGAS detecta y debe entrar
-en el capítulo 5.
+sobredeclaró su cobertura. **Documentada en la memoria 5.4** como primero de
+los dos modos de alucinación analizados. **Sigue sin corregirse:** exigiría
+reconocer las preguntas de alcance global y responderlas con metadatos del
+corpus en lugar de con fragmentos recuperados.
 
 ### Preguntas abiertas para el tutor
+
+> ⚠️ **Al 12 de octubre el correo sigue sin enviarse.** Las preguntas 1 y 2
+> bloquean las dos únicas mejoras que quedan del plan —reranking y RAG
+> híbrido—, porque de su respuesta depende si hay que implementarlas o basta
+> con conocerlas y justificar su ausencia.
 
 Enviar por correo mientras la reunión esté reciente:
 
@@ -108,27 +148,39 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
 
 ### Inmediato — fin de semana del 10-11 de octubre
 
-- [ ] **Dataset de evaluación**, 15-20 preguntas, con las columnas que RAGAS
-      necesita: pregunta, respuesta de referencia, frase ancla, tipo.
-      Repartidas entre los tipos de la taxonomía, **incluidas las que el
-      sistema no debería poder responder**.
+- [x] **Dataset de evaluación.** 18 preguntas —8 literal, 4 distribuida, 6 sin
+      respuesta—, 17 frases ancla verificadas como únicas en el corpus y 12
+      respuestas de referencia. Redactado a mano, no generado por un modelo.
+      *2026-10-11.*
 - [ ] Correo al tutor con las cinco preguntas abiertas.
 
 ### Semana 1 — 12 al 18 de octubre
 
-- [ ] **Langfuse** instrumentado sobre el pipeline RAG.
-- [ ] Dataset cargado en Langfuse y apuntado contra el RAG.
-- [ ] **RAGAS: línea base.** Faithfulness, answer relevancy, context precision
-      y context recall sobre la configuración actual.
-- [ ] Redactar **5.2 Métricas empleadas** y la sección **6.3 Observabilidad**.
+- [x] **Langfuse** instrumentado sobre el pipeline RAG, como dependencia
+      opcional: con `LANGFUSE_ENABLED=false` el sistema funciona igual.
+      *2026-10-09.*
+- [ ] Dataset cargado en Langfuse usando su función *Datasets*. Las 18
+      preguntas ya se ejecutaron contra el RAG con Langfuse activo, de modo que
+      cada consulta dejó su traza; lo que falta es registrarlas como una corrida
+      de dataset dentro de la herramienta.
+- [x] **RAGAS: línea base.** `context_precision` 0,912, `context_recall` 0,896,
+      `faithfulness` 0,888 y `answer_relevancy` 0,822 sobre 12 preguntas, en un
+      entorno aislado del de la aplicación. *2026-10-12.*
+- [x] Redactadas **5.2 Métricas empleadas** y **6.3 Observabilidad**.
+      *2026-10-12.*
 
 ### Semana 2 — 19 al 25 de octubre
 
 - [ ] **Reranking** implementado y medido contra la misma línea base.
-- [ ] Experimento de **preguntas compuestas**.
-- [ ] **Revalidación del umbral de relevancia** sobre el índice con división por
-      oraciones (el 0,30 se midió con chunking por caracteres).
-- [ ] Redactar **5.3 Resultados** con la tabla comparativa.
+- [x] Experimento de **preguntas compuestas**: 6 parejas, cobertura conjunta
+      del 48 %. *2026-10-09.* Y la mejora que lo corrige, medida: 88 %.
+      *2026-10-12.*
+- [x] **Umbral de relevancia revalidado** sobre el índice por oraciones. Sigue
+      dentro de la banda, pero esta se estrechó un 16 % y el margen frente al
+      ruido cayó un 41 %. *2026-10-09.*
+- [x] Redactado **5.3 Resultados**, con los cinco experimentos y sus tablas.
+      El capítulo 5 queda cerrado: 5.709 palabras, sin marcadores pendientes.
+      *2026-10-12.*
 
 ### Semana 3 — 26 de octubre al 1 de noviembre
 
@@ -147,13 +199,37 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
 
 ---
 
-## Estado al 9 de octubre de 2026
+## Estado
 
-| | |
+| | 9 de octubre | 12 de octubre |
+|---|---|---|
+| Memoria | 3.331 palabras | **8.692** de las ~15.000-20.000 necesarias |
+| Escrito | Capítulo 1; secciones 5.1, 5.3 y 5.4 | Capítulo 1; **capítulo 5 completo**; 6.3 y 7.1 |
+| Vacío | Capítulos 2, 3, 4, 6, 7, 8, 9 y 10 | Capítulos 2, 3, 4, 8 y 9; parte de 6, 7 y 10 |
+| Bibliografía | 0 referencias | **0 referencias** de las 15-25 requeridas |
+| Tests | 21, en verde | **35**, en verde |
+| Índice vectorial | 4 espacios de nombres, 297 vectores, desincronizado | **1 espacio, 87 vectores**, coincidiendo con la base de datos |
+
+**Medido y defendible al 12 de octubre** —cinco experimentos, todos
+reproducibles desde `api/experimentos/`:
+
+| | Resultado |
 |---|---|
-| Memoria | 3.331 palabras de las ~15.000-20.000 necesarias |
-| Escrito | Capítulo 1 completo; secciones 5.1, 5.3 y 5.4 |
-| Vacío | Capítulos 2, 3, 4, 6, 7, 8, 9 y 10 |
-| Bibliografía | 0 referencias de las 15-25 requeridas |
-| Tests | 21, en verde |
-| Medido y defendible | Calidad estructural del chunking (2026-10-07, reproducido idéntico el 2026-10-09) y coste por consulta (2026-10-08) |
+| Calidad estructural del *chunking* | Cortes a mitad de palabra del 79,2 % al 0 %; 19 % menos de texto indexado |
+| Umbral de relevancia | Ruido 0,258 / señal 0,393; el 0,30 sigue dentro de la banda |
+| Preguntas compuestas | Cobertura conjunta del 48 %, con los 30 fragmentos por encima del umbral |
+| Recuperación por frase ancla | hit@3 0,50 y MRR 0,394; literal 0,525 frente a distribuida 0,133 |
+| Abstención | 6/6 correctas, 0 indebidas; el umbral produjo 2 y el *prompt* 4 |
+| Generación (RAGAS) | `faithfulness` 0,888, `context_precision` 0,912 |
+| Latencia | p50 2,41 s, p95 4,26 s |
+| Coste por consulta | 0,000431 USD |
+| Descomposición de consultas | Cobertura del 48 % al 88 %; +1,2 s de latencia mediana |
+
+**Lo que falta, por orden de urgencia:**
+
+1. **El correo al tutor.** Bloquea reranking y RAG híbrido, las dos únicas
+   mejoras que quedan del plan.
+2. **La memoria.** Faltan los capítulos 2, 3, 4, 8 y 9. El código ya no es el
+   cuello de botella.
+3. **La bibliografía.** Cero referencias desde el 9 de octubre. Es lo único que
+   no se puede acelerar al final.
