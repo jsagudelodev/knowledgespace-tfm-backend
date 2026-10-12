@@ -655,8 +655,9 @@ Coste total estimado: **menos de un céntimo** en *embeddings*.
       0,896, `faithfulness` 0,888 y `answer_relevancy` 0,822 sobre 12
       preguntas. En `.venv-eval`, aislado del entorno de la aplicación.
       *2026-10-12.*
-- [ ] **Crear `requirements-eval.txt`** con `ragas` y `langchain-community<0.4`,
-      para que el entorno de evaluación sea reproducible.
+- [x] **`requirements-eval.txt` creado** con `ragas==0.4.3` y
+      `langchain-community<0.4`. La restricción está documentada en el propio
+      fichero: la 0.4.2 retira el módulo que RAGAS importa. *2026-10-12.*
 
 - [x] **A1. Dataset de evaluación.** 18 preguntas —8 `literal`, 4 `multi`, 6
       `sin_respuesta`—, 17 frases ancla verificadas como únicas en el corpus y
@@ -672,19 +673,12 @@ Coste total estimado: **menos de un céntimo** en *embeddings*.
 - [ ] **Regenerar los `.txt` del corpus**: el índice contiene secciones que la
       extracción local no recogió (ver §6.4, P8).
 
-- [ ] **A1. Dataset de evaluación.** 15-20 preguntas con respuesta de
-      referencia, frase ancla y tipo. Repartidas según la taxonomía de
-      `TUTORIAS.md`, **incluyendo preguntas sin respuesta en el corpus y al
-      menos una compuesta**.
 - [x] **A2. Langfuse instrumentado.** Cada consulta genera una traza con cinco
       observaciones; el paso de recuperación guarda cada fragmento con su
       puntuación y si supera el umbral, y las consultas sin contexto se
       etiquetan aparte. Dependencia opcional: con `LANGFUSE_ENABLED=false` el
       sistema funciona igual. Ver `OBSERVABILIDAD.md`. *2026-10-09.*
 - [ ] **A3. Dataset cargado en Langfuse** y apuntado contra el RAG.
-- [ ] **A4. RAGAS — línea base.** *Faithfulness*, *answer relevancy*, *context
-      precision* y *context recall* sobre la configuración actual.
-- [ ] **A5. Latencia p50/p95**, que sale gratis de las trazas de A2.
 
 ## Bloque B — Cerrar los huecos del núcleo
 
@@ -702,9 +696,13 @@ Coste total estimado: **menos de un céntimo** en *embeddings*.
       umbral no lo detecta en **30/30** fragmentos. En 6 de 6 la compuesta
       puntúa más alto que alguna de las separadas.
       `experimentos/medir_preguntas_compuestas.py`. *2026-10-09.*
-- [ ] **B4. Llevar a la memoria** los dos modos de alucinación documentados
-      aquí (alcance sobredeclarado y cobertura parcial en preguntas compuestas)
-      como casos analizados del capítulo 5.
+- [x] **B4. Los dos modos de alucinación llevados a la memoria**, en el
+      apartado 5.4, como casos analizados y no como deficiencias. *2026-10-11.*
+- [x] **Capítulo 5 cerrado.** 5.1 (conjunto de referencia), 5.2 (métricas,
+      escrita entera), 5.3 (experimentos cuarto y quinto) y 5.4 (limitaciones
+      del modelo juez y del método de anclas). Sin marcadores pendientes:
+      5.709 palabras y nueve tablas. Se corrigió además el orden de lectura de
+      tres bloques que habían quedado invertidos al insertarlos. *2026-10-12.*
 
 ## Bloque C — Mejoras, cada una medida contra la línea base
 
