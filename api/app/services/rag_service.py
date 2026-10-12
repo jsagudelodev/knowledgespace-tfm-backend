@@ -61,6 +61,7 @@ class RAGUnavailableError(Exception):
 # transferibles, y nada en el sistema avisa de que el umbral dejó de valer.
 RELEVANCE_THRESHOLD = 0.30
 MAX_RESPONSE_TOKENS = 1000   # límite de tokens en la respuesta del LLM
+TOP_K = 5                    # fragmentos que se piden a Pinecone por búsqueda
 
 DEFAULT_SYSTEM_PROMPT = """Eres el asistente de IA interno de la empresa.
 RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:
@@ -95,17 +96,25 @@ class RAGService:
         self.embedding_service = EmbeddingService()
         self.pinecone_service = PineconeService()
 
-    @observabilidad.observar("rag.consulta")
-    def generate_response(
-        self,
-        query: str,
-        company_id: int,
-        conversation_history: Optional[List[Dict[str, str]]] = None,
-        assistant_id: Optional[int] = None,
-        system_prompt_override: Optional[str] = None,
-        model_override: Optional[str] = None,
-        temperature_override: Optional[float] = None,
-    ) -> Dict[str, Any]:
+    def _recuperar(self, query: str, namespace: str) -> tuple:
+        """Recupera los fragmentos candidatos para una consulta.
+
+        **Es el único punto de extensión del pipeline.** Todo lo demás —el
+        filtro por umbral, la construcción del contexto, el prompt, la llamada
+        al modelo, el registro de coste y las trazas— es común a cualquier
+        estrategia de recuperación, de modo que una subclase que quiera cambiar
+        *cómo* se buscan los fragmentos solo necesita redefinir este método.
+
+        Lo usa `RAGServiceAvanzado`, que descompone las preguntas compuestas en
+        subpreguntas y recupera por cada una. Mantener ambas clases vivas, en
+        lugar de modificar esta, permite relanzar las dos configuraciones sobre
+        el mismo conjunto de evaluación y que la comparación sea reproducible:
+        si se hubiera modificado, la línea base habría desaparecido.
+
+        Devuelve los fragmentos SIN filtrar por umbral —ese filtro pertenece a
+        `generate_response` y es común a todas las estrategias— y los tokens
+        consumidos al vectorizar.
+        """
         try:
             with observabilidad.paso("embedding_consulta", entrada=query) as traza:
                 query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
@@ -115,21 +124,10 @@ class RAGService:
             logger.error("[RAG] Falló el embedding de la consulta: %s", e, exc_info=True)
             raise RAGUnavailableError("embedding de la consulta", e) from e
 
-        # Cada asistente es un espacio de conocimiento aislado: si se pide un
-        # assistant_id, la búsqueda se queda en su namespace exclusivamente.
-        # Sin esto, un asistente sin match filtraba contenido de otros espacios
-        # de la misma empresa — el propio DEFAULT_SYSTEM_PROMPT ya cubre el caso
-        # "sin contexto suficiente" respondiendo que no encontró información.
-        # El fallback a nivel empresa solo aplica cuando no se especifica asistente.
-        if assistant_id:
-            namespace = PineconeService.construir_namespace(company_id, assistant_id)
-        else:
-            namespace = PineconeService.construir_namespace(company_id)
-
         try:
-            with observabilidad.paso("recuperacion", entrada={"namespace": namespace, "top_k": 5}) as traza:
+            with observabilidad.paso("recuperacion", entrada={"namespace": namespace, "top_k": TOP_K}) as traza:
                 raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
-                    query_embedding, top_k=5, namespace=namespace
+                    query_embedding, top_k=TOP_K, namespace=namespace
                 )
                 traza["fragmentos"] = [
                     {
@@ -143,6 +141,32 @@ class RAGService:
         except Exception as e:
             logger.error("[RAG] Falló la búsqueda en Pinecone (namespace=%s): %s", namespace, e, exc_info=True)
             raise RAGUnavailableError("búsqueda vectorial", e) from e
+
+        return raw_docs, embedding_tokens
+
+    @observabilidad.observar("rag.consulta")
+    def generate_response(
+        self,
+        query: str,
+        company_id: int,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        assistant_id: Optional[int] = None,
+        system_prompt_override: Optional[str] = None,
+        model_override: Optional[str] = None,
+        temperature_override: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        # Cada asistente es un espacio de conocimiento aislado: si se pide un
+        # assistant_id, la búsqueda se queda en su namespace exclusivamente.
+        # Sin esto, un asistente sin match filtraba contenido de otros espacios
+        # de la misma empresa — el propio DEFAULT_SYSTEM_PROMPT ya cubre el caso
+        # "sin contexto suficiente" respondiendo que no encontró información.
+        # El fallback a nivel empresa solo aplica cuando no se especifica asistente.
+        if assistant_id:
+            namespace = PineconeService.construir_namespace(company_id, assistant_id)
+        else:
+            namespace = PineconeService.construir_namespace(company_id)
+
+        raw_docs, embedding_tokens = self._recuperar(query, namespace)
 
         relevant_docs = [d for d in raw_docs if getattr(d, "score", 0) >= RELEVANCE_THRESHOLD]
 
@@ -212,6 +236,14 @@ class RAGService:
                     "score": round(getattr(d, "score", 0), 3),
                 }
                 for d in relevant_docs
+            ],
+            # El texto ÍNTEGRO de cada fragmento relevante, no el extracto de
+            # 300 caracteres que `sources` lleva para mostrarlo en pantalla.
+            # Lo consume la evaluación: para juzgar si una respuesta se apoya en
+            # el contexto hay que disponer del contexto que el modelo recibió,
+            # no de un recorte. Ver `experimentos/GUIA_DATASET.md`.
+            "contexts": [
+                (d.metadata.get("text") or "") for d in relevant_docs
             ],
             "token_count": response.usage.total_tokens,
             "input_tokens": response.usage.prompt_tokens,

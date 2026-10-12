@@ -1,0 +1,524 @@
+{
+  "fecha": "2026-10-12",
+  "namespace": "company-8-assistant-1",
+  "top_k": 5,
+  "configuracion": "naive",
+  "parejas": [
+    {
+      "a": "que es un VAE",
+      "b": "que es la geometria semantica",
+      "etiqueta": "lejanas",
+      "nota": "documentos principales distintos",
+      "doc_principal_a": "Resumen Clase 2 - Tema 3.pdf",
+      "doc_principal_b": "Diapositivas Tema 6 - Sesión 1.pdf",
+      "separada_a": {
+        "pregunta": "que es un VAE",
+        "ids": [
+          "doc-38-chunk-2",
+          "doc-39-chunk-9",
+          "doc-39-chunk-7",
+          "doc-39-chunk-11",
+          "doc-39-chunk-10"
+        ],
+        "scores": [
+          0.487,
+          0.474,
+          0.472,
+          0.46,
+          0.436
+        ],
+        "documentos": [
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que es la geometria semantica",
+        "ids": [
+          "doc-44-chunk-14",
+          "doc-43-chunk-1",
+          "doc-44-chunk-11",
+          "doc-43-chunk-0",
+          "doc-44-chunk-5"
+        ],
+        "scores": [
+          0.561,
+          0.47,
+          0.457,
+          0.451,
+          0.447
+        ],
+        "documentos": [
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que es un VAE y que es la geometria semantica",
+        "ids": [
+          "doc-38-chunk-2",
+          "doc-39-chunk-9",
+          "doc-39-chunk-7",
+          "doc-44-chunk-14",
+          "doc-39-chunk-11"
+        ],
+        "scores": [
+          0.539,
+          0.508,
+          0.503,
+          0.482,
+          0.481
+        ],
+        "documentos": [
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+        ]
+      },
+      "recuperados_de_a": 4,
+      "recuperados_de_b": 1,
+      "ajenos_a_ambas": 0,
+      "caida_top1_a": -0.052,
+      "caida_top1_b": 0.022,
+      "sobre_umbral_compuesta": 5
+    },
+    {
+      "a": "que son las GANs",
+      "b": "que es un VAE",
+      "etiqueta": "lejanas",
+      "nota": "documentos principales distintos",
+      "doc_principal_a": "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+      "doc_principal_b": "Resumen Clase 2 - Tema 3.pdf",
+      "separada_a": {
+        "pregunta": "que son las GANs",
+        "ids": [
+          "doc-39-chunk-12",
+          "doc-39-chunk-13",
+          "doc-39-chunk-16",
+          "doc-39-chunk-14",
+          "doc-38-chunk-3"
+        ],
+        "scores": [
+          0.584,
+          0.545,
+          0.537,
+          0.494,
+          0.47
+        ],
+        "documentos": [
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen Clase 2 - Tema 3.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que es un VAE",
+        "ids": [
+          "doc-38-chunk-2",
+          "doc-39-chunk-9",
+          "doc-39-chunk-7",
+          "doc-39-chunk-11",
+          "doc-39-chunk-10"
+        ],
+        "scores": [
+          0.487,
+          0.474,
+          0.472,
+          0.46,
+          0.436
+        ],
+        "documentos": [
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que son las GANs y que es un VAE",
+        "ids": [
+          "doc-39-chunk-11",
+          "doc-39-chunk-12",
+          "doc-40-chunk-4",
+          "doc-39-chunk-16",
+          "doc-38-chunk-2"
+        ],
+        "scores": [
+          0.51,
+          0.484,
+          0.467,
+          0.467,
+          0.463
+        ],
+        "documentos": [
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen Clase 2 - Tema 3.pdf"
+        ]
+      },
+      "recuperados_de_a": 2,
+      "recuperados_de_b": 2,
+      "ajenos_a_ambas": 1,
+      "caida_top1_a": 0.074,
+      "caida_top1_b": -0.023,
+      "sobre_umbral_compuesta": 5
+    },
+    {
+      "a": "que son los modelos de difusion",
+      "b": "que es la tokenizacion",
+      "etiqueta": "lejanas",
+      "nota": "documentos principales distintos",
+      "doc_principal_a": "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+      "doc_principal_b": "Resumen de Clase 1 - Tema 3.pdf",
+      "separada_a": {
+        "pregunta": "que son los modelos de difusion",
+        "ids": [
+          "doc-40-chunk-1",
+          "doc-40-chunk-11",
+          "doc-40-chunk-2",
+          "doc-39-chunk-11",
+          "doc-40-chunk-17"
+        ],
+        "scores": [
+          0.589,
+          0.415,
+          0.404,
+          0.402,
+          0.393
+        ],
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que es la tokenizacion",
+        "ids": [
+          "doc-37-chunk-1",
+          "doc-38-chunk-1",
+          "doc-37-chunk-0",
+          "doc-43-chunk-0",
+          "doc-37-chunk-3"
+        ],
+        "scores": [
+          0.345,
+          0.336,
+          0.31,
+          0.31,
+          0.307
+        ],
+        "documentos": [
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que son los modelos de difusion y que es la tokenizacion",
+        "ids": [
+          "doc-40-chunk-1",
+          "doc-37-chunk-1",
+          "doc-38-chunk-1",
+          "doc-40-chunk-2",
+          "doc-40-chunk-11"
+        ],
+        "scores": [
+          0.45,
+          0.392,
+          0.392,
+          0.378,
+          0.375
+        ],
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+        ]
+      },
+      "recuperados_de_a": 3,
+      "recuperados_de_b": 2,
+      "ajenos_a_ambas": 0,
+      "caida_top1_a": 0.139,
+      "caida_top1_b": -0.105,
+      "sobre_umbral_compuesta": 5
+    },
+    {
+      "a": "que es el test de Turing",
+      "b": "que es la geometria semantica",
+      "etiqueta": "lejanas",
+      "nota": "documentos principales distintos",
+      "doc_principal_a": "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+      "doc_principal_b": "Diapositivas Tema 6 - Sesión 1.pdf",
+      "separada_a": {
+        "pregunta": "que es el test de Turing",
+        "ids": [
+          "doc-39-chunk-4",
+          "doc-37-chunk-0",
+          "doc-40-chunk-7",
+          "doc-40-chunk-14",
+          "doc-38-chunk-3"
+        ],
+        "scores": [
+          0.423,
+          0.415,
+          0.411,
+          0.41,
+          0.407
+        ],
+        "documentos": [
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen Clase 2 - Tema 3.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que es la geometria semantica",
+        "ids": [
+          "doc-44-chunk-14",
+          "doc-43-chunk-1",
+          "doc-44-chunk-11",
+          "doc-43-chunk-0",
+          "doc-44-chunk-5"
+        ],
+        "scores": [
+          0.561,
+          0.47,
+          0.457,
+          0.451,
+          0.447
+        ],
+        "documentos": [
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que es el test de Turing y que es la geometria semantica",
+        "ids": [
+          "doc-43-chunk-0",
+          "doc-37-chunk-2",
+          "doc-44-chunk-14",
+          "doc-37-chunk-0",
+          "doc-44-chunk-5"
+        ],
+        "scores": [
+          0.456,
+          0.447,
+          0.439,
+          0.43,
+          0.428
+        ],
+        "documentos": [
+          "Resumen Tema 6 Clase 1.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Diapositivas Tema 6 - Sesión 1.pdf"
+        ]
+      },
+      "recuperados_de_a": 1,
+      "recuperados_de_b": 3,
+      "ajenos_a_ambas": 1,
+      "caida_top1_a": -0.033,
+      "caida_top1_b": 0.105,
+      "sobre_umbral_compuesta": 5
+    },
+    {
+      "a": "que son los modelos de difusion",
+      "b": "que son los LLM",
+      "etiqueta": "vecinas",
+      "nota": "mismo documento principal",
+      "doc_principal_a": "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+      "doc_principal_b": "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+      "separada_a": {
+        "pregunta": "que son los modelos de difusion",
+        "ids": [
+          "doc-40-chunk-1",
+          "doc-40-chunk-11",
+          "doc-40-chunk-2",
+          "doc-39-chunk-11",
+          "doc-40-chunk-17"
+        ],
+        "scores": [
+          0.589,
+          0.415,
+          0.404,
+          0.402,
+          0.393
+        ],
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que son los LLM",
+        "ids": [
+          "doc-40-chunk-4",
+          "doc-41-chunk-3",
+          "doc-43-chunk-2",
+          "doc-40-chunk-5",
+          "doc-40-chunk-0"
+        ],
+        "scores": [
+          0.461,
+          0.42,
+          0.372,
+          0.354,
+          0.322
+        ],
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen Tema 4 Clase 5.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que son los modelos de difusion y que son los LLM",
+        "ids": [
+          "doc-40-chunk-4",
+          "doc-40-chunk-1",
+          "doc-43-chunk-2",
+          "doc-40-chunk-0",
+          "doc-41-chunk-3"
+        ],
+        "scores": [
+          0.534,
+          0.486,
+          0.438,
+          0.422,
+          0.417
+        ],
+        "documentos": [
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+          "Resumen Tema 4 Clase 5.pdf"
+        ]
+      },
+      "recuperados_de_a": 1,
+      "recuperados_de_b": 4,
+      "ajenos_a_ambas": 0,
+      "caida_top1_a": 0.055,
+      "caida_top1_b": -0.073,
+      "sobre_umbral_compuesta": 5
+    },
+    {
+      "a": "que es la tokenizacion",
+      "b": "que es el mecanismo de atencion",
+      "etiqueta": "vecinas",
+      "nota": "mismo documento principal",
+      "doc_principal_a": "Resumen de Clase 1 - Tema 3.pdf",
+      "doc_principal_b": "Resumen de Clase 1 - Tema 3.pdf",
+      "separada_a": {
+        "pregunta": "que es la tokenizacion",
+        "ids": [
+          "doc-37-chunk-1",
+          "doc-38-chunk-1",
+          "doc-37-chunk-0",
+          "doc-43-chunk-0",
+          "doc-37-chunk-3"
+        ],
+        "scores": [
+          0.345,
+          0.336,
+          0.31,
+          0.31,
+          0.307
+        ],
+        "documentos": [
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf"
+        ]
+      },
+      "separada_b": {
+        "pregunta": "que es el mecanismo de atencion",
+        "ids": [
+          "doc-37-chunk-2",
+          "doc-43-chunk-3",
+          "doc-41-chunk-0",
+          "doc-38-chunk-3",
+          "doc-37-chunk-0"
+        ],
+        "scores": [
+          0.314,
+          0.314,
+          0.31,
+          0.306,
+          0.303
+        ],
+        "documentos": [
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Tema 6 Clase 1.pdf",
+          "Resumen Tema 4 Clase 5.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf"
+        ]
+      },
+      "compuesta": {
+        "pregunta": "que es la tokenizacion y que es el mecanismo de atencion",
+        "ids": [
+          "doc-37-chunk-1",
+          "doc-38-chunk-1",
+          "doc-41-chunk-0",
+          "doc-37-chunk-0",
+          "doc-43-chunk-0"
+        ],
+        "scores": [
+          0.373,
+          0.362,
+          0.361,
+          0.355,
+          0.34
+        ],
+        "documentos": [
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Clase 2 - Tema 3.pdf",
+          "Resumen Tema 4 Clase 5.pdf",
+          "Resumen de Clase 1 - Tema 3.pdf",
+          "Resumen Tema 6 Clase 1.pdf"
+        ]
+      },
+      "recuperados_de_a": 4,
+      "recuperados_de_b": 2,
+      "ajenos_a_ambas": 0,
+      "caida_top1_a": -0.028,
+      "caida_top1_b": -0.059,
+      "sobre_umbral_compuesta": 5
+    }
+  ]
+}

@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.services.embedding_service import EmbeddingService  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
 from app.services.rag_service import RELEVANCE_THRESHOLD  # noqa: E402
+from app.services.rag_service_avanzado import RAGServiceAvanzado  # noqa: E402
 
 TOP_K = 5
 
@@ -66,9 +67,18 @@ PAREJAS = [
 ]
 
 
-def consultar(emb, pine, pregunta: str, namespace: str) -> Dict[str, Any]:
-    vector, _ = emb.generar_embedding_con_uso(pregunta)
-    docs = pine.buscar_vectores(vector, top_k=TOP_K, namespace=namespace)
+def consultar(emb, pine, pregunta: str, namespace: str, avanzado=None) -> Dict[str, Any]:
+    """Recupera para una pregunta.
+
+    Con `avanzado` se usa `RAGServiceAvanzado._recuperar`, que descompone la
+    consulta antes de buscar. Sin el, la recuperacion base: un vector, una
+    busqueda. Es el unico punto que cambia entre ambas configuraciones.
+    """
+    if avanzado is not None:
+        docs, _ = avanzado._recuperar(pregunta, namespace)
+    else:
+        vector, _ = emb.generar_embedding_con_uso(pregunta)
+        docs = pine.buscar_vectores(vector, top_k=TOP_K, namespace=namespace)
     return {
         "pregunta": pregunta,
         "ids": [d.id for d in docs],
@@ -77,15 +87,19 @@ def consultar(emb, pine, pregunta: str, namespace: str) -> Dict[str, Any]:
     }
 
 
-def medir(namespace: str) -> List[Dict[str, Any]]:
+def medir(namespace: str, avanzado: bool = False) -> List[Dict[str, Any]]:
     emb, pine = EmbeddingService(), PineconeService()
+    # Las preguntas por separado SIEMPRE se recuperan con el pipeline base: son
+    # la referencia, lo que el sistema es capaz de encontrar cuando se le
+    # pregunta bien. Solo la compuesta cambia de estrategia.
+    svc = RAGServiceAvanzado() if avanzado else None
     salida = []
 
     for par in PAREJAS:
         a = consultar(emb, pine, par["a"], namespace)
         b = consultar(emb, pine, par["b"], namespace)
         compuesta_txt = f"{par['a']} y {par['b']}"
-        c = consultar(emb, pine, compuesta_txt, namespace)
+        c = consultar(emb, pine, compuesta_txt, namespace, avanzado=svc)
 
         ids_a, ids_b, ids_c = set(a["ids"]), set(b["ids"]), set(c["ids"])
 
@@ -117,12 +131,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--empresa", type=int, required=True)
     ap.add_argument("--asistente", type=int, default=None)
+    ap.add_argument("--avanzado", action="store_true",
+                    help="recupera la compuesta con RAGServiceAvanzado")
     args = ap.parse_args()
 
     namespace = PineconeService.construir_namespace(args.empresa, args.asistente)
     print(f"Namespace: {namespace}   top_k={TOP_K}\n")
 
-    res = medir(namespace)
+    res = medir(namespace, args.avanzado)
 
     for r in res:
         print("=" * 78)
@@ -165,12 +181,13 @@ def main() -> int:
     print(f"  Fragmentos que superan el umbral en las compuestas: "
           f"{total_sobre}/{TOP_K * len(res)} - el umbral NO detecta la cobertura parcial.")
 
-    salida = Path(__file__).parent / "resultados" / f"preguntas_compuestas_{date.today().isoformat()}.json"
+    salida = Path(__file__).parent / "resultados" / f"preguntas_compuestas_{date.today().isoformat()}{'_avanzado' if args.avanzado else ''}.json"
     salida.parent.mkdir(exist_ok=True)
     salida.write_text(json.dumps({
         "fecha": date.today().isoformat(),
         "namespace": namespace,
         "top_k": TOP_K,
+        "configuracion": "avanzado_descomposicion" if args.avanzado else "naive",
         "parejas": res,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nResultados en {salida.relative_to(Path(__file__).parent.parent)}")
