@@ -101,19 +101,25 @@ def evaluar_anclas(fila: Dict[str, str], contextos: List[str]) -> Dict[str, Any]
     }
 
 
-def ejecutar(empresa: int, asistente: int, avanzado: bool = False) -> Dict[str, Any]:
+def ejecutar(empresa: int, asistente: int, avanzado: bool = False,
+             temperatura: float = None) -> Dict[str, Any]:
     with io.open(DATASET, encoding="utf-8", newline="") as f:
         filas = list(csv.DictReader(f))
 
     rag = RAGServiceAvanzado() if avanzado else RAGService()
     config = "avanzado_descomposicion" if avanzado else "naive_rag_umbral_0.30"
+    # La temperatura forma parte de la configuracion medida: una fidelidad no
+    # significa lo mismo a 0 que a 0,7. Si no se indica, se usa la del servicio.
+    if temperatura is not None:
+        config += f"_temp{temperatura}"
     resultados = []
 
     print(f"Ejecutando {len(filas)} preguntas contra el RAG [{config}]...\n")
     for fila in filas:
         t0 = time.perf_counter()
         r = rag.generate_response(
-            query=fila["pregunta"], company_id=empresa, assistant_id=asistente
+            query=fila["pregunta"], company_id=empresa, assistant_id=asistente,
+            temperature_override=temperatura,
         )
         latencia = round(time.perf_counter() - t0, 3)
 
@@ -207,12 +213,17 @@ def main() -> int:
     ap.add_argument("--asistente", type=int, default=None)
     ap.add_argument("--avanzado", action="store_true",
                     help="usa RAGServiceAvanzado (descomposición de consultas)")
+    ap.add_argument("--temperatura", type=float, default=None,
+                    help="fuerza la temperatura del modelo generativo "
+                         "(por defecto, la del servicio)")
     args = ap.parse_args()
 
-    datos = ejecutar(args.empresa, args.asistente, args.avanzado)
+    datos = ejecutar(args.empresa, args.asistente, args.avanzado, args.temperatura)
     resumir(datos)
 
     sufijo = "_avanzado" if args.avanzado else ""
+    if args.temperatura is not None:
+        sufijo += f"_temp{args.temperatura}"
     salida = AQUI / "resultados" / f"dataset_ejecutado_{date.today().isoformat()}{sufijo}.json"
     salida.parent.mkdir(exist_ok=True)
     salida.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")

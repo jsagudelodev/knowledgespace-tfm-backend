@@ -9,7 +9,10 @@ class AssistantBase(BaseModel):
     description: Optional[str] = None
     system_prompt: Optional[str] = None
     model: str = Field(default="gpt-4o-mini")
-    temperature: float = Field(default=0.7, ge=0.0, le=1.0)
+    # Por defecto 0: ver la medición en `rag_service.DEFAULT_TEMPERATURE`. El
+    # rango sigue abierto hasta 1 para que un asistente pueda subirla si su uso
+    # lo justifica, pero quien lo haga debe saber que la fidelidad baja.
+    temperature: float = Field(default=0.0, ge=0.0, le=1.0)
     avatar: Optional[str] = None
     quick_prompts: Optional[List[str]] = None
 

@@ -13,7 +13,11 @@ class Assistant(Base):
     description = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     model = Column(String(50), default="gpt-4o-mini", nullable=False)
-    temperature = Column(Numeric(3, 2), default=0.7, nullable=False)
+    # Era 0.7. Se baja a 0 porque el sistema debe responder solo con el
+    # contexto recibido, no redactar con margen creativo. La medición que lo
+    # justifica está en `rag_service.DEFAULT_TEMPERATURE`. Afecta solo a los
+    # asistentes nuevos: los existentes conservan el valor que tuvieran.
+    temperature = Column(Numeric(3, 2), default=0.0, nullable=False)
     avatar = Column(String(255), nullable=True)
     quick_prompts = Column(JSONB, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False, index=True)

@@ -63,6 +63,32 @@ RELEVANCE_THRESHOLD = 0.30
 MAX_RESPONSE_TOKENS = 1000   # límite de tokens en la respuesta del LLM
 TOP_K = 5                    # fragmentos que se piden a Pinecone por búsqueda
 
+# Temperatura por defecto del modelo generativo.
+#
+# **Era 0.7 y se bajó a 0 tras medirlo** (2026-10-14). El 0.7 contradecía el
+# requisito central del sistema: responder únicamente con el contexto recibido.
+# Es un valor de escritura creativa, no de respuesta factual, y además el
+# descompositor de `rag_service_avanzado` ya usaba 0 — la tarea determinista
+# tenía el valor correcto y la que no debe inventar, el incorrecto.
+#
+# Medición sobre las 18 preguntas de `experimentos/dataset_evaluacion.csv`,
+# mismos contextos recuperados en las dos pasadas (la temperatura no afecta a
+# la búsqueda):
+#
+#     fidelidad (RAGAS)        0,888 -> 0,939
+#     mínimo por pregunta      0,538 -> 0,750
+#     pertinencia              0,822 -> 0,839
+#     5 preguntas suben, 1 baja, 6 quedan igual
+#
+# La mejora se concentra en los dos peores casos (+0,344 y +0,285), que es lo
+# que cabe esperar si la temperatura alta causaba deriva respecto del contexto.
+#
+# Cautela al citar la cifra: en la misma comparación, `context_precision` se
+# movió 3,5 puntos **con entradas idénticas**, lo que acota la variabilidad del
+# modelo juez. La media sube por encima de ese ruido, pero la evidencia sólida
+# son los casos extremos, no el promedio.
+DEFAULT_TEMPERATURE = 0.0
+
 DEFAULT_SYSTEM_PROMPT = """Eres el asistente de IA interno de la empresa.
 RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:
 - USA SOLO la información del contexto. NUNCA uses conocimiento externo o datos de entrenamiento.
@@ -207,7 +233,9 @@ class RAGService:
         messages = self._build_messages(query, context, conversation_history, system_prompt_override)
 
         effective_model = model_override or settings.OPENAI_CHAT_MODEL
-        effective_temperature = temperature_override if temperature_override is not None else 0.7
+        effective_temperature = (
+            temperature_override if temperature_override is not None else DEFAULT_TEMPERATURE
+        )
 
         try:
             response = self.client.chat.completions.create(
