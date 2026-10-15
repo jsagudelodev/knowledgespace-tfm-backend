@@ -1,9 +1,13 @@
 # ── Web framework ─────────────────────────────────────────────────────────────
-fastapi==0.109.2
-uvicorn[standard]==0.27.0
+# Las versiones son las del entorno con el que se ejecutaron los experimentos
+# del capítulo 5 y los 35 tests. No se tocan sin volver a pasarlos: fastapi y
+# pydantic están acoplados, y una combinación desalineada falla al arrancar con
+# `'FieldInfo' object has no attribute 'in_'`, que no dice nada de la causa.
+fastapi==0.115.2
+uvicorn[standard]==0.30.1
 gunicorn==21.2.0
 python-multipart==0.0.6
-pydantic==2.7.1
+pydantic==2.13.5
 
 # ── Base de datos ─────────────────────────────────────────────────────────────
 sqlalchemy==2.0.23
