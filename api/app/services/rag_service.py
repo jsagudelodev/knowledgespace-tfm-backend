@@ -122,7 +122,7 @@ class RAGService:
         self.embedding_service = EmbeddingService()
         self.pinecone_service = PineconeService()
 
-    def _recuperar(self, query: str, namespace: str) -> tuple:
+    def _recuperar(self, query: str, namespace: str, top_k: int = None) -> tuple:
         """Recupera los fragmentos candidatos para una consulta.
 
         **Es el único punto de extensión del pipeline.** Todo lo demás —el
@@ -131,16 +131,24 @@ class RAGService:
         estrategia de recuperación, de modo que una subclase que quiera cambiar
         *cómo* se buscan los fragmentos solo necesita redefinir este método.
 
-        Lo usa `RAGServiceAvanzado`, que descompone las preguntas compuestas en
-        subpreguntas y recupera por cada una. Mantener ambas clases vivas, en
-        lugar de modificar esta, permite relanzar las dos configuraciones sobre
-        el mismo conjunto de evaluación y que la comparación sea reproducible:
-        si se hubiera modificado, la línea base habría desaparecido.
+        Lo usan `RAGServiceAvanzado`, que descompone las preguntas compuestas en
+        subpreguntas y recupera por cada una, y `RAGServiceReranking`, que
+        ensancha la búsqueda y reordena. Mantener las tres clases vivas, en
+        lugar de modificar esta, permite relanzar cada configuración sobre el
+        mismo conjunto de evaluación y que la comparación sea reproducible: si
+        se hubiera modificado, la línea base habría desaparecido.
+
+        `top_k` existe para que una subclase pueda pedir más candidatos de los
+        que acabarán llegando al modelo. Reordenar los mismos TOP_K fragmentos
+        solo cambia su orden —`hit@5` no podría moverse, porque serían los
+        mismos cinco documentos—, de modo que un reordenador únicamente aporta
+        algo si antes hay de dónde elegir.
 
         Devuelve los fragmentos SIN filtrar por umbral —ese filtro pertenece a
         `generate_response` y es común a todas las estrategias— y los tokens
         consumidos al vectorizar.
         """
+        top_k = TOP_K if top_k is None else top_k
         try:
             with observabilidad.paso("embedding_consulta", entrada=query) as traza:
                 query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
@@ -151,9 +159,9 @@ class RAGService:
             raise RAGUnavailableError("embedding de la consulta", e) from e
 
         try:
-            with observabilidad.paso("recuperacion", entrada={"namespace": namespace, "top_k": TOP_K}) as traza:
+            with observabilidad.paso("recuperacion", entrada={"namespace": namespace, "top_k": top_k}) as traza:
                 raw_docs: List[Any] = self.pinecone_service.buscar_vectores(
-                    query_embedding, top_k=TOP_K, namespace=namespace
+                    query_embedding, top_k=top_k, namespace=namespace
                 )
                 traza["fragmentos"] = [
                     {

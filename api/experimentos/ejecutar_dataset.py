@@ -48,6 +48,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.core import observabilidad  # noqa: E402
 from app.services.rag_service import RAGService  # noqa: E402
 from app.services.rag_service_avanzado import RAGServiceAvanzado  # noqa: E402
+from app.services.rag_service_reranking import RAGServiceReranking  # noqa: E402
+
+# Las tres configuraciones comparables. La clave es lo que se pasa por
+# --configuracion y lo que queda escrito en el JSON de resultados: una cifra de
+# recuperacion no significa nada sin saber con cual se obtuvo.
+CONFIGURACIONES = {
+    "base": (RAGService, "naive_rag_umbral_0.30"),
+    "descomposicion": (RAGServiceAvanzado, "avanzado_descomposicion"),
+    "reranking": (RAGServiceReranking, "avanzado_reranking"),
+}
 
 AQUI = Path(__file__).parent
 DATASET = AQUI / "dataset_evaluacion.csv"
@@ -101,13 +111,13 @@ def evaluar_anclas(fila: Dict[str, str], contextos: List[str]) -> Dict[str, Any]
     }
 
 
-def ejecutar(empresa: int, asistente: int, avanzado: bool = False,
+def ejecutar(empresa: int, asistente: int, configuracion: str = "base",
              temperatura: float = None) -> Dict[str, Any]:
     with io.open(DATASET, encoding="utf-8", newline="") as f:
         filas = list(csv.DictReader(f))
 
-    rag = RAGServiceAvanzado() if avanzado else RAGService()
-    config = "avanzado_descomposicion" if avanzado else "naive_rag_umbral_0.30"
+    clase, config = CONFIGURACIONES[configuracion]
+    rag = clase()
     # La temperatura forma parte de la configuracion medida: una fidelidad no
     # significa lo mismo a 0 que a 0,7. Si no se indica, se usa la del servicio.
     if temperatura is not None:
@@ -211,17 +221,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--empresa", type=int, required=True)
     ap.add_argument("--asistente", type=int, default=None)
-    ap.add_argument("--avanzado", action="store_true",
-                    help="usa RAGServiceAvanzado (descomposición de consultas)")
+    ap.add_argument("--configuracion", choices=sorted(CONFIGURACIONES), default="base",
+                    help="qué clase de recuperación se mide")
     ap.add_argument("--temperatura", type=float, default=None,
                     help="fuerza la temperatura del modelo generativo "
                          "(por defecto, la del servicio)")
     args = ap.parse_args()
 
-    datos = ejecutar(args.empresa, args.asistente, args.avanzado, args.temperatura)
+    datos = ejecutar(args.empresa, args.asistente, args.configuracion, args.temperatura)
     resumir(datos)
 
-    sufijo = "_avanzado" if args.avanzado else ""
+    sufijo = "" if args.configuracion == "base" else f"_{args.configuracion}"
     if args.temperatura is not None:
         sufijo += f"_temp{args.temperatura}"
     salida = AQUI / "resultados" / f"dataset_ejecutado_{date.today().isoformat()}{sufijo}.json"

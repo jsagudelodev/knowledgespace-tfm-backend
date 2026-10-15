@@ -182,12 +182,18 @@ def main() -> int:
             print(f"    P{fila['id']}  faithfulness={fila['faithfulness']:.3f}  "
                   f"{str(fila['user_input'])[:46]}")
 
-    salida = RESULTADOS / f"ragas_{date.today().isoformat()}.json"
+    # El nombre arrastra la configuracion que se evaluo. Antes era solo la
+    # fecha, y evaluar dos configuraciones el mismo dia sobrescribia la
+    # primera: se perdio asi una linea base que hubo que recuperar de git.
+    # La configuracion sale del propio JSON de entrada, no de aqui, para que
+    # no puedan divergir.
+    config = datos.get("configuracion", "desconocida")
+    salida = RESULTADOS / f"ragas_{date.today().isoformat()}_{config}.json"
     salida.write_text(json.dumps({
         "fecha": date.today().isoformat(),
         "entrada": entrada.name,
         "modelo_juez": args.modelo,
-        "configuracion": "naive_rag_umbral_0.30",
+        "configuracion": config,
         "n_preguntas": len(muestras),
         "promedios": {c: float(df[c].dropna().mean()) for c in cols},
         "por_pregunta": df.to_dict(orient="records"),
