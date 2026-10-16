@@ -60,6 +60,18 @@ class Settings(BaseSettings):
     PINECONE_API_KEY: Optional[str] = None
     PINECONE_INDEX_NAME: str = "knowspace"
 
+    # ── Estrategia de recuperación ────────────────────────────────────────────
+    # Qué configuración del pipeline atiende el chat. Los valores admitidos y
+    # el porqué de cada uno están en `app/services/rag_factory.py`.
+    #
+    # El valor por defecto es "descomposicion" porque es la única mejora que
+    # demostró efecto sobre el problema que resolvía —cobertura conjunta del
+    # 48 % al 88 % en preguntas compuestas— y su coste solo crece cuando
+    # efectivamente descompone. El reordenado queda disponible pero no activo:
+    # mejora la recuperación sin mejorar las respuestas de forma medible, y
+    # multiplica por 3,7 el coste de cada consulta.
+    RAG_CONFIGURACION: str = "descomposicion"
+
     # ── CORS ──────────────────────────────────────────────────────────────────
     # En producción sobreescribir con la URL real del frontend desplegado.
     ALLOWED_ORIGINS: List[str] = [

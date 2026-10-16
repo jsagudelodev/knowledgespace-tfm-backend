@@ -46,18 +46,11 @@ from typing import Any, Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core import observabilidad  # noqa: E402
-from app.services.rag_service import RAGService  # noqa: E402
-from app.services.rag_service_avanzado import RAGServiceAvanzado  # noqa: E402
-from app.services.rag_service_reranking import RAGServiceReranking  # noqa: E402
-
-# Las tres configuraciones comparables. La clave es lo que se pasa por
-# --configuracion y lo que queda escrito en el JSON de resultados: una cifra de
-# recuperacion no significa nada sin saber con cual se obtuvo.
-CONFIGURACIONES = {
-    "base": (RAGService, "naive_rag_umbral_0.30"),
-    "descomposicion": (RAGServiceAvanzado, "avanzado_descomposicion"),
-    "reranking": (RAGServiceReranking, "avanzado_reranking"),
-}
+# Las tres configuraciones comparables se definen en el propio servicio, no
+# aqui: la etiqueta viaja al JSON de resultados y de ahi al nombre del fichero
+# de RAGAS, de modo que lo que se mide y lo que atiende al usuario no pueden
+# describirse de dos maneras distintas.
+from app.services.rag_factory import CONFIGURACIONES  # noqa: E402
 
 AQUI = Path(__file__).parent
 DATASET = AQUI / "dataset_evaluacion.csv"

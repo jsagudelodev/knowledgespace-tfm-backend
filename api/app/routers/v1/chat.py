@@ -13,7 +13,8 @@ from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services.rag_service import RAGService, RAGUnavailableError
+from app.services.rag_factory import crear_rag_service
+from app.services.rag_service import RAGUnavailableError
 from app.services.cost_tracking_service import CostTrackingService
 
 router = APIRouter()
@@ -72,7 +73,10 @@ async def chat_message(
     # El mensaje del usuario ya se guardó arriba y se conserva aunque esto
     # falle: la pregunta se hizo, y perderla haría que el reintento no tuviera
     # el historial completo.
-    rag = RAGService()
+    # Qué configuración atiende la consulta lo decide `RAG_CONFIGURACION`, no
+    # este enrutador: las tres clases conviven y el chat no tiene por qué saber
+    # cuál está activa. Ver `rag_factory` para el porqué de cada una.
+    rag = crear_rag_service()
     try:
         result = rag.generate_response(
             query=payload.message,
