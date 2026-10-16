@@ -277,6 +277,12 @@ class RAGService:
                     "document_name": d.metadata.get("document_name", "Documento desconocido"),
                     "text": (d.metadata.get("text") or "")[:300],
                     "score": round(getattr(d, "score", 0), 3),
+                    # Qué fragmento concreto del documento es, no solo de qué
+                    # documento procede. Sin esto, dos respuestas apoyadas en
+                    # partes distintas del mismo PDF son indistinguibles, y no
+                    # se puede ir a comprobar la cita en el original.
+                    "chunk_index": d.metadata.get("chunk_index"),
+                    "chunk_id": getattr(d, "id", None),
                 }
                 for d in relevant_docs
             ],

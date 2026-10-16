@@ -114,6 +114,77 @@ class PineconeService:
         except Exception as e:
             raise Exception(f"Error eliminando documento de Pinecone: {str(e)}")
 
+    def listar_por_documento(
+        self, document_id: int, namespace: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Devuelve los fragmentos indexados de un documento, en orden.
+
+        Permite inspeccionar en qué quedó dividido un documento tras la
+        ingesta. Hasta ahora el sistema informaba de *cuántos* fragmentos
+        generó —`chunk_count` en la base de datos— pero no de cuáles, de modo
+        que un troceado defectuoso solo se detectaba por sus efectos en las
+        respuestas.
+
+        **Se recuperan por prefijo de identificador y no por filtro de
+        metadatos.** Los identificadores son `doc-{id}-chunk-{i}`, así que el
+        prefijo los determina de forma exacta; un filtro por metadatos exigiría
+        una consulta con vector ficticio y un `top_k` arbitrario, que podría
+        dejar fuera fragmentos sin avisar.
+
+        Devuelve una lista vacía si el documento no tiene nada indexado, que es
+        lo que ocurre mientras se procesa o si la ingesta falló.
+        """
+        indice = self.pc.Index(self.nombre_indice)
+        prefijo = f"doc-{document_id}-chunk-"
+        kwargs: Dict[str, Any] = {"prefix": prefijo}
+        if namespace:
+            kwargs["namespace"] = namespace
+
+        try:
+            # `list` pagina, y **la forma de cada página depende de la versión
+            # del cliente**: la 9.1 devuelve objetos `ListResponse` con un
+            # atributo `vectors`, mientras que versiones anteriores devuelven
+            # directamente listas de identificadores. Se contemplan ambas
+            # porque la diferencia no da error: recorrer la forma equivocada
+            # simplemente produce una lista vacía, y un documento sin
+            # fragmentos parece un documento mal indexado.
+            ids: List[str] = []
+            for pagina in indice.list(**kwargs):
+                vectores = getattr(pagina, "vectors", None)
+                if vectores is not None:
+                    ids.extend(v.id for v in vectores)
+                elif isinstance(pagina, str):
+                    ids.append(pagina)
+                else:
+                    ids.extend(pagina)
+            if not ids:
+                return []
+
+            # `fetch` admite un número limitado de identificadores por llamada.
+            fragmentos: List[Dict[str, Any]] = []
+            for i in range(0, len(ids), 100):
+                lote = ids[i:i + 100]
+                kw: Dict[str, Any] = {"ids": lote}
+                if namespace:
+                    kw["namespace"] = namespace
+                respuesta = indice.fetch(**kw)
+                for vid, vector in (respuesta.vectors or {}).items():
+                    meta = vector.metadata or {}
+                    fragmentos.append({
+                        "chunk_id": vid,
+                        "chunk_index": int(meta.get("chunk_index", -1)),
+                        "text": meta.get("text", ""),
+                        "caracteres": len(meta.get("text", "")),
+                    })
+        except Exception as e:
+            raise Exception(f"Error listando los fragmentos del documento: {str(e)}")
+
+        # El orden de `list` y `fetch` no está garantizado, y mostrar los
+        # fragmentos desordenados impediría precisamente lo que se quiere ver:
+        # por dónde se cortó el texto.
+        fragmentos.sort(key=lambda f: f["chunk_index"])
+        return fragmentos
+
     @staticmethod
     def construir_namespace(company_id: int, assistant_id: Optional[int] = None) -> str:
         """

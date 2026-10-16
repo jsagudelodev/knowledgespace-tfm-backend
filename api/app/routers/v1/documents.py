@@ -352,6 +352,56 @@ async def download_document(
         raise HTTPException(status_code=500, detail=f"Error generando URL de descarga: {str(e)}")
 
 
+@router.get("/{document_id}/chunks", summary="Ver los fragmentos indexados de un documento")
+async def list_document_chunks(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Devuelve en qué fragmentos quedó dividido el documento tras la ingesta.
+
+    Hasta ahora el sistema informaba de *cuántos* fragmentos generaba, pero no
+    de cuáles. Un troceado defectuoso —un corte a mitad de una tabla, una
+    sección que la extracción del PDF se dejó— solo se detectaba por sus
+    efectos en las respuestas, que es tarde y es indirecto. Esto permite
+    comprobarlo sobre el documento concreto.
+
+    Los fragmentos se leen del índice vectorial y no de la base de datos,
+    porque **es el índice el que responde a las consultas**: si ambos
+    divergieran, lo que importa es lo que el índice contiene. El apartado 7.1
+    de la memoria describe un caso en que divergieron durante meses.
+
+    La lista viene vacía mientras el documento se procesa o si la ingesta
+    falló; el campo `status` del documento distingue ambas situaciones.
+    """
+    documento = DocumentRepository(db).get(document_id)
+    if not documento or documento.company_id != current_user.company_id:
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+    namespace = PineconeService.construir_namespace(
+        documento.company_id, documento.assistant_id
+    )
+    try:
+        fragmentos = PineconeService().listar_por_documento(document_id, namespace=namespace)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"No se pudieron leer los fragmentos del índice: {e}",
+        )
+
+    return {
+        "document_id": document_id,
+        "document_name": documento.original_filename,
+        "status": documento.status,
+        # El recuento guardado al ingerir y el que el índice tiene ahora. Que
+        # no coincidan es la señal de desincronización que el sistema no daba.
+        "chunk_count_registrado": documento.chunk_count,
+        "chunk_count_indexado": len(fragmentos),
+        "sincronizado": documento.chunk_count == len(fragmentos),
+        "chunks": fragmentos,
+    }
+
+
 @router.post("/{document_id}/retry", response_model=DocumentResponse, summary="Reintentar procesamiento")
 async def retry_document(
     document_id: int,
