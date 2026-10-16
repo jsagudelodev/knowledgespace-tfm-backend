@@ -200,6 +200,13 @@ class RAGService:
         else:
             namespace = PineconeService.construir_namespace(company_id)
 
+        # Las subclases pueden hacer llamadas de pago al modelo dentro de
+        # `_recuperar` —descomponer la consulta, reordenar los fragmentos—. Cada
+        # una anota aquí su consumo y el enrutador lo registra: un registro de
+        # costes incompleto no es un registro de costes. Se vacía en cada
+        # consulta porque el servicio se instancia por petición.
+        self.llamadas_auxiliares: List[Dict[str, Any]] = []
+
         raw_docs, embedding_tokens = self._recuperar(query, namespace)
 
         relevant_docs = [d for d in raw_docs if getattr(d, "score", 0) >= RELEVANCE_THRESHOLD]
@@ -287,7 +294,30 @@ class RAGService:
             "model": effective_model,
             "embedding_model": self.embedding_service.modelo,
             "embedding_tokens": embedding_tokens,
+            # Vacía en la clase base, que no hace más llamadas que las dos ya
+            # registradas. Las subclases la rellenan. Ver `llamadas_auxiliares`
+            # más arriba.
+            "llamadas_auxiliares": self.llamadas_auxiliares,
         }
+
+    def _anotar_llamada(self, operacion: str, respuesta: Any) -> None:
+        """Registra el consumo de una llamada auxiliar al modelo.
+
+        La usan las subclases tras descomponer o reordenar. Si el proveedor no
+        devolviera el consumo —no debería, pero la respuesta es de un tercero—
+        la llamada no se anota en lugar de anotarse con ceros: una fila de
+        coste con cero tokens es peor que ninguna, porque parece una medición.
+        """
+        uso = getattr(respuesta, "usage", None)
+        if uso is None:
+            logger.warning("[RAG] La llamada '%s' no devolvió consumo; no se registra", operacion)
+            return
+        self.llamadas_auxiliares.append({
+            "operacion": operacion,
+            "modelo": settings.OPENAI_CHAT_MODEL,
+            "tokens_entrada": uso.prompt_tokens,
+            "tokens_salida": uso.completion_tokens,
+        })
 
     @staticmethod
     def _build_context(relevant_docs: List[Any]) -> str:

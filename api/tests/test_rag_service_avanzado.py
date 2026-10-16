@@ -46,7 +46,10 @@ class _ClienteQueResponde:
     def _create(self, **kwargs):
         self.llamadas += 1
         mensaje = SimpleNamespace(content=self._texto)
-        return SimpleNamespace(choices=[SimpleNamespace(message=mensaje)])
+        return SimpleNamespace(
+            choices=[SimpleNamespace(message=mensaje)],
+            usage=SimpleNamespace(prompt_tokens=120, completion_tokens=18),
+        )
 
 
 class _ClienteQueFalla:
@@ -64,6 +67,8 @@ def _servicio(cliente, recuperaciones=None):
     """
     svc = RAGServiceAvanzado.__new__(RAGServiceAvanzado)
     svc.client = cliente
+    # La inicializa `generate_response`, que aqui no se invoca.
+    svc.llamadas_auxiliares = []
 
     llamadas = []
 
@@ -178,6 +183,29 @@ def test_suma_los_tokens_de_todas_las_subpreguntas(monkeypatch):
 
     _, tokens = svc._recuperar("primera y segunda", "ns")
     assert tokens == 16
+
+
+# ── La llamada del descompositor se factura ────────────────────────────────
+
+def test_la_descomposicion_queda_registrada_como_coste():
+    """Es una llamada de pago al modelo dentro de una funcionalidad que el
+    trabajo presenta como aportacion. Un registro de costes incompleto no es
+    un registro de costes."""
+    svc = _servicio(_ClienteQueResponde("primera\nsegunda"))
+    svc._descomponer("primera y segunda")
+
+    assert len(svc.llamadas_auxiliares) == 1
+    anotada = svc.llamadas_auxiliares[0]
+    assert anotada["operacion"] == "descomposicion"
+    assert anotada["tokens_entrada"] == 120
+    assert anotada["tokens_salida"] == 18
+
+
+def test_una_descomposicion_fallida_no_registra_coste():
+    """Si la llamada no llego a completarse no hay nada que facturar."""
+    svc = _servicio(_ClienteQueFalla())
+    svc._descomponer("x")
+    assert svc.llamadas_auxiliares == []
 
 
 def test_se_busca_una_vez_por_subpregunta(monkeypatch):

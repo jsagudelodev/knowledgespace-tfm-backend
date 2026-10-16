@@ -47,13 +47,18 @@ class _Cliente:
         if self._texto is None:
             raise RuntimeError("la API no responde")
         mensaje = SimpleNamespace(content=self._texto)
-        return SimpleNamespace(choices=[SimpleNamespace(message=mensaje)])
+        return SimpleNamespace(
+            choices=[SimpleNamespace(message=mensaje)],
+            usage=SimpleNamespace(prompt_tokens=4800, completion_tokens=22),
+        )
 
 
 def _servicio(texto_modelo, docs_base=None, tokens=5):
     svc = RAGServiceReranking.__new__(RAGServiceReranking)
     svc.client = _Cliente(texto_modelo)
     svc.top_k_pedido = []
+    # La inicializa `generate_response`, que aqui no se invoca.
+    svc.llamadas_auxiliares = []
 
     def _base(query, namespace, top_k=None):
         svc.top_k_pedido.append(top_k)
@@ -187,6 +192,39 @@ def test_al_generador_llegan_como_mucho_TOP_K_fragmentos():
 
     resultado, _ = svc._recuperar("x", "ns")
     assert len(resultado) == TOP_K
+
+
+# ── La llamada del reordenador se factura ──────────────────────────────────
+
+def test_el_reordenado_queda_registrado_como_coste():
+    """Es la llamada mas cara de las auxiliares: recibe los fragmentos
+    candidatos completos, en torno a 5.000 tokens de entrada."""
+    docs = [_doc("a", 0.9), _doc("b", 0.8)]
+    svc = _servicio("1,0", docs)
+    svc._recuperar("x", "ns")
+
+    assert len(svc.llamadas_auxiliares) == 1
+    anotada = svc.llamadas_auxiliares[0]
+    assert anotada["operacion"] == "reordenado"
+    assert anotada["tokens_entrada"] == 4800
+
+
+def test_sin_candidatos_no_hay_coste_que_registrar():
+    """Coherente con que tampoco se llame al modelo: si el umbral descarta
+    todo, el reordenado no cuesta nada."""
+    bajos = [_doc(f"c{i}", 0.10) for i in range(5)]
+    svc = _servicio("0,1", bajos)
+    svc._recuperar("x", "ns")
+
+    assert svc.llamadas_auxiliares == []
+
+
+def test_un_reordenado_fallido_no_registra_coste():
+    docs = [_doc("a", 0.9), _doc("b", 0.8)]
+    svc = _servicio(None, docs)
+    svc._recuperar("x", "ns")
+
+    assert svc.llamadas_auxiliares == []
 
 
 def test_un_fragmento_mal_colocado_por_el_coseno_puede_entrar_en_los_cinco():

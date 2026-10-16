@@ -118,6 +118,7 @@ class RAGServiceAvanzado(RAGService):
                 temperature=0,
                 max_tokens=200,
             )
+            self._anotar_llamada("descomposicion", respuesta)
             texto = (respuesta.choices[0].message.content or "").strip()
         except Exception as e:  # noqa: BLE001
             logger.warning("[RAG+] Falló la descomposición, se usa la consulta original: %s", e)

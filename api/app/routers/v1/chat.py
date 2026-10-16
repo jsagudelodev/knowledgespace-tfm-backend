@@ -126,6 +126,24 @@ async def chat_message(
         assistant_id=assistant.id if assistant else None,
     )
 
+    # Las configuraciones avanzadas llaman al modelo una vez más —para
+    # descomponer la consulta o para reordenar los fragmentos— y esas llamadas
+    # se facturan igual que las otras dos. Se registran con su propia
+    # `operation` para que el desglose por tipo siga siendo legible y para
+    # poder responder cuánto cuesta cada mejora, no solo si funciona.
+    # En la configuración básica la lista viene vacía y este bucle no se ejecuta.
+    for llamada in result.get("llamadas_auxiliares", []):
+        CostTrackingService(db).record(
+            company_id=current_user.company_id,
+            model=llamada["modelo"],
+            operation=llamada["operacion"],
+            input_tokens=llamada["tokens_entrada"],
+            output_tokens=llamada["tokens_salida"],
+            user_id=current_user.id,
+            conversation_id=conversation.id,
+            assistant_id=assistant.id if assistant else None,
+        )
+
     return ChatResponse(
         message_id=assistant_message.id,
         conversation_id=conversation.id,
