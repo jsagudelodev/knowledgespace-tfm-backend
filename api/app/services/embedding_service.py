@@ -2,8 +2,7 @@
 Usado tanto al indexar documentos como al consultar. Ver `docs/RAG_PIPELINE.md`."""
 from typing import List, Tuple
 
-from openai import OpenAI
-
+from app.core import observabilidad
 from app.core.config import settings
 
 
@@ -17,7 +16,19 @@ class EmbeddingService:
     """
 
     def __init__(self):
-        self.cliente = OpenAI(api_key=settings.OPENAI_API_KEY)
+        # **Por qué no `from openai import OpenAI` directo.** Langfuse 4 no
+        # envuelve una instancia: al importarse, parchea la clase
+        # `openai.OpenAI` para todo el proceso, de modo que cualquier cliente
+        # creado después de ese import queda trazado, aunque no pase por aquí.
+        # Este servicio dependía de ese efecto secundario —el chat siempre
+        # instancia `RAGService` primero, que dispara el parche antes de crear
+        # este cliente—, pero la ingesta de documentos no: `documents.py`
+        # instancia `EmbeddingService` directamente, sin que ningún
+        # `RAGService` se haya creado antes en ese proceso. Verificado en un
+        # proceso limpio que reproduce exactamente ese flujo: la llamada
+        # quedaba sin trazar. Pedir el cliente aquí hace que la trazabilidad
+        # dependa del diseño y no del orden en que arranca cada worker.
+        self.cliente = observabilidad.cliente_openai()(api_key=settings.OPENAI_API_KEY)
         self.modelo = settings.OPENAI_EMBEDDING_MODEL   # text-embedding-3-small → 1536 dimensiones
 
     def generar_embedding(self, texto: str) -> List[float]:

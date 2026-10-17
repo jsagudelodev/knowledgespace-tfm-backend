@@ -2,7 +2,7 @@
   "fecha": "2026-10-14",
   "entrada": "dataset_ejecutado_2026-10-14_reranking_temp0.0.json",
   "modelo_juez": "gpt-4o-mini",
-  "configuracion": "naive_rag_umbral_0.30",
+  "configuracion": "avanzado_reranking",
   "n_preguntas": 12,
   "promedios": {
     "llm_context_precision_with_reference": 0.9197916666353384,

@@ -1,21 +1,25 @@
 """Elige qué configuración del pipeline RAG atiende cada consulta.
 
-Las tres clases existen a la vez y se mantienen vivas a propósito: la línea
+Las cuatro clases existen a la vez y se mantienen vivas a propósito: la línea
 base es el término de comparación de todos los experimentos del capítulo 5, y
 sin ella no habría con qué comparar las mejoras. Lo que este módulo decide es
-cuál de las tres atiende al usuario.
+cuál de las cuatro atiende al usuario.
 
     RAGService            Naive RAG con filtro por umbral. La línea base.
     RAGServiceAvanzado    + descomposición de consultas  (pre-recuperación)
     RAGServiceReranking   + reordenado de fragmentos     (post-recuperación)
+    RAGServiceCompleto    + descomposición con tope de contexto y reparto
+                            equilibrado entre subpreguntas
 
-**Por qué el valor por defecto es la descomposición.** Es la única de las dos
-mejoras que demostró efecto sobre el problema que venía a resolver: la
+**Por qué el valor por defecto es `descomposicion_acotada`.** Es la variante de
+descomposición que demostró efecto sobre el problema que venía a resolver —la
 cobertura conjunta de las preguntas compuestas pasó del 48 % al 88 % sobre las
-seis parejas medidas, y las seis mejoraron. Su coste, además, es proporcional
-al uso —solo se encarece la consulta que efectivamente se descompone— y añade
-alrededor de 1,2 s a la latencia mediana, muy por debajo del límite de quince
-segundos que fija el requisito RNF-1.
+seis parejas medidas, con mejora en las seis— y además acota el contexto que
+crece con el número de subpreguntas, repartiéndolo de forma equilibrada en
+lugar de dejarlo crecer sin tope. Su coste es proporcional al uso —solo se
+encarece la consulta que efectivamente se descompone— y añade alrededor de
+1,2 s a la latencia mediana, muy por debajo del límite de quince segundos que
+fija el requisito RNF-1.
 
 **Por qué el reordenado no está activo.** Mejora la recuperación de forma
 consistente —hit@3 de 0,500 a 0,667 y MRR de 0,394 a 0,447— pero las cuatro
