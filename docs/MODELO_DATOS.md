@@ -826,7 +826,11 @@ class Notification(Base):
 
 ### 2.14 budget_limits
 
-**Sin modelo ORM** — tabla ya creada en Supabase para el módulo "Presupuesto/Uso" descrito en `BACKLOG_BACKEND.md` (pendiente de implementar `app/db/models/budget_limit.py` y su router).
+**Sin modelo ORM, y fuera del alcance de esta entrega** — ver §3.5. Es esquema
+heredado del módulo "Presupuesto/Uso" del producto comercial, no trabajo
+pendiente. Contiene una fila de junio de 2026 cuyo campo
+`current_monthly_spend` marca 0,00 USD y **no refleja el gasto real**, que vive
+en `cost_tracking`.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -1027,7 +1031,49 @@ Todos los modelos se importan en `app/db/models/__init__.py` para garantizar que
 
 ### 3.5 Tablas sin modelo ORM (introspección directa vs. `app/db/models/`)
 
-Al comparar el esquema real de Supabase contra `app/db/models/`, las siguientes tablas **existen en la base de datos pero no tienen clase SQLAlchemy ni router**: `budget_limits`, `quota_alerts`, `audit_logs`, `support_tickets`, `courses`, `quizzes`, `quiz_results`, `enrollments`. Detalle de cada una en las secciones 2.14–2.22. `budget_limits` corresponde a una feature ya definida en `BACKLOG_BACKEND.md` (Módulo 11); el resto no está referenciado en ningún backlog. `cost_tracking` **ya salió de esta lista** — ver §2.15, tiene modelo ORM, servicio y router desde 2026-09-08.
+Ocho tablas **existen en la base de datos y no tienen clase SQLAlchemy ni
+router**: `budget_limits`, `quota_alerts`, `audit_logs`, `support_tickets`,
+`courses`, `quizzes`, `quiz_results` y `enrollments`. De las veintitrés tablas
+del esquema, catorce tienen modelo; estas ocho no, y `alembic_version` es
+control de migraciones.
+
+> **Están declaradas fuera del alcance de esta entrega.** No son trabajo
+> pendiente ni funcionalidad a medias: son **esquema heredado del producto
+> comercial** del que este TFM recorta su alcance, con el mismo criterio
+> aplicado al widget público embebible (ver `ALCANCE_TFM.md`). Se conservan
+> porque eliminarlas exigiría una migración que no aporta nada a lo evaluable,
+> y porque documentar lo que hay es preferible a dejar un esquema que no
+> coincide con la realidad.
+
+| Tabla | Filas | Origen |
+|---|---|---|
+| `budget_limits` | **1** | Control de presupuesto mensual del producto comercial |
+| `quota_alerts` | **2** | Avisos de cuota ya enviados, del mismo módulo |
+| `audit_logs` | 0 | Bitácora de acciones; origen no confirmado |
+| `support_tickets` | 0 | Soporte; origen no confirmado |
+| `courses`, `quizzes`, `quiz_results`, `enrollments` | 0 | Módulo formativo, ajeno al dominio; esquema del proyecto hermano TrainIQ |
+
+> ⚠️ **Las dos primeras contienen datos, y están obsoletos.** Proceden de junio
+> de 2026, cuando el módulo de presupuesto operaba en el producto comercial:
+> `budget_limits` fija un tope de 2,00 USD mensuales para una empresa y
+> `quota_alerts` registra dos avisos enviados, al 80 % y al 100 %. Pero
+> `current_monthly_spend` marca **0,00 USD** mientras `cost_tracking` acumula
+> consumo real, porque ningún código actualiza ya ese campo.
+>
+> No es solo una tabla sin usar: **es una tabla que muestra un dato falso**. Se
+> consigna aquí para que nadie la lea como fuente de verdad. El gasto real está
+> en `cost_tracking`, que sí se mantiene al día en cada consulta.
+
+**Qué se entrega en su lugar.** El requisito RNF-4 del apartado 3.1 de la
+memoria exige que todo consumo quede **registrado y atribuido**, no que exista
+un tope que el sistema haga cumplir. Eso está implementado y medido en
+`cost_tracking`: cada llamada al proveedor anota sus tokens, su modelo, su
+importe y la organización que la originó, con operaciones distinguidas —`chat`,
+`embedding`, `descomposicion` y `reordenado`—. Imponer el límite es la parte
+que queda fuera, y se recoge como trabajo futuro.
+
+`cost_tracking` **ya salió de esta lista** — ver §2.15, tiene modelo ORM,
+servicio y router desde 2026-09-08.
 
 > `document_tags` (relación N:N documents↔tags) existía en Supabase pero **se eliminó el 2026-08-09**: no tenía modelo ORM, endpoint ni uso en el frontend (confirmado en `KnowledgeSpace_FrontEnd`), y estaba vacía (0 filas) sin dependientes.
 

@@ -47,6 +47,24 @@ widget público embebible):
 - CRUD administrativo de companies/users/notifications: es soporte necesario
   para que el multi-tenant funcione, no la contribución de investigación.
 
+- **Ocho tablas sin código detrás**: `budget_limits`, `quota_alerts`,
+  `audit_logs`, `support_tickets`, `courses`, `quizzes`, `quiz_results` y
+  `enrollments`. De las veintitrés tablas del esquema, catorce tienen modelo
+  ORM; estas ocho son esquema heredado del producto comercial y del proyecto
+  hermano TrainIQ. **No son trabajo pendiente**: se declaran fuera de alcance
+  con el mismo criterio que el widget.
+
+  Dos de ellas **contienen datos obsoletos de junio de 2026**, cuando el módulo
+  de presupuesto operaba en el producto comercial. `budget_limits` fija un tope
+  de 2,00 USD mensuales con `current_monthly_spend` en 0,00, cifra que **no
+  refleja el gasto real**: ese vive en `cost_tracking`, que sí se mantiene al
+  día. El detalle está en `docs/MODELO_DATOS.md` §3.5.
+
+  Lo que sí se entrega es el **registro** del consumo, que es lo que exige el
+  requisito RNF-4: cada llamada al proveedor anota tokens, modelo, importe y
+  organización, con las operaciones distinguidas. Hacer cumplir un tope es la
+  parte que queda fuera.
+
 ## Material de defensa
 
 - `docs/tutorials/README.md` — tutoriales interactivos ejecutables, con
