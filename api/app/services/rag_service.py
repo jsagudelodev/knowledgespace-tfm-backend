@@ -318,6 +318,12 @@ class RAGService:
         if uso is None:
             logger.warning("[RAG] La llamada '%s' no devolvió consumo; no se registra", operacion)
             return
+        # La lista la prepara `generate_response`, pero los experimentos llaman
+        # a `_recuperar` directamente para medir solo la recuperación. Se crea
+        # aquí si falta, de modo que medir no exija pasar por el pipeline
+        # completo ni pagar una generación que no se va a evaluar.
+        if not hasattr(self, "llamadas_auxiliares"):
+            self.llamadas_auxiliares = []
         self.llamadas_auxiliares.append({
             "operacion": operacion,
             "modelo": settings.OPENAI_CHAT_MODEL,

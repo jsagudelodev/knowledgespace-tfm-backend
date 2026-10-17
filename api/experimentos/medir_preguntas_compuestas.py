@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.services.embedding_service import EmbeddingService  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
 from app.services.rag_service import RELEVANCE_THRESHOLD  # noqa: E402
-from app.services.rag_service_avanzado import RAGServiceAvanzado  # noqa: E402
+from app.services.rag_factory import CONFIGURACIONES  # noqa: E402
 
 TOP_K = 5
 
@@ -87,12 +87,13 @@ def consultar(emb, pine, pregunta: str, namespace: str, avanzado=None) -> Dict[s
     }
 
 
-def medir(namespace: str, avanzado: bool = False) -> List[Dict[str, Any]]:
+def medir(namespace: str, configuracion: str = "base") -> List[Dict[str, Any]]:
     emb, pine = EmbeddingService(), PineconeService()
     # Las preguntas por separado SIEMPRE se recuperan con el pipeline base: son
     # la referencia, lo que el sistema es capaz de encontrar cuando se le
     # pregunta bien. Solo la compuesta cambia de estrategia.
-    svc = RAGServiceAvanzado() if avanzado else None
+    clase, _ = CONFIGURACIONES[configuracion]
+    svc = None if configuracion == "base" else clase()
     salida = []
 
     for par in PAREJAS:
@@ -131,14 +132,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--empresa", type=int, required=True)
     ap.add_argument("--asistente", type=int, default=None)
-    ap.add_argument("--avanzado", action="store_true",
-                    help="recupera la compuesta con RAGServiceAvanzado")
+    ap.add_argument("--configuracion", choices=sorted(CONFIGURACIONES), default="base",
+                    help="que clase recupera la pregunta compuesta")
     args = ap.parse_args()
 
     namespace = PineconeService.construir_namespace(args.empresa, args.asistente)
     print(f"Namespace: {namespace}   top_k={TOP_K}\n")
 
-    res = medir(namespace, args.avanzado)
+    res = medir(namespace, args.configuracion)
 
     for r in res:
         print("=" * 78)
@@ -181,13 +182,13 @@ def main() -> int:
     print(f"  Fragmentos que superan el umbral en las compuestas: "
           f"{total_sobre}/{TOP_K * len(res)} - el umbral NO detecta la cobertura parcial.")
 
-    salida = Path(__file__).parent / "resultados" / f"preguntas_compuestas_{date.today().isoformat()}{'_avanzado' if args.avanzado else ''}.json"
+    salida = Path(__file__).parent / "resultados" / f"preguntas_compuestas_{date.today().isoformat()}_{args.configuracion}.json"
     salida.parent.mkdir(exist_ok=True)
     salida.write_text(json.dumps({
         "fecha": date.today().isoformat(),
         "namespace": namespace,
         "top_k": TOP_K,
-        "configuracion": "avanzado_descomposicion" if args.avanzado else "naive",
+        "configuracion": CONFIGURACIONES[args.configuracion][1],
         "parejas": res,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nResultados en {salida.relative_to(Path(__file__).parent.parent)}")

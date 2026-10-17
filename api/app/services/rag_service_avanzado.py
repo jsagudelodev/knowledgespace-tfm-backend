@@ -131,8 +131,45 @@ class RAGServiceAvanzado(RAGService):
             return [query]
         return subs
 
-    def _recuperar(self, query: str, namespace: str) -> Tuple[List[Any], int]:
-        """Recupera descomponiendo la consulta si contiene varias preguntas."""
+    def _recuperar_cada_una(
+        self, subpreguntas: List[str], namespace: str, top_k: int = None
+    ) -> Tuple[List[List[Any]], int]:
+        """Busca por cada subpregunta y devuelve **los resultados separados**.
+
+        Se mantienen separados, y no fusionados de entrada, porque saber de qué
+        subpregunta viene cada fragmento es lo único que permite repartir con
+        equilibrio cuando hay que recortar. `RAGServiceCompleto` lo aprovecha.
+        """
+        listas: List[List[Any]] = []
+        tokens_total = 0
+        for sub in subpreguntas:
+            docs, tokens = super()._recuperar(sub, namespace, top_k=top_k)
+            tokens_total += tokens
+            listas.append(docs)
+        return listas, tokens_total
+
+    @staticmethod
+    def _fusionar(listas: List[List[Any]]) -> List[Any]:
+        """Une los resultados descartando repetidos, por puntuación.
+
+        Un mismo fragmento puede aparecer en varias búsquedas; se conserva una
+        sola vez y con la **mejor** puntuación obtenida, porque es la que
+        refleja su relevancia máxima para el conjunto de la consulta.
+        """
+        mejores: dict = {}
+        for docs in listas:
+            for d in docs:
+                previo = mejores.get(d.id)
+                if previo is None or getattr(d, "score", 0) > getattr(previo, "score", 0):
+                    mejores[d.id] = d
+        return sorted(mejores.values(), key=lambda d: getattr(d, "score", 0), reverse=True)
+
+    def _recuperar(self, query: str, namespace: str, top_k: int = None) -> Tuple[List[Any], int]:
+        """Recupera descomponiendo la consulta si contiene varias preguntas.
+
+        `top_k` se propaga a cada subpregunta: son `top_k` fragmentos **por
+        cada una**, no en total.
+        """
         with observabilidad.paso("descomposicion", entrada=query) as traza:
             subpreguntas = self._descomponer(query)
             traza["subpreguntas"] = subpreguntas
@@ -141,27 +178,15 @@ class RAGServiceAvanzado(RAGService):
         # Una sola subpregunta: el camino de la clase base, sin coste añadido.
         if len(subpreguntas) == 1:
             logger.info("[RAG+] Consulta simple, recuperación estándar")
-            return super()._recuperar(subpreguntas[0], namespace)
+            return super()._recuperar(subpreguntas[0], namespace, top_k=top_k)
 
         logger.info("[RAG+] Consulta descompuesta en %d: %s",
                     len(subpreguntas), subpreguntas)
 
-        # Se busca por cada subpregunta y se fusiona. Un mismo fragmento puede
-        # aparecer en varias búsquedas; se conserva una sola vez, con la mejor
-        # puntuación obtenida, porque es la que refleja su relevancia máxima
-        # para el conjunto de la consulta.
-        mejores: dict = {}
-        tokens_total = 0
-        for sub in subpreguntas:
-            docs, tokens = super()._recuperar(sub, namespace)
-            tokens_total += tokens
-            for d in docs:
-                previo = mejores.get(d.id)
-                if previo is None or getattr(d, "score", 0) > getattr(previo, "score", 0):
-                    mejores[d.id] = d
-
-        fusionados = sorted(mejores.values(),
-                            key=lambda d: getattr(d, "score", 0), reverse=True)
+        por_subpregunta, tokens_total = self._recuperar_cada_una(
+            subpreguntas, namespace, top_k
+        )
+        fusionados = self._fusionar(por_subpregunta)
 
         logger.info(
             "[RAG+] %d subpreguntas -> %d fragmentos únicos (de %d recuperados)",

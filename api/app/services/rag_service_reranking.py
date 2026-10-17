@@ -67,12 +67,11 @@ línea base, puede arrojar métricas de recuperación ligeramente distintas entr
 pasadas. Al citar sus cifras hay que decirlo.
 """
 import logging
-import re
 from typing import Any, List, Tuple
 
 from app.core import observabilidad
-from app.core.config import settings
 from app.services.rag_service import RELEVANCE_THRESHOLD, TOP_K, RAGService
+from app.services.reordenador import MezclaReordenado
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -81,33 +80,7 @@ logger = logging.getLogger("uvicorn.error")
 # vuelva desmesurado: son 20 extractos de 400 caracteres, unos 2.000 tokens.
 CANDIDATOS = 20
 
-# Cuánto texto de cada fragmento ve el reordenador.
-#
-# **Empezó en 400 y se subió a 1.000 tras medirlo.** Con 400 el reordenador
-# juzgaba con el 40 % de cada fragmento y descartó, en la pregunta 8 del
-# conjunto de evaluación, el fragmento de mayor puntuación —la tabla
-# comparativa que permitía responder— quedándose con otro que contenía la frase
-# ancla pero no la respuesta. El sistema pasó de contestar correctamente a
-# abstenerse.
-#
-# 1.000 es el texto completo que el índice guarda por fragmento, de modo que el
-# reordenador ve lo mismo que verá el modelo generativo. El coste sube de unos
-# 2.000 a unos 5.000 tokens de entrada por consulta reordenada.
-RECORTE = 1000
-
-PROMPT_REORDENADO = """Ordena los fragmentos por su utilidad para responder la pregunta.
-
-Pregunta: {pregunta}
-
-Fragmentos:
-{fragmentos}
-
-Devuelve ÚNICAMENTE los números de los fragmentos, del más útil al menos útil, separados por comas.
-No añadas explicaciones, texto ni numeración propia. Ejemplo de respuesta válida: 3,1,7,2
-Incluye todos los números, sin repetir ninguno."""
-
-
-class RAGServiceReranking(RAGService):
+class RAGServiceReranking(MezclaReordenado, RAGService):
     """RAG con reordenado de los fragmentos recuperados.
 
     Se mantiene como clase aparte, y no como una modificación de `RAGService`,
@@ -115,55 +88,6 @@ class RAGServiceReranking(RAGService):
     existiendo y la comparación pueda repetirse sobre el mismo conjunto de
     evaluación en cualquier momento.
     """
-
-    def _ordenar(self, query: str, docs: List[Any]) -> List[Any]:
-        """Devuelve los fragmentos reordenados por utilidad.
-
-        Ante cualquier fallo —del modelo, de la red o del formato— devuelve el
-        orden original. El reordenado es una mejora, nunca un punto de fallo.
-        """
-        if len(docs) < 2:
-            return docs
-
-        extractos = "\n".join(
-            f"[{i}] {((d.metadata or {}).get('text') or '')[:RECORTE]}"
-            for i, d in enumerate(docs)
-        )
-
-        try:
-            respuesta = self.client.chat.completions.create(
-                model=settings.OPENAI_CHAT_MODEL,
-                messages=[{
-                    "role": "user",
-                    "content": PROMPT_REORDENADO.format(pregunta=query, fragmentos=extractos),
-                }],
-                temperature=0,
-                max_tokens=120,
-            )
-            self._anotar_llamada("reordenado", respuesta)
-            texto = (respuesta.choices[0].message.content or "").strip()
-        except Exception as e:  # noqa: BLE001
-            logger.warning("[RAG=] Falló el reordenado, se conserva el orden original: %s", e)
-            return docs
-
-        # El modelo puede devolver "3,1,7" o "3, 1, 7" o colar alguna palabra.
-        # Se extraen los enteros y se descarta lo que no sea una posición válida
-        # o esté repetido; lo que el modelo omita se añade al final en su orden
-        # original, de modo que nunca se pierde un fragmento recuperado.
-        vistos = set()
-        orden: List[int] = []
-        for n in re.findall(r"\d+", texto):
-            i = int(n)
-            if 0 <= i < len(docs) and i not in vistos:
-                vistos.add(i)
-                orden.append(i)
-
-        if not orden:
-            logger.warning("[RAG=] Reordenado descartado, respuesta ilegible: %r", texto[:80])
-            return docs
-
-        orden.extend(i for i in range(len(docs)) if i not in vistos)
-        return [docs[i] for i in orden]
 
     def _recuperar(self, query: str, namespace: str, top_k: int = None) -> Tuple[List[Any], int]:
         """Ensancha la búsqueda, filtra por umbral, reordena y recorta."""

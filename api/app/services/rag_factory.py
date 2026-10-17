@@ -34,6 +34,7 @@ from typing import Dict, Tuple, Type
 from app.core.config import settings
 from app.services.rag_service import RAGService
 from app.services.rag_service_avanzado import RAGServiceAvanzado
+from app.services.rag_service_completo import RAGServiceCompleto
 from app.services.rag_service_reranking import RAGServiceReranking
 
 logger = logging.getLogger("uvicorn.error")
@@ -48,6 +49,7 @@ CONFIGURACIONES: Dict[str, Tuple[Type[RAGService], str]] = {
     "base": (RAGService, "naive_rag_umbral_0.30"),
     "descomposicion": (RAGServiceAvanzado, "avanzado_descomposicion"),
     "reranking": (RAGServiceReranking, "avanzado_reranking"),
+    "completo": (RAGServiceCompleto, "avanzado_completo"),
 }
 
 POR_DEFECTO = "base"
