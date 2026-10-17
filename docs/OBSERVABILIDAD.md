@@ -55,8 +55,7 @@ Langfuse no puede adivinar que este sistema tiene un umbral de relevancia.
 
 | Observación | Contenido |
 |---|---|
-| `embedding_consulta` | tokens consumidos y dimensiones del vector |
-| `OpenAI-embedding` | modelo, tokens, coste |
+| `OpenAI-embedding` | modelo, tokens, coste — capturada automáticamente por el cliente envuelto |
 | `recuperacion` | *namespace*, `top_k`, y **cada fragmento con su documento, su puntuación y si supera el umbral** |
 | `OpenAI-generation` | modelo, temperatura, tokens de entrada y salida, coste |
 | traza raíz | `company_id`, `assistant_id`, *namespace*, cuántos se recuperaron y cuántos superaron el umbral |
@@ -65,6 +64,38 @@ Langfuse no puede adivinar que este sistema tiene un umbral de relevancia.
 tanto lo sabe cualquier herramienta; que tres de cinco fragmentos no llegaron a
 `0.30` solo lo sabe este sistema, y es lo que explica por qué la respuesta salió
 como salió.
+
+> **Ya no hay un `embedding_consulta` como paso manual.** Envolvía la misma
+> llamada que `OpenAI-embedding` ya captura sola, porque el cliente de OpenAI
+> queda instrumentado por Langfuse desde que se construye (ver más abajo, "Por
+> qué un *span* manual puede sobrar"). Lo mismo ocurría con un paso
+> `descomposicion` en las configuraciones que descomponen la consulta. Una
+> consulta simple pasó así de siete observaciones a cinco; una compuesta, de
+> once a siete. *2026-10-17.*
+
+### Por qué un *span* manual puede sobrar
+
+Langfuse 4 no envuelve una instancia: al importarse `langfuse.openai`,
+**parchea la clase `openai.OpenAI` para todo el proceso**. A partir de ese
+momento, cualquier cliente creado con esa clase —esté o no construido a través
+de `observabilidad.cliente_openai()`— queda instrumentado, y cada llamada real
+aparece sola en Langfuse como `OpenAI-generation` u `OpenAI-embedding`, con su
+modelo, sus tokens y su coste.
+
+Un *span* manual alrededor de esa misma llamada —`with observabilidad.paso(...)`
+envolviendo `self.client.chat.completions.create(...)`— no añade una segunda
+fuente de información: describe el mismo evento, una fila más. Y Langfuse Cloud
+factura por volumen de observaciones ingeridas, de modo que la duplicación se
+pagaba dos veces por nada, justo mientras se hacían pruebas manuales del chat y
+la cuota se consumía más rápido de lo esperado.
+
+Se retiraron los dos *spans* que envolvían una llamada al proveedor sin aportar
+nada que la captura automática no tuviera ya —`embedding_consulta` en
+`rag_service.py` y `descomposicion` en las dos clases que descomponen—. **No**
+se tocaron `recuperacion` ni `reparto`: Pinecone no se auto-instrumenta, así que
+son el único sitio donde queda visible qué recuperó el índice, con qué
+puntuación y si superó el umbral. Quitarlos habría debilitado justo lo que esta
+sección defiende como aportación.
 
 ### La etiqueta `sin_contexto`
 
@@ -188,6 +219,51 @@ resúmenes**: para ver el contenido de cada paso hay que entrar en la interfaz.
 
 ---
 
+## Verificación cruzada: Langfuse frente a `cost_tracking`
+
+Langfuse y `cost_tracking` calculan el coste de la misma consulta por caminos
+completamente independientes. No comparten tabla de precios ni código: Langfuse
+usa la suya, interna del SDK; `cost_tracking_service.py` usa la propia,
+declarada en `PRICING`. Lo único que ambos leen es el mismo dato real que
+devuelve la API de OpenAI —los `tokens` de cada respuesta—.
+
+Comprobado sobre una consulta real, *«qué es rag?»*, con la configuración
+`descomposicion_acotada` (2026-10-17):
+
+| Operación | Langfuse | `cost_tracking` | Coincide |
+|---|---|---|---|
+| Generación (respuesta) | $0,000189 | 0,000189 USD | ✅ |
+| *Embedding* de la pregunta | $0,00 | 0,000000 USD | ✅ |
+| Descomposición | $0,000023 | 0,000023 USD | ✅ |
+| **Total** | **$0,000212** | **0,000212 USD** | ✅ |
+
+Coinciden al último decimal en las tres operaciones. No es una coincidencia
+superficial: dos sistemas que no se comunican entre sí llegando al mismo
+número es la prueba de que `cost_tracking` no estima ni aproxima, calcula sobre
+el consumo real que el proveedor confirmó.
+
+**El único matiz a declarar.** Langfuse redondea a dos decimales en su
+interfaz, de modo que un coste de `0,00000008` USD —cuatro tokens de
+*embedding*— se muestra como `$0,00`. No es una discrepancia: es que
+`cost_tracking`, con seis decimales, conserva una magnitud que la pantalla de
+Langfuse no tiene espacio para mostrar.
+
+**Cómo reproducirlo.** Localizar la traza en Langfuse por su marca de tiempo,
+convertirla a UTC —la base de datos almacena en UTC y Langfuse muestra la hora
+local del navegador—, y consultar `cost_tracking` en esa ventana:
+
+```sql
+SELECT created_at, operation, model, input_tokens, output_tokens, total_cost
+FROM cost_tracking
+WHERE created_at BETWEEN '<inicio UTC>' AND '<fin UTC>'
+ORDER BY created_at;
+```
+
+Las tres filas —`chat`, `embedding`, `descomposicion`— deben sumar el mismo
+total que las tres observaciones de pago en Langfuse para esa traza.
+
+---
+
 ## Estado y limitaciones
 
 **Funcionando:** instrumentación completa, credenciales válidas, trazas llegando
@@ -197,8 +273,24 @@ con sus cinco observaciones, sesión y latencia registradas.
 
 - **Ejecutar un dataset contra el RAG desde Langfuse**, que es la segunda mitad
   de lo que pidió el tutor. Requiere el conjunto de evaluación.
-- **Instrumentar la ingesta.** Solo está trazada la consulta; subir un documento
-  —extracción, fragmentación, *embeddings*, indexado— no deja traza.
+- **Instrumentar la ingesta por completo.** El *embedding* de los fragmentos al
+  subir un documento ya queda trazado —`EmbeddingService` pide el cliente a
+  `observabilidad.cliente_openai()` desde el 2026-10-17, por el mismo motivo que
+  se explica más arriba—, pero la extracción, la fragmentación y el indexado en
+  Pinecone no tienen ningún paso instrumentado. Solo se ve una parte del
+  proceso, no su totalidad.
+
+  **Por qué se corrigió el embedding y no de paso todo lo demás.** El problema
+  no era solo que faltara instrumentar: era que el embedding de la ingesta
+  dependía de un efecto secundario frágil. `EmbeddingService` creaba su cliente
+  con `from openai import OpenAI` directo, y quedaba trazado solo porque el
+  chat siempre instancia `RAGService` primero —lo que dispara el parche de
+  Langfuse sobre la clase `OpenAI` antes de que `EmbeddingService` construya el
+  suyo—. Verificado en un proceso limpio que reproducía el flujo real de
+  `documents.py`: si subir un documento era el primer evento de un *worker*,
+  antes de cualquier consulta de chat, esa llamada quedaba invisible. Corregido
+  pidiendo el cliente en el mismo sitio que `RAGService`, con dos tests que
+  comprueban la regresión.
 - **Puntuaciones automáticas.** Langfuse admite asociar evaluaciones a cada
   traza; hoy no se envía ninguna. Es el punto de unión natural con RAGAS.
 
