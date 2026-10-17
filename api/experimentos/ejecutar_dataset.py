@@ -92,6 +92,19 @@ def evaluar_anclas(fila: Dict[str, str], contextos: List[str]) -> Dict[str, Any]
     # completa hasta que aparece la segunda.
     peor = max(posiciones) if todas else 0
 
+    # `hit_5` compara contra la posicion 5, no contra "aparecio en alguna
+    # parte".
+    #
+    # **Era `todas` a secas y eso lo hacia tramposo.** Con cinco fragmentos
+    # ambas cosas coinciden, pero una configuracion que devuelva nueve tiene
+    # nueve sitios donde encontrar el ancla y puntuaria mejor sin recuperar
+    # mejor: la metrica premiaba el exceso de contexto, que es justo lo que se
+    # queria evitar. Ninguna cifra publicada se vio afectada --todas las
+    # comparaciones del capitulo 5 se midieron con cinco fragmentos-- pero el
+    # defecto estaba latente.
+    #
+    # Se conserva `hallada` para distinguir "no se recupero" de "se recupero
+    # pero mas abajo del quinto puesto", que son fallos distintos.
     return {
         "aplica": True,
         "anclas": len(anclas),
@@ -99,7 +112,9 @@ def evaluar_anclas(fila: Dict[str, str], contextos: List[str]) -> Dict[str, Any]
         "encontradas": len(encontradas),
         "hit_1": todas and peor == 1,
         "hit_3": todas and peor <= 3,
-        "hit_5": todas,
+        "hit_5": todas and peor <= 5,
+        "hallada": todas,
+        "fragmentos_vistos": len(contextos),
         "rr": round(1 / peor, 3) if peor else 0.0,
     }
 
