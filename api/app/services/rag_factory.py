@@ -11,15 +11,20 @@ cuál de las cuatro atiende al usuario.
     RAGServiceCompleto    + descomposición con tope de contexto y reparto
                             equilibrado entre subpreguntas
 
-**Por qué el valor por defecto es `descomposicion_acotada`.** Es la variante de
-descomposición que demostró efecto sobre el problema que venía a resolver —la
-cobertura conjunta de las preguntas compuestas pasó del 48 % al 88 % sobre las
-seis parejas medidas, con mejora en las seis— y además acota el contexto que
-crece con el número de subpreguntas, repartiéndolo de forma equilibrada en
-lugar de dejarlo crecer sin tope. Su coste es proporcional al uso —solo se
-encarece la consulta que efectivamente se descompone— y añade alrededor de
-1,2 s a la latencia mediana, muy por debajo del límite de quince segundos que
-fija el requisito RNF-1.
+**Por qué el valor por defecto es `descomposicion_acotada`.** La descomposición
+sin tope (`RAGServiceAvanzado`) sube la cobertura conjunta del 48 % al 88 %,
+pero enviando hasta el doble de fragmentos al modelo. Con el presupuesto fijo
+en `TOP_K` el techo de cobertura es matemáticamente ~50 %, así que
+`RAGServiceCompleto` no persigue ese 88 %: persigue el reparto. Y ahí sí hay
+mejora medida —desequilibrio de 1,83 en la base a 0,83 con reparto en turnos,
+sobre las seis parejas—, es decir, ninguna subpregunta se queda sin
+representación, al mismo coste de contexto que la línea base. Ver
+`rag_service_completo.py` para la cifra completa y por qué se descartó
+recortar por reordenado antes de llegar a esta solución.
+
+Su coste es proporcional al uso —solo se encarece la consulta que
+efectivamente se descompone— y añade alrededor de 1,2 s a la latencia mediana,
+muy por debajo del límite de quince segundos que fija el requisito RNF-1.
 
 **Por qué el reordenado no está activo.** Mejora la recuperación de forma
 consistente —hit@3 de 0,500 a 0,667 y MRR de 0,394 a 0,447— pero las cuatro

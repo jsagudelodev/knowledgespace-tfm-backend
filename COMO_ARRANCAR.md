@@ -100,6 +100,48 @@ http://127.0.0.1:8002/docs
 
 ---
 
+## Elegir qué pipeline RAG atiende las consultas
+
+La variable `RAG_CONFIGURACION` del `.env` decide qué clase responde al chat,
+sin tocar código:
+
+| Valor | Qué hace | Cuándo usarla |
+|---|---|---|
+| `base` | Naive RAG con filtro por umbral. La línea base de todos los experimentos | Para reproducir las mediciones del capítulo 5 tal cual |
+| `descomposicion` | + descompone preguntas compuestas, sin tope de contexto | Para ver el efecto máximo de la descomposición (hasta el doble de fragmentos) |
+| `reranking` | + reordena los fragmentos recuperados | Medido y **no activo por defecto**: mejora la recuperación pero no se demostró que mejoren las respuestas, y multiplica el coste por consulta — ver `rag_factory.py` |
+| `descomposicion_acotada` | + descompone con tope de contexto y reparto equilibrado | **Valor por defecto.** Resuelve el mismo problema que `descomposicion` sin aumentar el presupuesto de fragmentos |
+
+Si el valor no coincide con ninguno de estos, el sistema avisa en el log y cae
+a `base` — una variable mal escrita no debe dejar el chat sin servicio.
+
+Para comparar configuraciones entre sí se usan los scripts de
+`experimentos/`, no cambiar esta variable a mano: así cada medición queda con
+su fecha y su JSON de resultados, reproducible en cualquier momento.
+
+## Observabilidad con Langfuse (opcional)
+
+Con `LANGFUSE_ENABLED=false` (el valor por defecto en `.env.example`) la
+aplicación funciona exactamente igual, sin trazas. Para activarlas:
+
+1. Crear un proyecto gratuito en [Langfuse Cloud](https://cloud.langfuse.com)
+   (Europa) o [us.cloud.langfuse.com](https://us.cloud.langfuse.com) (Estados
+   Unidos) — u otra alternativa de despliegue si prefieres levantarlo en local.
+2. Copiar la clave pública y la secreta a `LANGFUSE_PUBLIC_KEY` y
+   `LANGFUSE_SECRET_KEY` en `api/.env`.
+3. Poner `LANGFUSE_ENABLED=true` y `LANGFUSE_HOST` acorde a la región elegida
+   en el paso 1 — las dos regiones usan hosts distintos y una traza enviada a
+   la región equivocada simplemente no aparece.
+
+Con las trazas activas, cada consulta queda registrada con los fragmentos
+recuperados, sus puntuaciones y las llamadas al modelo, incluidas las
+auxiliares de descomposición y reordenado cuando la configuración activa las
+usa. Si Langfuse falla por cualquier motivo —claves inválidas, red, servicio
+caído— el chat sigue respondiendo con normalidad: la traza se pierde, nunca la
+respuesta al usuario.
+
+---
+
 ## Problema conocido: `'FieldInfo' object has no attribute 'in_'`
 
 **Síntoma.** El servidor no llega a arrancar y la traza termina así:
