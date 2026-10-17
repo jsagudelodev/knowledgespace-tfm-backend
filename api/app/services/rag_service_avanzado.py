@@ -76,7 +76,7 @@ logger = logging.getLogger("uvicorn.error")
 # Más de tres subpreguntas suele indicar que el modelo está desmenuzando una
 # pregunta simple en matices, no separando temas. Y cada una añade contexto que
 # se paga en todas las consultas.
-MAX_SUBPREGUNTAS = 3
+MAX_SUBPREGUNTAS = settings.RAG_MAX_SUBPREGUNTAS
 
 PROMPT_DESCOMPOSICION = """Tu tarea es decidir si un mensaje contiene VARIAS preguntas independientes sobre temas distintos.
 

@@ -80,6 +80,46 @@ class Settings(BaseSettings):
     # de evaluación solo contiene una. Volver atrás es cambiar esta línea.
     RAG_CONFIGURACION: str = "descomposicion_acotada"
 
+    # ── Parámetros del pipeline ───────────────────────────────────────────────
+    # Todos tienen un valor medido detrás, y todos son ajustables sin tocar
+    # código. Estaban como constantes de módulo: probar otro umbral exigía
+    # editar un fichero y redesplegar, lo que en la práctica significaba que
+    # nadie los probaba. Los valores por defecto son los que miden los
+    # experimentos del capítulo 5; cambiarlos invalida esas cifras.
+
+    # Fragmentos que se piden al índice POR BÚSQUEDA, no por consulta: una
+    # pregunta descompuesta hace una búsqueda por subpregunta.
+    RAG_TOP_K: int = 5
+
+    # Puntuación mínima para que un fragmento llegue al modelo. Medido el
+    # 2026-10-09: el ruido máximo de una consulta ajena fue 0,258 y la señal
+    # mínima de un fragmento legítimo, 0,393. El valor cae dentro de esa banda
+    # vacía. Subirlo descarta evidencia válida; bajarlo admite ruido.
+    RAG_UMBRAL_RELEVANCIA: float = 0.30
+
+    # Temperatura del modelo generativo. Era 0,7 y se bajó a 0 tras medirlo:
+    # la fidelidad pasó de 0,888 a 0,939 y el mínimo por pregunta de 0,538 a
+    # 0,750. Un valor alto contradice el requisito de responder solo con el
+    # contexto recibido.
+    RAG_TEMPERATURA: float = 0.0
+
+    # Tokens máximos de la respuesta.
+    RAG_MAX_TOKENS_RESPUESTA: int = 1000
+
+    # Más de tres subpreguntas suele indicar que el modelo desmenuza una
+    # pregunta simple en matices en vez de separar temas, y cada una añade
+    # contexto que se paga.
+    RAG_MAX_SUBPREGUNTAS: int = 3
+
+    # Candidatos que pide la configuración `reranking` antes de recortar.
+    # Reordenar los mismos RAG_TOP_K fragmentos solo cambiaría su orden.
+    RAG_CANDIDATOS_REORDENADO: int = 20
+
+    # Caracteres de cada fragmento que ve el reordenador. Empezó en 400 y se
+    # subió tras medirlo: con el 40 % del texto descartaba el fragmento que
+    # permitía responder y conservaba otro que solo contenía la frase ancla.
+    RAG_RECORTE_REORDENADO: int = 1000
+
     # ── CORS ──────────────────────────────────────────────────────────────────
     # En producción sobreescribir con la URL real del frontend desplegado.
     ALLOWED_ORIGINS: List[str] = [

@@ -41,7 +41,7 @@ logger = logging.getLogger("uvicorn.error")
 #
 # 1.000 es el texto completo que el índice guarda por fragmento, de modo que el
 # reordenador ve lo mismo que verá el modelo generativo.
-RECORTE = 1000
+RECORTE = settings.RAG_RECORTE_REORDENADO
 
 PROMPT_REORDENADO = """Ordena los fragmentos por su utilidad para responder la pregunta.
 

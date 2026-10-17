@@ -59,9 +59,13 @@ class RAGUnavailableError(Exception):
 # Hay que repetir la medición si cambia el corpus, la fragmentación, el modelo
 # de embeddings o el idioma: los rangos de similitud coseno no son
 # transferibles, y nada en el sistema avisa de que el umbral dejó de valer.
-RELEVANCE_THRESHOLD = 0.30
-MAX_RESPONSE_TOKENS = 1000   # límite de tokens en la respuesta del LLM
-TOP_K = 5                    # fragmentos que se piden a Pinecone por búsqueda
+# Los tres salen de `settings`, de modo que se ajustan por variable de entorno
+# sin tocar código. Se conservan como nombres de módulo porque son los que
+# citan los tests, los experimentos y el capítulo 5 de la memoria: renombrarlos
+# obligaría a reescribir las referencias de todo eso sin ganar nada.
+RELEVANCE_THRESHOLD = settings.RAG_UMBRAL_RELEVANCIA
+MAX_RESPONSE_TOKENS = settings.RAG_MAX_TOKENS_RESPUESTA
+TOP_K = settings.RAG_TOP_K
 
 # Temperatura por defecto del modelo generativo.
 #
@@ -87,7 +91,7 @@ TOP_K = 5                    # fragmentos que se piden a Pinecone por búsqueda
 # movió 3,5 puntos **con entradas idénticas**, lo que acota la variabilidad del
 # modelo juez. La media sube por encima de ese ruido, pero la evidencia sólida
 # son los casos extremos, no el promedio.
-DEFAULT_TEMPERATURE = 0.0
+DEFAULT_TEMPERATURE = settings.RAG_TEMPERATURA
 
 DEFAULT_SYSTEM_PROMPT = """Eres el asistente de IA interno de la empresa.
 RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:

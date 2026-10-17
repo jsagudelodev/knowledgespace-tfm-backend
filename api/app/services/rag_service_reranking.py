@@ -70,6 +70,7 @@ import logging
 from typing import Any, List, Tuple
 
 from app.core import observabilidad
+from app.core.config import settings
 from app.services.rag_service import RELEVANCE_THRESHOLD, TOP_K, RAGService
 from app.services.reordenador import MezclaReordenado
 
@@ -78,7 +79,7 @@ logger = logging.getLogger("uvicorn.error")
 # Cuántos fragmentos se piden a Pinecone antes de reordenar. Veinte da margen
 # para rescatar evidencia mal colocada sin que el prompt del reordenador se
 # vuelva desmesurado: son 20 extractos de 400 caracteres, unos 2.000 tokens.
-CANDIDATOS = 20
+CANDIDATOS = settings.RAG_CANDIDATOS_REORDENADO
 
 class RAGServiceReranking(MezclaReordenado, RAGService):
     """RAG con reordenado de los fragmentos recuperados.
