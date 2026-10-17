@@ -7,17 +7,34 @@ evolucionando por separado.
 
 ## Núcleo académico (contribución del TFM)
 
-- **Pipeline RAG**: ingesta de PDFs, chunking, embeddings (OpenAI) y búsqueda
-  vectorial (Pinecone) — ver `docs/RAG_PIPELINE.md`.
+- **Pipeline RAG con cuatro configuraciones comparables**: línea base (Naive
+  RAG con filtro por umbral), descomposición de consultas, reordenado de
+  fragmentos y descomposición con tope de contexto — seleccionables por
+  variable de entorno sin tocar código (`app/services/rag_factory.py`). Las
+  cuatro conviven a propósito: la línea base es el término de comparación de
+  todas las mediciones del capítulo 5, y sustituirla por la variante elegida
+  habría hecho desaparecer el punto de referencia. Ver
+  `docs/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué se
+  descartaron otras (RAG híbrido, agéntico, GraphRAG).
 - **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por
   `company_id` extraído del JWT en cada recurso — ver `docs/MODELO_DATOS.md`.
-- **Mitigación de alucinaciones**: umbral de relevancia medido sobre el corpus
-  (`RAGService.RELEVANCE_THRESHOLD`, con la justificación en
-  `docs/RAG_PIPELINE.md` §6) y un prompt restrictivo que prohíbe responder fuera
-  del contexto recuperado. **No hay validación posterior sobre la respuesta
-  generada**: el LLM-as-judge existe como ejercicio en
-  `docs/practica-tfm/5.5_llm_as_judge.py`, no en el código productivo. Ver
-  `docs/tutorials/04_alucinaciones.py`.
+- **Mitigación de alucinaciones, con dos niveles de evidencia**:
+  - En producción: umbral de relevancia medido sobre el corpus
+    (`RAGService.RELEVANCE_THRESHOLD`, justificado en `docs/RAG_PIPELINE.md`
+    §6 y revalidado tras el cambio de chunking) y un prompt restrictivo que
+    prohíbe responder fuera del contexto recuperado. **No hay validación
+    posterior sobre la respuesta generada dentro del camino de producción.**
+  - Como evaluación experimental (`api/experimentos/`, fuera del camino de
+    producción): un conjunto con preguntas de control —con respuesta en el
+    corpus— y preguntas fuera de corpus mide la tasa de abstención correcta y
+    la de falsa abstención, y RAGAS (`evaluar_ragas.py`) mide fidelidad y
+    relevancia de las respuestas con un LLM juez. Es la evidencia cuantitativa
+    de que el sistema no inventa sin volverse inservible por exceso de
+    prudencia.
+- **Observabilidad con Langfuse** (opcional, activable por variable de
+  entorno): traza cada consulta —fragmentos recuperados, puntuaciones,
+  llamadas auxiliares de descomposición y reordenado— para poder auditar una
+  respuesta después de ocurrida. Ver `app/core/observabilidad.py`.
 - **Tracking de costo por solicitud LLM** — ver `app/services/cost_tracking_service.py`.
 - **Knowledge gaps** (preguntas sin respuesta satisfactoria, para retroalimentar
   la base de conocimiento).
@@ -75,13 +92,14 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 5 archivos y 21 tests unitarios sobre lógica pura
-  —construcción del contexto RAG, cálculo de costos, namespaces de Pinecone,
-  métricas del dashboard y períodos de knowledge gaps—. **Sin tests de
-  integración**: ninguno levanta la aplicación ni toca la base de datos, en
-  parte porque `Base.metadata.create_all` no funciona sobre SQLite
-  (`assistants.quick_prompts` usa `JSONB`, exclusivo de Postgres), así que una
-  base en memoria para pruebas exigiría declarar variantes por dialecto.
+- Cobertura de tests: 13 archivos y 91 tests unitarios sobre lógica pura
+  —las cuatro configuraciones del pipeline RAG, construcción del contexto,
+  cálculo de costos, namespaces de Pinecone, métricas del dashboard y períodos
+  de knowledge gaps—. **Sin tests de integración**: ninguno levanta la
+  aplicación ni toca la base de datos, en parte porque
+  `Base.metadata.create_all` no funciona sobre SQLite (`assistants.quick_prompts`
+  usa `JSONB`, exclusivo de Postgres), así que una base en memoria para pruebas
+  exigiría declarar variantes por dialecto.
 - Sin CI/CD automatizado en este repositorio (el pipeline de Cloud Build
   pertenece a la infraestructura comercial, excluida por lo anterior).
 - El aislamiento entre empresas se apoya en la comprobación explícita de
