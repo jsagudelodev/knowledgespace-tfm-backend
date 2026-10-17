@@ -20,6 +20,7 @@ from app.services.rag_factory import (
 )
 from app.services.rag_service import RAGService
 from app.services.rag_service_avanzado import RAGServiceAvanzado
+from app.services.rag_service_completo import RAGServiceCompleto
 from app.services.rag_service_reranking import RAGServiceReranking
 
 
@@ -52,9 +53,18 @@ def test_un_nombre_desconocido_no_rompe_y_cae_en_la_base():
     assert POR_DEFECTO == "base"
 
 
-def test_la_configuracion_por_defecto_es_la_descomposicion():
-    """Es la unica mejora que demostro efecto sobre el problema que resolvia
-    (48 % a 88 % de cobertura conjunta) y cuyo coste crece solo cuando
-    efectivamente actua. Si alguien la cambia, que sea a sabiendas."""
-    assert settings.RAG_CONFIGURACION == "descomposicion"
+def test_la_configuracion_por_defecto_es_la_completa():
+    """Descomposicion CON tope de contexto.
+
+    Fue "descomposicion" hasta el 16 de octubre de 2026: resolvia la cobertura
+    pero ensanchaba sin recortar, enviando nueve fragmentos donde la base
+    enviaba cinco. "completo" conserva el reparto entre subpreguntas con la
+    mitad del contexto y el coste de la linea base.
+
+    Este test existe para que cambiarla sea deliberado y no un descuido: es un
+    cambio de comportamiento del sistema en produccion, no un ajuste.
+    """
+    assert settings.RAG_CONFIGURACION == "descomposicion_acotada"
+    assert isinstance(crear_rag_service(), RAGServiceCompleto)
+    # Sigue siendo una descomposicion: hereda de ella y la especializa.
     assert isinstance(crear_rag_service(), RAGServiceAvanzado)

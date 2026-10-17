@@ -49,7 +49,7 @@ CONFIGURACIONES: Dict[str, Tuple[Type[RAGService], str]] = {
     "base": (RAGService, "naive_rag_umbral_0.30"),
     "descomposicion": (RAGServiceAvanzado, "avanzado_descomposicion"),
     "reranking": (RAGServiceReranking, "avanzado_reranking"),
-    "completo": (RAGServiceCompleto, "avanzado_completo"),
+    "descomposicion_acotada": (RAGServiceCompleto, "avanzado_descomposicion_acotada"),
 }
 
 POR_DEFECTO = "base"

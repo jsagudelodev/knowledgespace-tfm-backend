@@ -64,13 +64,21 @@ class Settings(BaseSettings):
     # Qué configuración del pipeline atiende el chat. Los valores admitidos y
     # el porqué de cada uno están en `app/services/rag_factory.py`.
     #
-    # El valor por defecto es "descomposicion" porque es la única mejora que
-    # demostró efecto sobre el problema que resolvía —cobertura conjunta del
-    # 48 % al 88 % en preguntas compuestas— y su coste solo crece cuando
-    # efectivamente descompone. El reordenado queda disponible pero no activo:
-    # mejora la recuperación sin mejorar las respuestas de forma medible, y
-    # multiplica por 3,7 el coste de cada consulta.
-    RAG_CONFIGURACION: str = "descomposicion"
+    # El valor por defecto es "completo": descomposición de consultas con tope
+    # de contexto y reparto equilibrado entre subpreguntas.
+    #
+    # Fue "descomposicion" hasta el 16 de octubre de 2026. Aquella resolvía la
+    # cobertura de las preguntas compuestas pero ensanchaba sin recortar: una
+    # pregunta doble enviaba nueve fragmentos al modelo en lugar de cinco, y
+    # con tres subpreguntas habrían llegado quince. "completo" conserva el
+    # reparto entre subpreguntas —3/2 en las seis parejas medidas, nunca 5/0—
+    # con la mitad del contexto y el coste de la línea base.
+    #
+    # Queda declarado lo que la medición NO respalda: que responder con tres
+    # fragmentos de una subpregunta baste donde antes había cinco. Comprobarlo
+    # exigiría preguntas compuestas con respuesta de referencia, y el conjunto
+    # de evaluación solo contiene una. Volver atrás es cambiar esta línea.
+    RAG_CONFIGURACION: str = "descomposicion_acotada"
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     # En producción sobreescribir con la URL real del frontend desplegado.
