@@ -81,16 +81,6 @@ def _servicio(cliente, recuperaciones=None):
     return svc
 
 
-@pytest.fixture(autouse=True)
-def _sin_observabilidad(monkeypatch):
-    """`paso` es un contextmanager real; aqui basta con que no haga nada."""
-    import contextlib
-
-    @contextlib.contextmanager
-    def _paso(nombre, entrada=None):
-        yield {}
-
-    monkeypatch.setattr(mod.observabilidad, "paso", _paso)
 
 
 def _parchear_super(monkeypatch, svc):

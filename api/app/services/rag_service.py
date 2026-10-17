@@ -153,11 +153,14 @@ class RAGService:
         consumidos al vectorizar.
         """
         top_k = TOP_K if top_k is None else top_k
+        # Sin span propio: el cliente de OpenAI ya está envuelto por Langfuse
+        # (ver `observabilidad.cliente_openai`), así que esta llamada queda
+        # registrada sola como una observación "OpenAI-embedding", con sus
+        # tokens y sus dimensiones. Un span manual alrededor solo duplicaba esa
+        # misma información en una segunda fila, y Langfuse Cloud factura por
+        # observación ingerida: la redundancia se pagaba dos veces por nada.
         try:
-            with observabilidad.paso("embedding_consulta", entrada=query) as traza:
-                query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
-                traza["tokens"] = embedding_tokens
-                traza["dimensiones"] = len(query_embedding)
+            query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
         except Exception as e:
             logger.error("[RAG] Falló el embedding de la consulta: %s", e, exc_info=True)
             raise RAGUnavailableError("embedding de la consulta", e) from e
@@ -279,7 +282,20 @@ class RAGService:
                 {
                     "document_id": d.metadata.get("document_id"),
                     "document_name": d.metadata.get("document_name", "Documento desconocido"),
-                    "text": (d.metadata.get("text") or "")[:300],
+                    # **El fragmento entero, no un extracto.** Estuvo recortado
+                    # a 300 caracteres y eso hacía ilegible la comprobación:
+                    # ante "¿qué son los hiperparámetros?", el fragmento que
+                    # contenía la definición la tenía a partir del carácter
+                    # 470, de modo que quien abría la fuente veía un texto
+                    # sobre capas y accuracy y concluía que el sistema se
+                    # había inventado la respuesta.
+                    #
+                    # Poder verificar la cita es justamente lo que distingue a
+                    # este sistema de un modelo conversacional: recortar el
+                    # fragmento anulaba esa garantía. El índice guarda 1.000
+                    # caracteres por fragmento, así que esto no trae nada que
+                    # no estuviera ya en memoria.
+                    "text": d.metadata.get("text") or "",
                     "score": round(getattr(d, "score", 0), 3),
                     # Qué fragmento concreto del documento es, no solo de qué
                     # documento procede. Sin esto, dos respuestas apoyadas en

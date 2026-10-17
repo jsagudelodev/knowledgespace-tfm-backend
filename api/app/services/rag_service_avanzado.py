@@ -67,7 +67,6 @@ base: nunca debe impedir una respuesta.
 import logging
 from typing import Any, List, Tuple
 
-from app.core import observabilidad
 from app.core.config import settings
 from app.services.rag_service import TOP_K, RAGService
 
@@ -170,10 +169,13 @@ class RAGServiceAvanzado(RAGService):
         `top_k` se propaga a cada subpregunta: son `top_k` fragmentos **por
         cada una**, no en total.
         """
-        with observabilidad.paso("descomposicion", entrada=query) as traza:
-            subpreguntas = self._descomponer(query)
-            traza["subpreguntas"] = subpreguntas
-            traza["n"] = len(subpreguntas)
+        # Sin span propio: la llamada de `_descomponer` ya queda registrada
+        # como "OpenAI-generation" por el cliente de OpenAI envuelto en
+        # Langfuse, con el mensaje y la respuesta del modelo. Un span manual
+        # alrededor solo repetía esa misma llamada en una segunda fila, pagando
+        # dos veces la misma cuota de observaciones por la misma información.
+        subpreguntas = self._descomponer(query)
+        logger.info("[RAG+] Descomposición: %d subpregunta(s)", len(subpreguntas))
 
         # Una sola subpregunta: el camino de la clase base, sin coste añadido.
         if len(subpreguntas) == 1:

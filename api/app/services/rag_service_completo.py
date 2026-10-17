@@ -101,10 +101,11 @@ class RAGServiceCompleto(RAGServiceAvanzado):
         return elegidos
 
     def _recuperar(self, query: str, namespace: str, top_k: int = None) -> Tuple[List[Any], int]:
-        with observabilidad.paso("descomposicion", entrada=query) as traza:
-            subpreguntas = self._descomponer(query)
-            traza["subpreguntas"] = subpreguntas
-            traza["n"] = len(subpreguntas)
+        # Sin span propio: ver el comentario equivalente en
+        # `RAGServiceAvanzado._recuperar`. La llamada ya queda registrada como
+        # "OpenAI-generation" por el cliente envuelto en Langfuse.
+        subpreguntas = self._descomponer(query)
+        logger.info("[RAG*] Descomposición: %d subpregunta(s)", len(subpreguntas))
 
         if len(subpreguntas) == 1:
             logger.info("[RAG*] Consulta simple, recuperación estándar")
