@@ -120,6 +120,15 @@ class Settings(BaseSettings):
     # permitía responder y conservaba otro que solo contenía la frase ancla.
     RAG_RECORTE_REORDENADO: int = 1000
 
+    # Candidatos léxicos que pide BM25 en la configuración `hibrido`, antes de
+    # fusionar con los de la búsqueda densa. Ver `rag_service_hibrido.py`.
+    RAG_CANDIDATOS_LEXICOS: int = 20
+
+    # Constante de Reciprocal Rank Fusion, k en 1/(k + posición). El valor
+    # habitual en la literatura (Cormack et al., 2009); aplana la fusión para
+    # que una diferencia de una o dos posiciones no decida por sí sola.
+    RAG_RRF_K: int = 60
+
     # ── CORS ──────────────────────────────────────────────────────────────────
     # En producción sobreescribir con la URL real del frontend desplegado.
     ALLOWED_ORIGINS: List[str] = [

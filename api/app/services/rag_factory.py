@@ -1,15 +1,17 @@
 """Elige qué configuración del pipeline RAG atiende cada consulta.
 
-Las cuatro clases existen a la vez y se mantienen vivas a propósito: la línea
+Las cinco clases existen a la vez y se mantienen vivas a propósito: la línea
 base es el término de comparación de todos los experimentos del capítulo 5, y
 sin ella no habría con qué comparar las mejoras. Lo que este módulo decide es
-cuál de las cuatro atiende al usuario.
+cuál de las cinco atiende al usuario.
 
     RAGService            Naive RAG con filtro por umbral. La línea base.
     RAGServiceAvanzado    + descomposición de consultas  (pre-recuperación)
     RAGServiceReranking   + reordenado de fragmentos     (post-recuperación)
     RAGServiceCompleto    + descomposición con tope de contexto y reparto
                             equilibrado entre subpreguntas
+    RAGServiceHibrido     + búsqueda léxica BM25 fusionada con la densa
+                            (Reciprocal Rank Fusion, post-recuperación)
 
 **Por qué el valor por defecto es `descomposicion_acotada`.** La descomposición
 sin tope (`RAGServiceAvanzado`) sube la cobertura conjunta del 48 % al 88 %,
@@ -34,6 +36,12 @@ cuesta: la llamada del reordenador consume unos 4.600 tokens de entrada, lo que
 multiplica por 3,7 el coste de cada consulta. Queda disponible, medido y
 documentado, pero activarlo hoy sería pagar sin cobrar. Ver el apartado 5.3.
 
+**Por qué el híbrido tampoco está activo, todavía.** Es la mejora que falta
+medir contra el conjunto de referencia. Ver el apartado 5.3 cuando esa
+medición exista; hasta entonces queda disponible y documentada, con el mismo
+criterio que ya se aplicó al reordenado: no se despliega una mejora sin
+haberla medido primero.
+
 Cambiar de configuración no exige tocar código: basta la variable de entorno
 `RAG_CONFIGURACION`.
 """
@@ -44,6 +52,7 @@ from app.core.config import settings
 from app.services.rag_service import RAGService
 from app.services.rag_service_avanzado import RAGServiceAvanzado
 from app.services.rag_service_completo import RAGServiceCompleto
+from app.services.rag_service_hibrido import RAGServiceHibrido
 from app.services.rag_service_reranking import RAGServiceReranking
 
 logger = logging.getLogger("uvicorn.error")
@@ -59,6 +68,7 @@ CONFIGURACIONES: Dict[str, Tuple[Type[RAGService], str]] = {
     "descomposicion": (RAGServiceAvanzado, "avanzado_descomposicion"),
     "reranking": (RAGServiceReranking, "avanzado_reranking"),
     "descomposicion_acotada": (RAGServiceCompleto, "avanzado_descomposicion_acotada"),
+    "hibrido": (RAGServiceHibrido, "avanzado_hibrido_bm25"),
 }
 
 POR_DEFECTO = "base"
