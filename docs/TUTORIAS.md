@@ -51,7 +51,7 @@ métricas.** Esa es la brecha a cerrar.
 | 3 | Arquitectura RAG | **Resuelta** | `ARQUITECTURAS_RAG.md`. Naive RAG con filtro por umbral, más una intervención previa a la recuperación en la clase avanzada. |
 | 4 | ¿Híbrido? | **Respondida: no** | Ficha técnica de abajo. Sin implementar; pendiente de que el tutor aclare si es obligatorio. |
 | 5 | Técnica de recuperación | **Resuelta** | `RAG_PIPELINE.md` §6. Densa por coseno, `top_k=5`, umbral 0,30 revalidado sobre el índice vigente. |
-| 6 | Langfuse + dataset apuntado al RAG | **Resuelta en lo esencial** | `OBSERVABILIDAD.md`. Langfuse instrumentado y activo durante la ejecución de las 18 preguntas, de modo que cada consulta dejó su traza. Falta usar la función *Datasets* de la propia herramienta. |
+| 6 | Langfuse + dataset apuntado al RAG | **Resuelta** | `OBSERVABILIDAD.md` y `experimentos/langfuse_dataset.py`. Las 18 preguntas viven como *dataset* dentro de Langfuse y se ejecutaron contra el RAG como una *run* enlazada, no solo trazas sueltas. *2026-10-18.* |
 | 7 | Control de alucinaciones | **Resuelta y medida** | Memoria 5.3 y 5.4. `faithfulness` 0,888, abstención correcta 6/6 y ninguna abstención indebida. |
 
 **El hallazgo que no se esperaba.** Al medir la abstención se vio que el umbral
@@ -159,10 +159,14 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
 - [x] **Langfuse** instrumentado sobre el pipeline RAG, como dependencia
       opcional: con `LANGFUSE_ENABLED=false` el sistema funciona igual.
       *2026-10-09.*
-- [ ] Dataset cargado en Langfuse usando su función *Datasets*. Las 18
-      preguntas ya se ejecutaron contra el RAG con Langfuse activo, de modo que
-      cada consulta dejó su traza; lo que falta es registrarlas como una corrida
-      de dataset dentro de la herramienta.
+- [x] **Dataset cargado en Langfuse y apuntado contra el RAG.** Las 18
+      preguntas viven ahora como *dataset* dentro de Langfuse
+      («knowledgespace-conjunto-referencia») y se ejecutaron contra la
+      configuración base como una *run* con nombre, 18 ítems enlazados a sus
+      trazas. Script: `experimentos/langfuse_dataset.py`. El coste de esa
+      corrida no queda en `cost_tracking` —decisión deliberada, ver
+      `OBSERVABILIDAD.md`— pero sí en la propia interfaz de Langfuse.
+      *2026-10-18.*
 - [x] **RAGAS: línea base.** `context_precision` 0,912, `context_recall` 0,896,
       `faithfulness` 0,888 y `answer_relevancy` 0,822 sobre 12 preguntas, en un
       entorno aislado del de la aplicación. *2026-10-12.*

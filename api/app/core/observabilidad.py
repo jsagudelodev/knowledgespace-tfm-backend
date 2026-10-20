@@ -60,6 +60,26 @@ def activo() -> bool:
     return _activo
 
 
+def cliente() -> Any:
+    """Devuelve el cliente de Langfuse para operaciones que `paso` y
+    `anotar_traza` no cubren —datasets, *scores*, consultas al propio
+    proyecto—.
+
+    El resto del módulo evita exponer `_cliente` directamente para que todo el
+    estado de la instrumentación viva en un único sitio; esta función es la
+    puerta deliberada para lo que sí necesita el objeto completo. Falla con un
+    mensaje claro en vez de devolver `None`, porque un experimento que
+    necesita Langfuse y lo usa sin comprobar antes `activo()` debe enterarse
+    de inmediato, no fallar más adelante con un `AttributeError` opaco.
+    """
+    if not _activo:
+        raise RuntimeError(
+            "Langfuse no está activo. Comprueba LANGFUSE_ENABLED y las claves "
+            "antes de llamar a observabilidad.cliente()."
+        )
+    return _cliente
+
+
 def cliente_openai():
     """Devuelve la clase `OpenAI` que debe usar el pipeline.
 

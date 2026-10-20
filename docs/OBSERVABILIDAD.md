@@ -262,6 +262,42 @@ ORDER BY created_at;
 Las tres filas —`chat`, `embedding`, `descomposicion`— deben sumar el mismo
 total que las tres observaciones de pago en Langfuse para esa traza.
 
+### Por qué un experimento no deja rastro en `cost_tracking`
+
+Esta verificación solo funciona para una consulta que pasó por el chat. Al
+ejecutar `langfuse_dataset.py` contra las dieciocho preguntas del conjunto de
+referencia (2026-10-18), las dos corridas quedaron registradas en Langfuse
+—dos *experiments*, dieciocho ítems cada uno, con sus observaciones
+`OpenAI-generation`— pero **ninguna fila apareció en `cost_tracking`** para esa
+ventana horaria, comprobado por consulta directa a la base de datos.
+
+La razón no es un fallo: `CostTrackingService().record(...)` se invoca
+únicamente desde `app/routers/v1/chat.py`, el enrutador HTTP. Un experimento
+llama a `RAGService.generate_response` directamente, sin pasar por ahí, de
+modo que nunca llega al punto donde se escribe el registro.
+
+**Se decidió dejarlo así, de forma deliberada.** `cost_tracking` existe para
+medir el **gasto real atribuible a una organización** —es la tabla que
+sostiene el requisito RNF-4—, y las ejecuciones de evaluación del propio
+trabajo no son consumo de un cliente: mezclarlas habría contaminado esa cifra
+con actividad que no es uso del producto. El coste de los experimentos sigue
+siendo observable por otras dos vías, suficientes para el propósito de medir
+y documentar: el propio Langfuse, consulta por consulta, y los campos
+`tokens_entrada` / `tokens_salida` que cada script de `experimentos/` guarda
+en su JSON de resultados.
+
+**Limitación de la API pública, no solo de este caso.** Confirmar el coste de
+las dieciocho preguntas sin abrir la interfaz resultó imposible: el endpoint
+`GET /api/public/v2/observations` devuelve, para las observaciones de tipo
+`GENERATION`, los campos de coste y de modelo vacíos —`cost_details`,
+`total_cost`, `model` llegan a `None` incluso cuando la observación existe y
+tiene su latencia—. No hay además una operación para pedir una observación
+suelta por su identificador; solo existe el listado por lotes. Es la misma
+limitación de las organizaciones creadas después del 16 de septiembre de 2026
+que ya se documentó más arriba: **para ver el detalle de coste de una
+observación hay que entrar en la interfaz**, la API solo sirve para listar qué
+existe.
+
 ---
 
 ## Estado y limitaciones

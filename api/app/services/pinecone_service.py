@@ -114,6 +114,61 @@ class PineconeService:
         except Exception as e:
             raise Exception(f"Error eliminando documento de Pinecone: {str(e)}")
 
+    def _listar_ids(self, namespace: Optional[str] = None, prefijo: Optional[str] = None) -> List[str]:
+        """Identificadores de los vectores de un espacio, opcionalmente por prefijo.
+
+        `list` pagina, y **la forma de cada página depende de la versión del
+        cliente de Pinecone.** La 9.1 devuelve objetos `ListResponse` con un
+        atributo `vectors`; versiones anteriores devuelven directamente listas
+        de cadenas. Se contemplan ambas porque la diferencia no da error:
+        recorrer la forma equivocada simplemente produce una lista vacía, y un
+        documento o un espacio sin fragmentos parece mal indexado. La primera
+        versión de este método reportó los ocho documentos del corpus como
+        desincronizados cuando ninguno lo estaba.
+        """
+        indice = self.pc.Index(self.nombre_indice)
+        kwargs: Dict[str, Any] = {}
+        if prefijo:
+            kwargs["prefix"] = prefijo
+        if namespace:
+            kwargs["namespace"] = namespace
+
+        ids: List[str] = []
+        for pagina in indice.list(**kwargs):
+            vectores = getattr(pagina, "vectors", None)
+            if vectores is not None:
+                ids.extend(v.id for v in vectores)
+            elif isinstance(pagina, str):
+                ids.append(pagina)
+            else:
+                ids.extend(pagina)
+        return ids
+
+    def _fetch_fragmentos(self, ids: List[str], namespace: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Trae los metadatos de una lista de identificadores, en lotes de 100
+        —el límite que admite `fetch` por llamada—."""
+        if not ids:
+            return []
+        indice = self.pc.Index(self.nombre_indice)
+        fragmentos: List[Dict[str, Any]] = []
+        for i in range(0, len(ids), 100):
+            lote = ids[i:i + 100]
+            kw: Dict[str, Any] = {"ids": lote}
+            if namespace:
+                kw["namespace"] = namespace
+            respuesta = indice.fetch(**kw)
+            for vid, vector in (respuesta.vectors or {}).items():
+                meta = vector.metadata or {}
+                fragmentos.append({
+                    "chunk_id": vid,
+                    "document_id": meta.get("document_id"),
+                    "document_name": meta.get("document_name", "?"),
+                    "chunk_index": int(meta.get("chunk_index", -1)),
+                    "text": meta.get("text", ""),
+                    "caracteres": len(meta.get("text", "")),
+                })
+        return fragmentos
+
     def listar_por_documento(
         self, document_id: int, namespace: Optional[str] = None
     ) -> List[Dict[str, Any]]:
@@ -134,56 +189,38 @@ class PineconeService:
         Devuelve una lista vacía si el documento no tiene nada indexado, que es
         lo que ocurre mientras se procesa o si la ingesta falló.
         """
-        indice = self.pc.Index(self.nombre_indice)
-        prefijo = f"doc-{document_id}-chunk-"
-        kwargs: Dict[str, Any] = {"prefix": prefijo}
-        if namespace:
-            kwargs["namespace"] = namespace
-
         try:
-            # `list` pagina, y **la forma de cada página depende de la versión
-            # del cliente**: la 9.1 devuelve objetos `ListResponse` con un
-            # atributo `vectors`, mientras que versiones anteriores devuelven
-            # directamente listas de identificadores. Se contemplan ambas
-            # porque la diferencia no da error: recorrer la forma equivocada
-            # simplemente produce una lista vacía, y un documento sin
-            # fragmentos parece un documento mal indexado.
-            ids: List[str] = []
-            for pagina in indice.list(**kwargs):
-                vectores = getattr(pagina, "vectors", None)
-                if vectores is not None:
-                    ids.extend(v.id for v in vectores)
-                elif isinstance(pagina, str):
-                    ids.append(pagina)
-                else:
-                    ids.extend(pagina)
-            if not ids:
-                return []
-
-            # `fetch` admite un número limitado de identificadores por llamada.
-            fragmentos: List[Dict[str, Any]] = []
-            for i in range(0, len(ids), 100):
-                lote = ids[i:i + 100]
-                kw: Dict[str, Any] = {"ids": lote}
-                if namespace:
-                    kw["namespace"] = namespace
-                respuesta = indice.fetch(**kw)
-                for vid, vector in (respuesta.vectors or {}).items():
-                    meta = vector.metadata or {}
-                    fragmentos.append({
-                        "chunk_id": vid,
-                        "chunk_index": int(meta.get("chunk_index", -1)),
-                        "text": meta.get("text", ""),
-                        "caracteres": len(meta.get("text", "")),
-                    })
+            ids = self._listar_ids(namespace=namespace, prefijo=f"doc-{document_id}-chunk-")
+            fragmentos = self._fetch_fragmentos(ids, namespace=namespace)
         except Exception as e:
             raise Exception(f"Error listando los fragmentos del documento: {str(e)}")
 
         # El orden de `list` y `fetch` no está garantizado, y mostrar los
         # fragmentos desordenados impediría precisamente lo que se quiere ver:
-        # por dónde se cortó el texto.
+        # por dónde se cortó el documento.
         fragmentos.sort(key=lambda f: f["chunk_index"])
         return fragmentos
+
+    def listar_namespace(self, namespace: str) -> List[Dict[str, Any]]:
+        """Devuelve todos los fragmentos indexados en un espacio de nombres.
+
+        Es `listar_por_documento` sin el filtro por documento: trae el corpus
+        completo que un asistente tiene indexado. Lo usa `RAGServiceHibrido`
+        para construir su índice léxico, que necesita ver todos los fragmentos
+        y no solo los que la búsqueda densa ya consideró candidatos —si se
+        limitara a esos, un documento que la similitud coseno descartó de
+        entrada nunca tendría ocasión de ganar por coincidencia literal, que es
+        precisamente lo que la parte léxica de un híbrido viene a rescatar.
+
+        Sin orden garantizado: a diferencia de `listar_por_documento`, aquí no
+        hay un índice de fragmento único que sirva de criterio, porque mezcla
+        varios documentos.
+        """
+        try:
+            ids = self._listar_ids(namespace=namespace)
+            return self._fetch_fragmentos(ids, namespace=namespace)
+        except Exception as e:
+            raise Exception(f"Error listando el espacio de nombres: {str(e)}")
 
     @staticmethod
     def construir_namespace(company_id: int, assistant_id: Optional[int] = None) -> str:
