@@ -1,9 +1,10 @@
 # Modelo de Datos - KnowSpace Backend
 
 ## Versión
-- **Fecha**: 8 de Septiembre de 2026
-- **Versión**: 12.3
+- **Fecha**: 20 de octubre de 2026
+- **Versión**: 12.4
 - **Estado**: Verificado contra el esquema real de Supabase (introspección directa vía `DATABASE_URL`), incluyendo `cost_tracking` (§2.15) confirmado en producción.
+- **Cambios v12.4**: `cost_tracking` ganó `duration_ms` (Integer, nullable) vía `ALTER TABLE ADD COLUMN IF NOT EXISTS` en `migrate_cost_tracking.sql`. Antes solo se medía latencia en los experimentos contra el dataset de referencia; ahora `chat.py` cronometra cada `generate_response` y lo registra junto al costo de la operación `chat` — ver sección 2.15.
 - **Cambios v12.3**: `cost_tracking` pasó de "tabla sin modelo ORM" a módulo completo — modelo, `CostTrackingService`, router (`GET /`, `/summary`, `/daily-trend`) e instrumentación real en `chat.py` y `documents.py`. Ganó la columna `operation` (`chat`/`embedding`) vía `ALTER TABLE`, aplicada y verificada contra la BD real — ver sección 2.15.
 - **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. **Ya están en `app/db/models/knowledge_gap.py`, pero no necesariamente en la tabla real de Supabase**: `create_all` no hace `ALTER TABLE`. Aplicar `api/migrate_knowledge_gaps.sql` en cada entorno antes de asumir que esta sección refleja la BD real.
 - **Cambios v12.1**: se agregó `assistants.quick_prompts` (columna real usada por el código, ausente en v12.0) y se marcó `assistants.suggested_prompts` como columna huérfana — ver sección 2.8.
@@ -311,6 +312,7 @@ erDiagram
         int input_tokens
         int output_tokens
         decimal total_cost
+        int duration_ms
         json metadata
         datetime created_at
     }
@@ -863,6 +865,7 @@ en `cost_tracking`.
 | `input_tokens` | Integer | Default 0 |
 | `output_tokens` | Integer | Default 0 — siempre 0 en `operation = embedding` |
 | `total_cost` | Numeric(12,6) | USD, calculado por `CostTrackingService` según tabla de precios por modelo |
+| `duration_ms` | Integer | Nullable, añadida el 2026-10-20. Solo se rellena en `operation = chat`: cuánto tardó `generate_response` de punta a punta. `NULL` en `embedding` y en las llamadas auxiliares, cuyo tiempo ya queda incluido en esa duración total. Antes de esto, la latencia solo se medía en los experimentos contra el dataset de referencia, nunca en consultas reales |
 | `metadata` | JSON | Nullable — columna heredada de una integración anterior (pre-KnowledgeSpace), **no mapeada** en el modelo actual; se conserva en la BD pero el código no la lee ni la escribe |
 | `created_at` | DateTime TZ | Auto, indexado |
 

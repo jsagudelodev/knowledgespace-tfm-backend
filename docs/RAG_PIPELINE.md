@@ -274,10 +274,19 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 | Batch de embeddings | `100 textos` | `embedding_service.py → generar_embeddings_batch()` |
 | Modelo de embedding | `text-embedding-3-small` | `config.py → OPENAI_EMBEDDING_MODEL` |
 | Modelo LLM (default) | `gpt-4o-mini` | `config.py → OPENAI_CHAT_MODEL` |
-| Temperatura LLM (default) | `0.7` | `rag_service.py → generate_response()` |
+| Temperatura LLM (default) | `0.0` | `rag_service.py → DEFAULT_TEMPERATURE` |
 | Tamaño máximo de archivo | `10 MB` | `document_service.py → MAX_SIZE_MB` |
 | Tipos de archivo soportados | `pdf, docx, txt` | `document_service.py → SUPPORTED_TYPES` |
 | Dimensiones del índice Pinecone | `1536` | `pinecone_service.py → DIMENSION` |
+
+**La temperatura era 0.7 y bajó a 0 el 14 de octubre, tras medirlo.** 0.7 es un
+valor de escritura creativa, y contradecía el requisito central del sistema:
+responder únicamente con el contexto recibido. Medido sobre las 18 preguntas
+de `experimentos/dataset_evaluacion.csv`, con los mismos fragmentos
+recuperados en ambas pasadas (la temperatura no afecta a la búsqueda):
+`faithfulness` subió de 0,888 a 0,939, concentrado en los dos peores casos
+(+0,344 y +0,285). Detalle completo y la cautela sobre el ruido del modelo
+juez en el comentario de `rag_service.py → DEFAULT_TEMPERATURE`.
 
 ### Cómo ajustar el umbral de relevancia
 

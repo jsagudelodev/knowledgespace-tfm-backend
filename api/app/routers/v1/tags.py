@@ -37,8 +37,8 @@ async def get_tag(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    tag = TagRepository(db).get(tag_id)
-    if not tag or tag.company_id != current_user.company_id:
+    tag = TagRepository(db).get_of_company(tag_id, current_user.company_id)
+    if not tag:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Etiqueta no encontrada")
     return tag
 
@@ -68,8 +68,8 @@ async def update_tag(
     current_user: User = Depends(get_current_user)
 ):
     repo = TagRepository(db)
-    tag = repo.get(tag_id)
-    if not tag or tag.company_id != current_user.company_id:
+    tag = repo.get_of_company(tag_id, current_user.company_id)
+    if not tag:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Etiqueta no encontrada")
 
     if tag_update.name is not None and tag_update.name != tag.name:
@@ -94,8 +94,8 @@ async def delete_tag(
     current_user: User = Depends(get_current_user)
 ):
     repo = TagRepository(db)
-    tag = repo.get(tag_id)
-    if not tag or tag.company_id != current_user.company_id:
+    tag = repo.get_of_company(tag_id, current_user.company_id)
+    if not tag:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Etiqueta no encontrada")
     repo.delete(tag)
     return None

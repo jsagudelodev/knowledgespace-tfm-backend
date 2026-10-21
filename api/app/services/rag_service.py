@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from app.core.config import settings
 from app.core import observabilidad
+from app.core.exceptions import EmbeddingError, VectorStoreError
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
 
@@ -18,18 +19,19 @@ class RAGUnavailableError(Exception):
     un 503 con un mensaje entendible, en vez de dejar escapar un 500 con la
     traza. Lleva `etapa` para saber dónde se rompió sin leer los logs.
 
-    Los puntos de captura usan `except Exception` a secas porque los servicios
-    de los que depende el pipeline (`embedding_service`, `pinecone_service`)
-    envuelven cualquier fallo en una `Exception` genérica, de modo que no hay un
-    tipo más fino al que atender. El riesgo es enmascarar un defecto propio —un
-    `TypeError`, por ejemplo— como una caída transitoria del servicio. Por eso
-    los tres registran con `exc_info=True`: el cliente recibe un mensaje suave,
-    pero la traza real queda en el log y el bug sigue siendo diagnosticable.
-
-    El arreglo de fondo sería tipar las excepciones de esos servicios
-    (`EmbeddingError`, `VectorStoreError`, `StorageError`) y capturar solo esas.
-    Queda pendiente: hoy hay doce `raise Exception` genéricos repartidos en
-    cuatro servicios.
+    **Corregido el 20 de octubre.** Los dos primeros puntos de captura
+    atendían `except Exception` a secas porque `embedding_service` y
+    `pinecone_service` envolvían cualquier fallo en una `Exception` genérica,
+    sin un tipo más fino al que atender — con el riesgo de enmascarar un
+    defecto propio (un `TypeError`, por ejemplo) como una caída transitoria
+    del proveedor externo. Ahora esos servicios lanzan `EmbeddingError` y
+    `VectorStoreError` (`app/core/exceptions.py`), y las dos capturas
+    correspondientes se estrecharon a ese tipo concreto. El tercer punto —la
+    llamada directa a `self.client.chat.completions.create`— sigue con
+    `except Exception` a secas porque ahí sí captura lo que lance el propio
+    SDK de OpenAI, no un servicio propio que se pueda tipar. Los tres
+    registran con `exc_info=True`: el cliente recibe un mensaje suave, pero la
+    traza real queda en el log y el bug sigue siendo diagnosticable.
     """
 
     def __init__(self, etapa: str, causa: Exception):
@@ -161,7 +163,7 @@ class RAGService:
         # observación ingerida: la redundancia se pagaba dos veces por nada.
         try:
             query_embedding, embedding_tokens = self.embedding_service.generar_embedding_con_uso(query)
-        except Exception as e:
+        except EmbeddingError as e:
             logger.error("[RAG] Falló el embedding de la consulta: %s", e, exc_info=True)
             raise RAGUnavailableError("embedding de la consulta", e) from e
 
@@ -179,7 +181,7 @@ class RAGService:
                     for d in raw_docs
                 ]
                 traza["umbral"] = RELEVANCE_THRESHOLD
-        except Exception as e:
+        except VectorStoreError as e:
             logger.error("[RAG] Falló la búsqueda en Pinecone (namespace=%s): %s", namespace, e, exc_info=True)
             raise RAGUnavailableError("búsqueda vectorial", e) from e
 

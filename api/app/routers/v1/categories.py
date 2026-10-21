@@ -28,8 +28,8 @@ async def get_category(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    category = CategoryRepository(db).get(category_id)
-    if not category or category.company_id != current_user.company_id:
+    category = CategoryRepository(db).get_of_company(category_id, current_user.company_id)
+    if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
     return category
 
@@ -59,8 +59,8 @@ async def update_category(
     current_user: User = Depends(get_current_user)
 ):
     repo = CategoryRepository(db)
-    category = repo.get(category_id)
-    if not category or category.company_id != current_user.company_id:
+    category = repo.get_of_company(category_id, current_user.company_id)
+    if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
 
     if category_data.name is not None and category_data.name != category.name:
@@ -83,8 +83,8 @@ async def delete_category(
     current_user: User = Depends(get_current_user)
 ):
     repo = CategoryRepository(db)
-    category = repo.get(category_id)
-    if not category or category.company_id != current_user.company_id:
+    category = repo.get_of_company(category_id, current_user.company_id)
+    if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
     repo.delete(category)
     return None

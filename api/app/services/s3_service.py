@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 from fastapi import UploadFile
 
 from app.core.config import settings
+from app.core.exceptions import StorageError
 
 
 class S3Service:
@@ -74,7 +75,7 @@ class S3Service:
             objeto = self.cliente.get_object(Bucket=self.bucket, Key=key)
             return io.BytesIO(objeto["Body"].read())
         except ClientError as e:
-            raise Exception(f"Error descargando archivo de S3: {e}")
+            raise StorageError(f"Error descargando archivo de S3: {e}") from e
 
     def eliminar_archivo(self, key: str) -> None:
         """
@@ -86,7 +87,7 @@ class S3Service:
         try:
             self.cliente.delete_object(Bucket=self.bucket, Key=key)
         except ClientError as e:
-            raise Exception(f"Error eliminando archivo de S3: {e}")
+            raise StorageError(f"Error eliminando archivo de S3: {e}") from e
 
     def generar_url_temporal(self, key: str, segundos: int = 3600) -> str:
         """
@@ -102,4 +103,4 @@ class S3Service:
                 ExpiresIn=segundos,
             )
         except ClientError as e:
-            raise Exception(f"Error generando URL temporal: {e}")
+            raise StorageError(f"Error generando URL temporal: {e}") from e

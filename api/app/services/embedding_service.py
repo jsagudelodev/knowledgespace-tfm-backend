@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 from app.core import observabilidad
 from app.core.config import settings
+from app.core.exceptions import EmbeddingError
 
 
 class EmbeddingService:
@@ -52,7 +53,7 @@ class EmbeddingService:
             )
             return respuesta.data[0].embedding, respuesta.usage.total_tokens
         except Exception as e:
-            raise Exception(f"Error generando embedding: {str(e)}")
+            raise EmbeddingError(f"Error generando embedding: {str(e)}") from e
         
 
 
@@ -99,6 +100,6 @@ class EmbeddingService:
                 todos_los_embeddings.extend(embeddings_batch)
                 total_tokens += respuesta.usage.total_tokens
             except Exception as e:
-                raise Exception(f"Error generando embeddings en batch: {str(e)}")
+                raise EmbeddingError(f"Error generando embeddings en batch: {str(e)}") from e
 
         return todos_los_embeddings, total_tokens

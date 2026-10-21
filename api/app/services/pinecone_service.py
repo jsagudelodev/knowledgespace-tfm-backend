@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 from pinecone import Pinecone, ServerlessSpec
 
 from app.core.config import settings
+from app.core.exceptions import VectorStoreError
 
 
 class PineconeService:
@@ -57,7 +58,7 @@ class PineconeService:
         try:
             indice.upsert(**kwargs)
         except Exception as e:
-            raise Exception(f"Error insertando vectores en Pinecone: {str(e)}")
+            raise VectorStoreError(f"Error insertando vectores en Pinecone: {str(e)}") from e
 
     def buscar_vectores(
         self,
@@ -87,7 +88,7 @@ class PineconeService:
             resultados = indice.query(**kwargs)
             return resultados.matches
         except Exception as e:
-            raise Exception(f"Error buscando vectores en Pinecone: {str(e)}")
+            raise VectorStoreError(f"Error buscando vectores en Pinecone: {str(e)}") from e
 
     def eliminar_vectores(self, ids: List[str], namespace: Optional[str] = None) -> None:
         """Elimina vectores por sus IDs."""
@@ -98,7 +99,7 @@ class PineconeService:
         try:
             indice.delete(**kwargs)
         except Exception as e:
-            raise Exception(f"Error eliminando vectores de Pinecone: {str(e)}")
+            raise VectorStoreError(f"Error eliminando vectores de Pinecone: {str(e)}") from e
 
     def eliminar_por_documento(self, document_id: int, namespace: Optional[str] = None) -> None:
         """
@@ -112,7 +113,7 @@ class PineconeService:
         try:
             indice.delete(**kwargs)
         except Exception as e:
-            raise Exception(f"Error eliminando documento de Pinecone: {str(e)}")
+            raise VectorStoreError(f"Error eliminando documento de Pinecone: {str(e)}") from e
 
     def _listar_ids(self, namespace: Optional[str] = None, prefijo: Optional[str] = None) -> List[str]:
         """Identificadores de los vectores de un espacio, opcionalmente por prefijo.
@@ -193,7 +194,7 @@ class PineconeService:
             ids = self._listar_ids(namespace=namespace, prefijo=f"doc-{document_id}-chunk-")
             fragmentos = self._fetch_fragmentos(ids, namespace=namespace)
         except Exception as e:
-            raise Exception(f"Error listando los fragmentos del documento: {str(e)}")
+            raise VectorStoreError(f"Error listando los fragmentos del documento: {str(e)}") from e
 
         # El orden de `list` y `fetch` no está garantizado, y mostrar los
         # fragmentos desordenados impediría precisamente lo que se quiere ver:
@@ -220,7 +221,7 @@ class PineconeService:
             ids = self._listar_ids(namespace=namespace)
             return self._fetch_fragmentos(ids, namespace=namespace)
         except Exception as e:
-            raise Exception(f"Error listando el espacio de nombres: {str(e)}")
+            raise VectorStoreError(f"Error listando el espacio de nombres: {str(e)}") from e
 
     @staticmethod
     def construir_namespace(company_id: int, assistant_id: Optional[int] = None) -> str:

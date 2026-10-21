@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Query, Session
 
 from app.db.models.knowledge_gap import KnowledgeGap
@@ -27,7 +25,5 @@ class KnowledgeGapRepository(BaseRepository[KnowledgeGap]):
         encadene sus propios filtros."""
         return self.db.query(KnowledgeGap).filter(KnowledgeGap.company_id == company_id)
 
-    def get_of_company(self, gap_id: int, company_id: int) -> Optional[KnowledgeGap]:
-        """Una pregunta concreta, solo si pertenece a la empresa indicada."""
-        gap = self.db.get(KnowledgeGap, gap_id)
-        return gap if gap and gap.company_id == company_id else None
+    # `get_of_company` ya no se redefine aquí: desde el 20 de octubre vive en
+    # `BaseRepository`, generalizada a partir de este mismo método.

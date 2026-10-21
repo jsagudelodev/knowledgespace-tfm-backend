@@ -20,6 +20,11 @@ class CostTracking(Base):
     input_tokens = Column(Integer, nullable=False, default=0)
     output_tokens = Column(Integer, nullable=False, default=0)
     total_cost = Column(Numeric(12, 6), nullable=False)  # USD
+    # Duración de la petición en milisegundos. Solo se rellena en la fila de la
+    # operación 'chat' —la respuesta final al usuario—: es la que representa
+    # la latencia que de verdad percibe quien pregunta, no la de cada llamada
+    # interna por separado. NULL en 'embedding' y en las llamadas auxiliares.
+    duration_ms = Column(Integer, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 

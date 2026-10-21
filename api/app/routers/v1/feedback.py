@@ -117,8 +117,8 @@ async def get_feedback(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    feedback = FeedbackRepository(db).get(feedback_id)
-    if not feedback or feedback.company_id != current_user.company_id:
+    feedback = FeedbackRepository(db).get_of_company(feedback_id, current_user.company_id)
+    if not feedback:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback no encontrado")
     return feedback
 
@@ -130,8 +130,8 @@ async def update_feedback_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    feedback = FeedbackRepository(db).get(feedback_id)
-    if not feedback or feedback.company_id != current_user.company_id:
+    feedback = FeedbackRepository(db).get_of_company(feedback_id, current_user.company_id)
+    if not feedback:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback no encontrado")
     feedback.status = data.status
     if data.knowledge_gap_id is not None:
@@ -149,8 +149,8 @@ async def convert_to_gap(
     current_user: User = Depends(get_current_user),
 ):
     repo = FeedbackRepository(db)
-    feedback = repo.get(feedback_id)
-    if not feedback or feedback.company_id != current_user.company_id:
+    feedback = repo.get_of_company(feedback_id, current_user.company_id)
+    if not feedback:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback no encontrado")
     if feedback.knowledge_gap_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este feedback ya tiene una pregunta sin respuesta asociada")

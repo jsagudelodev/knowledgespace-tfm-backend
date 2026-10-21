@@ -4,7 +4,7 @@ Acta de cada sesión con el tutor, las observaciones recibidas y el plan de
 acción derivado. Se actualiza el mismo día de cada reunión, mientras está
 fresca, y cada vez que se cierra alguno de los puntos pendientes.
 
-*Última actualización: 12 de octubre de 2026.* El acta de cada reunión se
+*Última actualización: 19 de octubre de 2026.* El acta de cada reunión se
 conserva tal como se escribió; lo que se actualiza es el estado de resolución,
 la ficha técnica y el plan.
 
@@ -47,9 +47,9 @@ métricas.** Esa es la brecha a cerrar.
 | # | Pregunta | Estado | Dónde queda respondida |
 |---|---|---|---|
 | 1 | Tipos de preguntas | **Resuelta y medida** | `DATASET_PREGUNTAS.md`; memoria 5.1. Tres categorías —literal, distribuida y sin respuesta—, con métricas desglosadas por categoría. |
-| 2 | Varias preguntas a la vez | **Resuelta e implementada** | Memoria 5.3; `NUCLEO_RAG.md` §8. Era un defecto medido (48 % de cobertura); con descomposición de consultas sube al 88 %. |
+| 2 | Varias preguntas a la vez | **Resuelta e implementada** | Memoria 5.3; `NUCLEO_RAG.md` §8 y §10. Era un defecto medido (48 % de cobertura). La descomposición sin tope lo sube al 88 %, pero enviando el doble de contexto; la configuración realmente activa (reparto equilibrado) llega al 52 %, sin coste extra — es la cifra que corresponde citar si preguntan por el sistema en producción, no el 88 %. |
 | 3 | Arquitectura RAG | **Resuelta** | `ARQUITECTURAS_RAG.md`. Naive RAG con filtro por umbral, más una intervención previa a la recuperación en la clase avanzada. |
-| 4 | ¿Híbrido? | **Respondida: no** | Ficha técnica de abajo. Sin implementar; pendiente de que el tutor aclare si es obligatorio. |
+| 4 | ¿Híbrido? | **Resuelta** | `NUCLEO_RAG.md` §11. Implementado y medido el 19-10: mejora hit@1 (0,25→0,42) y *faithfulness* (0,939→0,965), pero empeora la cobertura de preguntas compuestas (48 %→30 %). Se probó también combinarlo con el reparto equilibrado (§12): mejora el reparto pero no recupera del todo esa cobertura (37 %). **Decisión: ninguna de las dos variantes se activa**, documentadas como alternativa. |
 | 5 | Técnica de recuperación | **Resuelta** | `RAG_PIPELINE.md` §6. Densa por coseno, `top_k=5`, umbral 0,30 revalidado sobre el índice vigente. |
 | 6 | Langfuse + dataset apuntado al RAG | **Resuelta** | `OBSERVABILIDAD.md` y `experimentos/langfuse_dataset.py`. Las 18 preguntas viven como *dataset* dentro de Langfuse y se ejecutaron contra el RAG como una *run* enlazada, no solo trazas sueltas. *2026-10-18.* |
 | 7 | Control de alucinaciones | **Resuelta y medida** | Memoria 5.3 y 5.4. `faithfulness` 0,888, abstención correcta 6/6 y ninguna abstención indebida. |
@@ -69,22 +69,24 @@ La puntuación de similitud mide proximidad temática, no capacidad de responder
 Verificadas contra el código. Deben poder recitarse en cualquier reunión. La
 columna de la derecha señala lo que ha cambiado desde la reunión.
 
-| Pregunta | Respuesta al 12 de octubre de 2026 | Cambio |
+| Pregunta | Respuesta al 19 de octubre de 2026 | Cambio |
 |---|---|---|
-| **Arquitectura** | Naive RAG con filtro post-recuperación por umbral. Existe además `RAGServiceAvanzado`, que añade una intervención previa a la recuperación. | ⬆ |
-| **Técnica de recuperación** | Densa, por similitud coseno (`metric="cosine"` en Pinecone), `top_k=5`, con descarte por umbral de 0,30 **revalidado** sobre el índice por oraciones. | ⬆ |
-| **¿Híbrido?** | No. Densa pura, sin componente léxico (BM25). | = |
-| **¿Reranking?** | No implementado. Descartado por coste por consulta. | = |
-| **¿Reescritura de consulta?** | **Sí, en la clase avanzada:** descomposición de consultas (*multi-query*). La básica sigue vectorizando el mensaje tal cual. Sin expansión ni HyDE. | ⬆ |
+| **Arquitectura** | Naive RAG con filtro post-recuperación por umbral como línea base, y **cinco variantes más** conviviendo con ella, seleccionables por variable de entorno sin tocar código (patrón Factory sobre Template Method): descomposición sin tope, descomposición con reparto equilibrado (la activa por defecto), reordenado, densa+léxica, y una combinación de las dos últimas. | ⬆ |
+| **Técnica de recuperación** | Densa, por similitud coseno (`metric="cosine"` en Pinecone), `top_k=5`, con descarte por umbral de 0,30 **revalidado** sobre el índice por oraciones. La variante híbrida añade BM25 fusionado por posición (RRF), filtrando por el mismo umbral antes de fusionar. | ⬆ |
+| **¿Híbrido?** | **Medido y descartado por ahora.** `RAGServiceHibrido`, hit@1 0,25→0,42 y *faithfulness* 0,939→0,965, pero empeora la cobertura de preguntas compuestas (48 %→30 %). Combinado con el reparto equilibrado (`RAGServiceDescomposicionHibrida`) mejora el reparto pero no recupera esa cobertura del todo (37 %) y es la configuración más lenta medida. Ninguna de las dos activa. | ⬆ |
+| **¿Reranking?** | **Implementado y medido el 14-10.** Mejora la recuperación (hit@3 de 0,50 a 0,667, MRR de 0,394 a 0,447), pero las cuatro métricas de generación de RAGAS se mueven dentro del margen de ruido del juez, y multiplica el coste por consulta ×3,7. Disponible, **no activo por defecto**. | ⬆ |
+| **¿Reescritura de consulta?** | **Sí, en dos variantes:** descomposición de consultas (*multi-query*) sin tope, y con reparto equilibrado entre subpreguntas (la activa). La línea base sigue vectorizando el mensaje tal cual. Sin expansión ni HyDE. | ⬆ |
 | **Fragmentación** | Por oraciones, objetivo de 1.000 caracteres, **sin solapamiento**. | = |
 | **Conversación** | Multiturno: se envían los 20 últimos mensajes al modelo. | = |
-| **Evaluación** | Chunking, umbral, preguntas compuestas, recuperación por frase ancla y generación con RAGAS. **Cinco experimentos, todos reproducibles.** | ⬆ |
-| **Control de alucinaciones** | Los mismos tres mecanismos, ahora **medidos**: `faithfulness` 0,888 y abstención correcta 6/6, sin abstenciones indebidas. | ⬆ |
-| **Observabilidad** | Langfuse sobre OpenTelemetry, cinco observaciones por consulta. Dependencia opcional. | ✚ |
+| **Evaluación** | Chunking, umbral, preguntas compuestas, recuperación por frase ancla, generación con RAGAS (línea base, reordenado, híbrido y la combinación de híbrido con reparto equilibrado). **Ocho experimentos, todos reproducibles.** | ⬆ |
+| **Control de alucinaciones** | Los mismos tres mecanismos, medidos: `faithfulness` 0,888 en la base y 0,946 con reordenado; abstención correcta 6/6 en las cinco configuraciones donde se ha medido, sin abstenciones indebidas. | = |
+| **Observabilidad** | Langfuse sobre OpenTelemetry, cinco observaciones por consulta. Dependencia opcional. El dataset de 18 preguntas vive dentro de Langfuse como *run* enlazada a sus trazas. | ⬆ |
+| **Pruebas** | 117 tests en verde, 18 archivos. La mayoría apunta directamente a la aportación central: las seis estrategias de recuperación, el umbral y la abstención. | ⬆ |
 
 > La versión de esta ficha verificada el 9 de octubre decía «sin multi-query»,
 > «la evaluación de recuperación y alucinaciones, pendientes» y «ninguno está
-> medido». Las tres han dejado de ser ciertas.
+> medido». La del 12 de octubre daba el reranking y el híbrido por no
+> implementados. Ninguna de las dos sigue siendo cierta.
 
 ### Taxonomía de preguntas del sistema
 
@@ -106,8 +108,12 @@ fragmento; síntesis de varios fragmentos sobre un mismo tema.
 Ante *"¿qué es un VAE y cómo se entrena un transformer?"*, el vector resultante
 no se aproxima bien a ninguno de los dos temas y la recuperación se degrada.
 No estaba documentado. **Cerrada el 12 de octubre:** medido el defecto
-(48 % de cobertura conjunta) e implementada la descomposición de consultas,
-que lo lleva al 88 % sin que ninguna de las seis parejas empeore.
+(48 % de cobertura conjunta) e implementada la descomposición de consultas, que
+lo lleva al 88 % sin que ninguna de las seis parejas empeore, aunque enviando
+el doble de contexto al modelo. **La configuración que de verdad queda activa
+el 16 de octubre** (reparto equilibrado, sin ese coste extra) llega al 52 % —
+la cifra a citar si preguntan por el sistema en producción, no el 88 %, que
+corresponde a la variante sin tope.
 
 **Alucinación de alcance.** A la pregunta *"dame un resumen de la documentación
 disponible"*, el sistema respondió *"la documentación disponible se compone
@@ -175,7 +181,13 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
 
 ### Semana 2 — 19 al 25 de octubre
 
-- [ ] **Reranking** implementado y medido contra la misma línea base.
+- [x] **Reranking** implementado y medido contra la misma línea base: hit@3
+      0,50→0,667, MRR 0,394→0,447; RAGAS dentro del margen de ruido; coste
+      ×3,7. Decisión: disponible, no activo. *2026-10-14.*
+- [x] **Reparto equilibrado de contexto** (no planificada): cierra el coste de
+      contexto que dejaba abierto la descomposición sin tope. Desequilibrio de
+      1,83 a 0,83 al mismo coste que la base. **Es la configuración activa por
+      defecto.** *2026-10-16.*
 - [x] Experimento de **preguntas compuestas**: 6 parejas, cobertura conjunta
       del 48 %. *2026-10-09.* Y la mejora que lo corrige, medida: 88 %.
       *2026-10-12.*
@@ -183,57 +195,80 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
       dentro de la banda, pero esta se estrechó un 16 % y el margen frente al
       ruido cayó un 41 %. *2026-10-09.*
 - [x] Redactado **5.3 Resultados**, con los cinco experimentos y sus tablas.
-      El capítulo 5 queda cerrado: 5.709 palabras, sin marcadores pendientes.
-      *2026-10-12.*
+      El capítulo 5 queda cerrado. *2026-10-12.*
 
 ### Semana 3 — 26 de octubre al 1 de noviembre
 
-- [ ] **RAG híbrido**, o decisión documentada de dejarlo como trabajo futuro.
-- [ ] Redactar los capítulos **3** (arquitectura, selección tecnológica y
-      análisis de costes) y **4** (implementación).
+- [x] **RAG híbrido**: implementado y medido el 19-10 contra la línea base.
+      Mejora hit@1 y *faithfulness*, pero empeora la cobertura de preguntas
+      compuestas (48 %→30 %). Se probó además combinarlo con el reparto
+      equilibrado: mejora el reparto pero no recupera esa cobertura del todo
+      (37 %). **Decisión: ninguna de las dos variantes se activa.**
+      `NUCLEO_RAG.md` §11 y §12.
+- [x] Redactados los capítulos **3** (requisitos, arquitectura, selección
+      tecnológica y análisis de costes — 3.557 palabras) y **4**
+      (implementación — 2.524 palabras). *Verificado en el documento al
+      19-10; no estaba previsto cerrarlos hasta esta semana y ya lo están.*
 
 ### Semanas 4 a 6 — 2 de noviembre en adelante
 
-- [ ] Capítulo **2** (estado del arte).
-- [ ] Capítulos **6, 7 y 8**.
-- [ ] Capítulo **9 — bibliografía**. *Abrir el archivo ya: es lo único que no se
-      puede acelerar al final, y hoy tiene cero referencias.*
-- [ ] Anexos y manual de usuario.
+- [ ] Capítulo **2** (estado del arte). El hueco más grande que queda en la
+      memoria; exige lectura, no redacción sobre código existente.
+- [ ] **6.2** (UX y usabilidad) y **7.2** (riesgos, ética y mitigaciones) — 6.1,
+      6.3 y 7.1 ya están escritos.
+- [ ] Capítulo **8** (conclusiones y trabajo futuro).
+- [ ] Capítulo **9 — bibliografía**. 22-23 referencias ya compuestas en
+      `BIBLIOGRAFIA.md`; **falta verificarlas una a una y transferirlas** al
+      documento. El capítulo sigue vacío en el `.docx`.
+- [ ] Anexos y manual de usuario — el manual no existe todavía en ningún repo.
 - [ ] Ensayo de la defensa.
 
 ---
 
 ## Estado
 
-| | 9 de octubre | 12 de octubre |
-|---|---|---|
-| Memoria | 3.331 palabras | **8.692** de las ~15.000-20.000 necesarias |
-| Escrito | Capítulo 1; secciones 5.1, 5.3 y 5.4 | Capítulo 1; **capítulo 5 completo**; 6.3 y 7.1 |
-| Vacío | Capítulos 2, 3, 4, 6, 7, 8, 9 y 10 | Capítulos 2, 3, 4, 8 y 9; parte de 6, 7 y 10 |
-| Bibliografía | 0 referencias | **0 referencias** de las 15-25 requeridas |
-| Tests | 21, en verde | **35**, en verde |
-| Índice vectorial | 4 espacios de nombres, 297 vectores, desincronizado | **1 espacio, 87 vectores**, coincidiendo con la base de datos |
+| | 9 de octubre | 12 de octubre | 19 de octubre |
+|---|---|---|---|
+| Memoria | 3.331 palabras | 8.692 de las ~15.000-20.000 necesarias | **17.445**, dentro del rango objetivo |
+| Escrito | Capítulo 1; secciones 5.1, 5.3 y 5.4 | Capítulo 1; capítulo 5 completo; 6.3 y 7.1 | **Capítulos 1, 3, 4 y 5 completos**; 6.1, 6.3 y 7.1 |
+| Vacío | Capítulos 2, 3, 4, 6, 7, 8, 9 y 10 | Capítulos 2, 3, 4, 8 y 9; parte de 6, 7 y 10 | **Capítulos 2, 8, 9 y 10; 6.2 y 7.2** |
+| Bibliografía | 0 referencias | 0 referencias de las 15-25 requeridas | **22-23 referencias compuestas** en `BIBLIOGRAFIA.md`, **ninguna verificada ni transferida** al capítulo 9 del documento |
+| Tests | 21, en verde | 35, en verde | **117**, en verde, 18 archivos |
+| Índice vectorial | 4 espacios de nombres, 297 vectores, desincronizado | 1 espacio, 87 vectores, coincidiendo con la base de datos | Sin cambios desde el 9-10 |
 
-**Medido y defendible al 12 de octubre** —cinco experimentos, todos
+**Medido y defendible al 19 de octubre** —ocho experimentos, todos
 reproducibles desde `api/experimentos/`:
 
 | | Resultado |
 |---|---|
 | Calidad estructural del *chunking* | Cortes a mitad de palabra del 79,2 % al 0 %; 19 % menos de texto indexado |
 | Umbral de relevancia | Ruido 0,258 / señal 0,393; el 0,30 sigue dentro de la banda |
-| Preguntas compuestas | Cobertura conjunta del 48 %, con los 30 fragmentos por encima del umbral |
+| Preguntas compuestas (línea base) | Cobertura conjunta del 48 %, con los 30 fragmentos por encima del umbral |
 | Recuperación por frase ancla | hit@3 0,50 y MRR 0,394; literal 0,525 frente a distribuida 0,133 |
-| Abstención | 6/6 correctas, 0 indebidas; el umbral produjo 2 y el *prompt* 4 |
-| Generación (RAGAS) | `faithfulness` 0,888, `context_precision` 0,912 |
-| Latencia | p50 2,41 s, p95 4,26 s |
+| Abstención (línea base) | 6/6 correctas, 0 indebidas; el umbral produjo 2 y el *prompt* 4 |
+| Generación, línea base (RAGAS) | `faithfulness` 0,888, `context_precision` 0,912 |
+| Latencia (línea base) | p50 2,41 s, p95 4,26 s |
 | Coste por consulta | 0,000431 USD |
-| Descomposición de consultas | Cobertura del 48 % al 88 %; +1,2 s de latencia mediana |
+| Descomposición de consultas (sin tope) | Cobertura del 48 % al 88 %; +1,2 s de latencia mediana; coste doble de contexto |
+| Reparto equilibrado (activo por defecto) | Cobertura 52 %, desequilibrio de 1,83 a 0,83, mismo coste que la base |
+| Reordenado (reranking) | hit@3 0,50→0,667; RAGAS dentro del margen de ruido; coste ×3,7 — no activo |
+| Híbrido (denso + BM25) | hit@1 0,25→0,42, *faithfulness* 0,939→0,965; empeora preguntas compuestas (48 %→30 %) — no activo |
+| Descomposición + híbrida | Mejor hit@3/MRR medidos (0,67 / 0,544) y mejor reparto (0,67); no recupera del todo la cobertura perdida por el híbrido (37 %); la más lenta de las seis — no activa |
 
 **Lo que falta, por orden de urgencia:**
 
-1. **El correo al tutor.** Bloquea reranking y RAG híbrido, las dos únicas
-   mejoras que quedan del plan.
-2. **La memoria.** Faltan los capítulos 2, 3, 4, 8 y 9. El código ya no es el
-   cuello de botella.
-3. **La bibliografía.** Cero referencias desde el 9 de octubre. Es lo único que
-   no se puede acelerar al final.
+1. **Verificar la bibliografía.** 22-23 referencias compuestas, cero
+   verificadas, cero transferidas al documento. Es lo único que no se puede
+   acelerar al final, y hoy sigue sin empezar a pesar de estar ya redactada.
+2. **Confirmar el estado del correo al tutor.** Al 12 de octubre seguía sin
+   enviarse y bloqueaba la decisión sobre reranking e híbrido. Ambos se
+   implementaron y midieron igualmente desde entonces; falta registrar aquí si
+   el tutor llegó a responder y qué dijo.
+3. **La memoria.** Faltan los capítulos 2, 8, 9 y 10, y las secciones 6.2 y
+   7.2. El código ya no es el cuello de botella — lleva varios días siéndolo
+   cada vez menos.
+
+El bloque C del plan —mejoras del pipeline RAG, cada una medida contra la
+línea base— **queda completo el 19 de octubre**: reordenado, híbrido,
+descomposición con reparto equilibrado y la combinación de las dos últimas,
+las cuatro medidas y con decisión documentada.

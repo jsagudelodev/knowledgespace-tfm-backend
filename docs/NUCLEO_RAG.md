@@ -2,7 +2,9 @@
 
 Qué está implementado, qué está implementado pero sin medir, y qué falta.
 Auditado contra el código el **9 de octubre de 2026**, tras la primera tutoría
-(ver [`TUTORIAS.md`](TUTORIAS.md)).
+(ver [`TUTORIAS.md`](TUTORIAS.md)). **Actualizado el 19 de octubre** tras
+incorporar el reordenado (§9), el reparto equilibrado (§10), cerrar el híbrido
+(§11) y medir una sexta configuración que combina ambos (§12).
 
 > **El criterio de este documento.** El tutor no preguntó si el sistema
 > funciona: preguntó cómo está construido y cómo se demuestra que funciona
@@ -16,6 +18,85 @@ Auditado contra el código el **9 de octubre de 2026**, tras la primera tutoría
 | ✅ | Implementado, medido y documentado |
 | 🟡 | Implementado, pero sin medir o sin documentar |
 | ❌ | No existe |
+
+---
+
+## Guía rápida — las seis clases, en lenguaje llano
+
+Antes del detalle técnico de más abajo: qué es cada clase, por qué existe y si
+está activa. Las seis heredan lo mismo —el filtro de relevancia 0,30, el
+*prompt* que impide inventar, el registro de coste, las trazas— y solo cambian
+**cómo se recuperan los fragmentos** (el método `_recuperar`).
+
+**1. `RAGService` — la línea base (*naive RAG*).** Convierte la pregunta en un
+vector, busca los 5 fragmentos más parecidos por significado, descarta los que
+no llegan a 0,30 de relevancia y, si no queda ninguno, se abstiene. Es el punto
+de comparación de todo lo demás: sin ella, ninguna mejora se puede demostrar,
+solo afirmar. Su límite: un vector no representa bien una pregunta con dos
+temas, y puede no encontrar un término técnico poco frecuente aunque esté en
+el corpus.
+
+**2. `RAGServiceAvanzado` — descomposición sin tope.** Si detecta varios temas
+en la pregunta, la parte en subpreguntas, busca cada una por separado y junta
+**todos** los fragmentos encontrados. Sube la cobertura de preguntas con dos
+temas del 48 % al 88 %, pero sin control de cuánto crece el contexto: con dos
+subpreguntas puede mandar 9-10 fragmentos al modelo en vez de 5, casi el doble
+de costo en esa consulta. Medida, no activa — superada por la #3.
+
+**3. `RAGServiceCompleto` — descomposición acotada / reparto equilibrado — ✅
+la activa hoy.** Igual que la anterior, pero mantiene el límite de siempre (5
+fragmentos): en vez de quedarse con "los 5 mejores en general" —que suele
+dejar a un tema con 4 y al otro con 1—, reparte por turnos, el mejor fragmento
+de cada subpregunta por ronda, hasta llenar los 5 huecos. Ningún tema se queda
+sin representación, al mismo costo que la base. Si la pregunta es simple, se
+comporta exactamente como la base. Resuelve la pregunta del tutor sobre varias
+preguntas a la vez sin pagar el costo doble de la #2.
+
+**4. `RAGServiceReranking` — reordenado.** Busca entre más candidatos (20 en
+vez de 5), filtra por el mismo umbral, y un modelo reordena los que quedan por
+utilidad real, no por parecido vectorial. Mejora el acierto en encontrar el
+fragmento correcto, pero una llamada extra que debe leer el texto completo de
+cada candidato multiplica el costo por consulta ×3,7, y las respuestas
+generadas no mejoran de forma medible. Medida, no activa.
+
+**5. `RAGServiceHibrido` — densa + léxica (BM25).** A la búsqueda por
+significado le suma una búsqueda por palabra exacta (BM25), y combina los dos
+rankings por posición. Rescata fragmentos que el significado pasa por alto por
+usar un término técnico poco frecuente. Da el mejor acierto medido en el
+dataset de 18 preguntas, pero empeora las preguntas de dos temas (cobertura de
+48 % a 30 %, peor que no hacer nada) porque no descompone: busca con la
+pregunta completa. Medida, no activa — retrocede justo en lo que el tutor
+preguntó.
+
+**6. `RAGServiceDescomposicionHibrida` — la combinación de la #3 y la #5.**
+Descompone y reparte en turnos como la #3, pero dentro de cada subpregunta
+aplica también BM25 como la #5. La intención: que ninguna subpregunta se quede
+sin representación y que cada una rescate lo que el significado pasa por
+alto. Da el mejor hit@3 y MRR medidos y el mejor reparto de las seis, pero no
+recupera del todo la cobertura que la #5 pierde (37 %, todavía por debajo del
+48 % de la base) y es la más lenta de las seis. Medida, no activa.
+
+### Cifras completas, lado a lado
+
+| Configuración | hit@1 | hit@3 | MRR | Fidelidad (RAGAS) | Cobertura compuestas | Desequilibrio | p95 latencia |
+|---|---|---|---|---|---|---|---|
+| 1. Base | 0,25 | 0,50 | 0,394 | 0,939 | 48 % | 1,83 | 4,92 s |
+| 2. Descomposición sin tope | 0,25 | 0,50 | 0,394 | sin medir | 88 % | 0,83 | 5,28 s |
+| **3. Descomposición acotada (activa)** | 0,25 | 0,50 | 0,394 | sin medir | **52 %** | **0,83** | 5,33 s |
+| 4. Reordenado | 0,25 | 0,67 | 0,447 | 0,946 | — | — | 6,40 s |
+| 5. Híbrido (BM25) | 0,42 | 0,58 | 0,537 | 0,965 | 30 % | 1,00 | 6,97 s |
+| 6. Descomposición + híbrida | 0,42 | 0,67 | 0,544 | 0,913* | 37 % | 0,67 | 8,77 s |
+
+\* *Incluye ruido del evaluador: comprobado pregunta por pregunta, para varios
+casos el contexto recuperado y la respuesta generada son idénticos a los de la
+#5, y aun así el juez de RAGAS dio notas distintas. Detalle en §12.*
+
+**Por qué la activa es la #3 y no la #5 o la #6, que sacan mejor nota en el
+dataset de 18 preguntas:** el tutor preguntó explícitamente si el sistema
+admite varias preguntas a la vez, y la #3 es la única, de las tres medidas en
+ese terreno, que lo resuelve sin empeorar nada ni disparar el costo. La #5 lo
+rompe (30 %) y la #6 no termina de arreglarlo (37 %), a cambio de ser la más
+lenta de las seis.
 
 ---
 
@@ -173,9 +254,12 @@ sistemas RAG en producción, documentado aquí con cifras propias.
 | Conversación multiturno (20 mensajes) | ✅ | `chat.py:61`; límite de preguntas compuestas medido en `resultados/preguntas_compuestas_2026-10-09.json` |
 | Metadatos para citar fuentes | 🟡 | `documents.py:134` |
 | Aislamiento multi-tenant por *namespace* | 🟡 | `pinecone_service.py`, `tests/test_pinecone_namespace.py` |
-| Reescritura o expansión de consulta | ❌ | La pregunta se vectoriza tal cual |
-| Reranking | ❌ | Evaluado y descartado, sin medición que lo respalde |
-| RAG híbrido (denso + BM25) | ❌ | — |
+| Reescritura o expansión de consulta | ❌ | La pregunta se vectoriza tal cual (la descomposición de §8 es un caso distinto: no reescribe, separa) |
+| Descomposición de consultas | ✅ | `RAGServiceAvanzado`, cobertura 48 %→88 %. §8 |
+| Descomposición con tope de contexto (reparto equilibrado) | ✅ | `RAGServiceCompleto`, **configuración activa por defecto**. §10 |
+| Reranking | ✅ medido, **no activo** | `RAGServiceReranking`, hit@3 0,50→0,667; decisión de no desplegar documentada. §9 |
+| RAG híbrido (denso + BM25) | ✅ medido, **no activo** | `RAGServiceHibrido`, hit@1 0,25→0,42, pero empeora preguntas compuestas (48 %→30 %). §11 |
+| Descomposición + híbrida | ✅ medido, **no activo** | `RAGServiceDescomposicionHibrida`, mejor hit@3/MRR medidos, no recupera del todo la cobertura perdida por el híbrido. §12 |
 
 **El umbral, revalidado el 2026-10-09.** Estaba medido sobre un índice
 fragmentado por caracteres, de junio, lo que creaba una incoherencia: los
@@ -196,33 +280,42 @@ Comparativa completa en `RAG_PIPELINE.md` §6.
 |---|---|
 | Calidad estructural de la fragmentación | ✅ Medida el 2026-10-07, reproducida idéntica el 2026-10-09 |
 | Coste por consulta | ✅ Medido el 2026-10-08, registros 71-80 |
-| Dataset de evaluación | ❌ |
-| Langfuse | ✅ Instrumentado el 2026-10-09 |
-| RAGAS | ❌ |
-| Métricas de recuperación (`hit@k`, MRR) | ❌ |
-| Latencia p50 / p95 | ❌ |
+| Dataset de evaluación | ✅ 18 preguntas, cerrado el 2026-10-11 (§6) |
+| Langfuse | ✅ Instrumentado el 2026-10-09; dataset enlazado el 2026-10-18 |
+| RAGAS | ✅ Línea base el 2026-10-12 (§7); reranking el 2026-10-14 (§9) |
+| Métricas de recuperación (`hit@k`, MRR) | ✅ Por frase ancla, 2026-10-11 (§6.2) |
+| Latencia p50 / p95 | ✅ 2,41 s / 4,26 s, medida el 2026-10-11 (§6.3) |
 | Umbral de relevancia | ✅ Revalidado el 2026-10-09 |
-| Degradación en preguntas compuestas | ✅ Medida el 2026-10-09 |
+| Degradación en preguntas compuestas | ✅ Medida el 2026-10-09; corregida con descomposición el 2026-10-12 |
 
-**Este es el bloque que decide la nota, y es el más vacío.** Dos mediciones
-hechas, cinco por hacer.
+**Este bloque, que decide la nota, ya está cerrado.** Las nueve piezas están
+medidas, incluida la comparación del híbrido y de la sexta configuración
+contra la línea base (§11, §12).
 
 ---
 
 ## 3. Control de alucinaciones
 
-Hay **tres mecanismos implementados y ninguno medido**. Es exactamente lo que el
-tutor señaló.
+> **Esta sección describe el diagnóstico del 9 de octubre.** Al 19 de octubre
+> los tres mecanismos **ya están medidos** — ver §6.1 (abstención, 6/6
+> correctas en las seis configuraciones donde se ha ejecutado el dataset) y §7
+> en adelante (`faithfulness` por configuración: 0,939 en la base, hasta 0,965
+> con el híbrido). Se conserva el texto original porque el hallazgo de la
+> alucinación de alcance (más abajo) sigue vigente tal cual se detectó.
+
+Había **tres mecanismos implementados y ninguno medido**. Es exactamente lo que
+el tutor señaló.
 
 | Mecanismo | Implementado | Medido | Con test |
 |---|---|---|---|
-| Umbral de relevancia descarta contexto pobre | Sí | **No** | **No** |
-| *Prompt* obliga a responder solo con el contexto | Sí | **No** | **No** |
-| Registro de *knowledge gaps* | Sí | **No** | — |
+| Umbral de relevancia descarta contexto pobre | Sí | **Sí**, §6.1 y §7 | Sí, `test_rag_service_umbral.py` |
+| *Prompt* obliga a responder solo con el contexto | Sí | **Sí**, abstención 6/6 en §6.1 | Sí |
+| Registro de *knowledge gaps* | Sí | No es una métrica de calidad, es un registro operativo | — |
 
 El *prompt* exige responder literalmente *"No encontré información sobre este
 tema en los documentos de la empresa"* cuando el contexto no basta
-(`rag_service.py:24`). **Nunca se ha verificado que lo haga.**
+(`rag_service.py:24`). Verificado en §6.1: 6 de 6 abstenciones correctas sobre
+el dataset de 18 preguntas, sin ninguna abstención indebida.
 
 ### Una alucinación real, detectada el 8 de octubre
 
@@ -273,31 +366,49 @@ constancia porque condicionaba el diseño del experimento.
 | Trazas del pipeline RAG | ✅ Cinco observaciones por consulta |
 | Langfuse | ✅ Instrumentado, dependencia opcional |
 
-**Dato de la auditoría:** `rag_service.py`, `chat.py` y `pinecone_service.py`
-tienen **0 llamadas a `logger`**. En toda la aplicación hay 5.
+**Dato de la auditoría original, 9 de octubre:** `rag_service.py`, `chat.py` y
+`pinecone_service.py` tenían **0 llamadas a `logger`**. En toda la aplicación
+había 5. Eso significaba que, cuando una respuesta salía mal, no había forma de
+saber qué se recuperó, con qué puntuaciones ni qué contexto recibió el modelo.
+Es la razón de fondo por la que el tutor preguntó por Langfuse.
 
-Esto significa que, cuando una respuesta sale mal, no hay forma de saber qué se
-recuperó, con qué puntuaciones ni qué contexto recibió el modelo. Es la razón
-de fondo por la que el tutor preguntó por Langfuse.
+**Verificado de nuevo el 19 de octubre:** `chat.py` y `pinecone_service.py`
+siguen sin ninguna llamada a `logger`, pero ya no es el diagnóstico que importa
+— `rag_service.py` tiene ahora 7 (una por cada configuración que descompone,
+reparte o fusiona: `[RAG*]`, `[RAG~]`, `[RAG#]`…) y, sobre todo, **Langfuse ya
+está instrumentado** (§11 de esta sección en su momento, hoy integrado en el
+flujo normal): cada consulta genera cinco observaciones, y el paso de
+recuperación guarda cada fragmento con su puntuación y si superó el umbral.
+Esa es la observabilidad real que responde a la pregunta del tutor —no el
+conteo de `logger.info`, que para este proyecto resultó ser la señal
+equivocada—. Detalle completo en `OBSERVABILIDAD.md`. En toda la aplicación hay
+hoy 44 llamadas a `logger`.
 
 ---
 
 ## 5. Pruebas
 
-21 tests en verde, repartidos en 5 archivos. Pero:
+**Actualizado el 19 de octubre: 117 tests en verde, 18 archivos** (`pytest -q`,
+verificado). La tabla original de esta sección, del 9 de octubre, decía 21
+tests sin ninguno sobre el umbral ni la abstención — la aportación central del
+trabajo no tenía ni una prueba. Eso cambió en el bloque B del plan (ver más
+abajo) y creció de nuevo con cada configuración añadida después.
 
-| Qué cubren | |
+| Qué cubren | Tests |
 |---|---|
-| Formato del contexto construido | 4 tests |
-| Cálculo de costes | 5 tests |
-| Métricas del panel | 4 tests |
-| Períodos de *knowledge gaps* | 4 tests |
-| Construcción de *namespaces* | 4 tests |
-| **Umbral de relevancia** | **0** |
-| **Abstención ("no encontré información")** | **0** |
-| **Recuperación de extremo a extremo** | **0** |
+| Las seis configuraciones del pipeline RAG y la construcción de contexto (`rag_factory`, `avanzado`, `completo`, `reranking`, `híbrido`, `descomposición+híbrida`, `context`) | 56 |
+| Umbral de relevancia y abstención (`test_rag_service_umbral.py`) | 14 |
+| Parámetros configurables del pipeline (`TOP_K`, umbral, etc. por variable de entorno) | 9 |
+| Índice léxico BM25 (soporte del híbrido) | 8 |
+| Namespaces y listado de Pinecone | 13 |
+| Observabilidad (cliente Langfuse, trazabilidad de *embeddings*) | 4 |
+| Resto de la aplicación: costes, panel, *knowledge gaps* | 13 |
 
-La aportación central del trabajo no tiene ni una prueba que la respalde.
+**Sigue sin existir ningún test de integración**: ninguno levanta la
+aplicación ni toca una base de datos real — ver la limitación declarada en
+`ALCANCE_TFM.md`. Lo que sí cambió es que la aportación central —las seis
+estrategias de recuperación, el umbral y la abstención— concentra la mayoría
+de los 117 tests.
 
 ---
 
@@ -410,6 +521,24 @@ como modelo juez. Script: `experimentos/evaluar_ragas.py`. Resultados en
 | `context_recall` | **0,896** | De lo necesario, cuánto se recuperó |
 | `faithfulness` | **0,888** | La respuesta se apoya en el contexto |
 | `answer_relevancy` | **0,822** | La respuesta contesta a la pregunta |
+
+> **Nota añadida el 20 de octubre: esta no es la única medición de la línea
+> base, y conviene saber cuál citar en cada caso.** Esta tabla es la del
+> `ragas_2026-10-12.json`. Al volver a medir el 14 de octubre para comparar
+> con el reordenado (§9), con la temperatura fijada explícitamente en 0
+> (`ragas_2026-10-14_base_temp0.json`), la base dio `faithfulness` **0,939** y
+> `answer_relevancy` 0,839 — distinto, pese a ser "la misma" configuración.
+> `context_recall` sale **idéntico** en los dos archivos (0,895833... hasta el
+> último decimal), lo que confirma la causa: esa métrica depende solo de qué
+> se recupera —determinista, no cambia con la temperatura—, mientras que
+> `faithfulness` y `answer_relevancy` dependen de la respuesta generada, que
+> sí varía entre ejecuciones. Es la misma clase de ruido que §12 documenta
+> para el juez de RAGAS, aquí observado un nivel antes, en la propia
+> generación. **Para comparar contra otra configuración medida el mismo día
+> con la misma temperatura fija (reordenado, híbrido, la sexta clase), cita
+> 0,939** —es el valor que usan las tablas comparativas de §9, §11 y §12—,
+> no el 0,888 de esta tabla, que viene de una ejecución distinta sin
+> temperatura fijada.
 
 Junto con lo medido en la ejecución del dataset (§6), el cuadro completo de la
 configuración actual queda así:
@@ -627,6 +756,285 @@ base más una recuperación adicional**.
 
 ---
 
+## 9. Reordenado de fragmentos (reranking) — 2026-10-14
+
+Segunda mejora implementada y medida contra la línea base. Ensancha la
+búsqueda a 20 candidatos, filtra por el mismo umbral de 0,30 antes de
+reordenar —para que la abstención no cambie— y un modelo reordena los
+supervivientes por utilidad real, no por similitud coseno.
+
+### El resultado
+
+| | Base | Con reordenado |
+|---|---|---|
+| hit@3 | 0,500 | **0,667** |
+| MRR | 0,394 | **0,447** |
+| `context_precision` (RAGAS) | 0,877 | 0,920 |
+| `context_recall` (RAGAS) | 0,896 | 0,896 |
+| `faithfulness` (RAGAS) | 0,939 | 0,946 |
+| `answer_relevancy` (RAGAS) | 0,839 | 0,813 |
+
+**La recuperación mejora de forma clara; la generación no.** Las cuatro
+métricas de RAGAS se mueven dentro del margen de ruido del propio modelo
+evaluador —ninguna cruza una diferencia que se pueda llamar mejora real—, así
+que no está demostrado que las respuestas finales sean mejores, solo que los
+fragmentos llegan mejor ordenados.
+
+### El coste
+
+La llamada del reordenador consume unos 4.600 tokens de entrada por consulta
+—necesita ver el texto completo de cada candidato para no repetir el error
+que motivó subir el recorte de 400 a 1.000 caracteres (ver
+`reordenador.py`)—, lo que multiplica por **3,7** el coste de la consulta.
+
+### Decisión
+
+**Disponible, medida y documentada; no activa por defecto.** Mejora la
+recuperación de forma consistente, pero pagar 3,7 veces más por consulta sin
+que se demuestre una respuesta mejor es pagar sin cobrar. La clase
+(`RAGServiceReranking`) y el mixin que comparte con `RAGServiceCompleto`
+(`MezclaReordenado` en `reordenador.py`) quedan activables por
+`RAG_CONFIGURACION=reranking`. Razonamiento completo en el docstring de
+`rag_factory.py`.
+
+---
+
+## 10. Reparto equilibrado de contexto — 2026-10-16
+
+Tercera mejora, construida sobre la descomposición de consultas (§8) para
+cerrar el defecto que esta dejaba abierto: **ensancha sin recortar**. Con dos
+subpreguntas, la descomposición sin tope manda 9-10 fragmentos al modelo en
+vez de 5 — casi el doble de coste de contexto por consulta.
+
+### Por qué no se recortó con el reordenador
+
+El primer intento recortó pidiendo al modelo que ordenara los fragmentos por
+utilidad y conservando los cinco primeros. **Se midió y empeoró**, sobre las
+seis parejas de preguntas compuestas:
+
+| | Cobertura | Desequilibrio |
+|---|---|---|
+| Base | 48 % | 1,83 |
+| Reordenado y recorte | 52 % | **2,17** — peor reparto |
+| Reparto en turnos (la solución adoptada) | ~52 % | **0,83** |
+
+El reordenador elige los fragmentos "más útiles" en conjunto y tiende a
+concentrarse en una de las dos subpreguntas — justo lo que la descomposición
+venía a evitar — y además cobra una llamada al modelo por hacerlo.
+
+### La solución: reparto en turnos, sin coste de llamada
+
+`RAGServiceCompleto._repartir` toma por rondas el mejor fragmento aún no
+incluido de cada subpregunta, garantizando que ninguna se queda sin
+representación, sin decidir cuál es "mejor" en conjunto. Con el presupuesto
+fijo en `TOP_K=5`, el techo de cobertura es matemáticamente ~50 % — por eso
+esta variante no persigue el 88 % de la descomposición sin tope (§8), que solo
+es alcanzable enviando el doble de fragmentos.
+
+**Lo que sí logra, medido:** el desequilibrio cae de 1,83 a 0,83 —casi el
+mismo valor que la descomposición sin tope (0,9)— al mismo coste de contexto
+que la línea base. Es, de las cinco configuraciones, la única que mejora el
+reparto de evidencia sin pagar ni en tokens ni en llamadas adicionales de
+reordenado.
+
+### Decisión
+
+**Es la configuración activa por defecto** (`RAG_CONFIGURACION=descomposicion_acotada`).
+Resuelve el mismo problema que la descomposición sin tope —ninguna subpregunta
+se queda sin representación— sin su coste de contexto. Detalle completo en
+`rag_service_completo.py`.
+
+---
+
+## 11. RAG híbrido (denso + BM25) — 2026-10-19, cerrado
+
+Cuarta mejora, implementada para cerrar la pregunta 4 del tutor (*"¿es un RAG
+híbrido?"*), que hasta ahora se respondía "no, y no está medido por qué no".
+
+### El problema que resuelve
+
+La recuperación densa compara significado y es ciega a la forma: un código de
+régimen, una partida arancelaria o un acrónimo poco frecuente puede no tener
+una representación vectorial distintiva, y la similitud coseno lo trata como
+ruido. BM25 es la operación inversa — ciega al significado, precisa con la
+letra. El híbrido combina ambas para que lo que una descarta, la otra pueda
+rescatarlo.
+
+### El diseño: el umbral protege primero, la fusión opera después
+
+BM25 y la similitud coseno no viven en la misma escala, y mezclarlas sin
+cuidado abre dos modos de fallo: que el sistema deje de abstenerse nunca (BM25
+casi siempre encuentra alguna coincidencia léxica) o que se abstenga siempre
+(si la fusión diluye la señal densa por debajo del umbral). La solución,
+coherente con el patrón ya usado en reranking y en el reparto equilibrado:
+
+```
+1. búsqueda densa ensanchada
+2. filtro por umbral 0,30 — IDÉNTICO al de la línea base
+3. si no sobrevive nada → abstención, igual que la base
+   (BM25 no tiene voto sobre si el sistema responde)
+4. si sobrevive algo → se busca también por BM25 y se fusiona
+   por POSICIÓN (Reciprocal Rank Fusion), nunca por puntuación
+5. se devuelven los TOP_K mejores de la fusión
+```
+
+Un fragmento rescatado solo por BM25 puede entrar a la fusión, pero nunca
+puede ser la única señal que sostiene una respuesta — el paso 3 ya decidió que
+hay evidencia suficiente antes de que BM25 participe. Detalle completo en
+`rag_service_hibrido.py`.
+
+### Estado de la medición
+
+Primera ejecución del dataset completo (18 preguntas) el 19 de octubre:
+
+| | |
+|---|---|
+| Abstención correcta | **6/6** |
+| Falsa abstención | **0/12** |
+| Latencia | entre 1,66 s y 7,96 s |
+
+Coincide con el comportamiento de la línea base en abstención, que es
+exactamente lo que el diseño garantiza por construcción (paso 3).
+
+### RAGAS contra la línea base
+
+| Métrica | Base | Híbrido |
+|---|---|---|
+| hit@1 (frase ancla) | 0,25 | **0,42** |
+| hit@3 (frase ancla) | 0,50 | 0,58 |
+| MRR (frase ancla) | 0,394 | **0,537** |
+| `faithfulness` | 0,939 | **0,965** |
+| p95 latencia | 4,92 s | 6,97 s |
+
+El híbrido rescata evidencia real que la base pasaba por alto: ante *"¿qué
+diferencias hay entre las GAN y los VAE?"* —el fallo de recuperación
+confirmado en §7.3—, BM25 sí encuentra el fragmento que explica el mecanismo
+competitivo ("si el discriminador acierta, el generador mejora") que la
+búsqueda densa dejaba fuera.
+
+### El efecto secundario: empeora las preguntas compuestas
+
+Medido con el mismo experimento del §3 y el §8 (seis parejas, solo
+*embeddings*):
+
+| | Base | Descomposición acotada | Híbrido solo |
+|---|---|---|---|
+| Cobertura conjunta | 48 % | 52 % | **30 %** |
+| Desequilibrio | 1,83 | 0,83 | 1,00 |
+
+El híbrido busca con la consulta completa, sin descomponer, así que arrastra
+el mismo problema de vector único que la base — y al fusionar con BM25 sobre
+ese vector único, desplaza algunos de los fragmentos que la base sí recuperaba
+bien. Es una medición puramente de *embeddings*, sin modelo juez de por medio,
+así que no está sujeta al ruido que sí afecta a la comparación de
+`faithfulness` del §12.
+
+### Decisión
+
+**Disponible, medida y documentada; no activa por defecto**
+(`RAG_CONFIGURACION=hibrido`). Mejora el acierto de recuperación y la
+fidelidad medida sobre el dataset de 18 preguntas, pero el tutor preguntó
+explícitamente si el sistema admite varias preguntas a la vez, y esta
+configuración retrocede justo ahí (48 %→30 %). Activar una mejora que rompe un
+problema ya resuelto no se justifica sin resolver antes esa regresión — lo que
+se intentó en §12. `RAGServiceHibrido` queda con test propio
+(`test_rag_service_hibrido.py`, 8 tests) y el índice léxico probado por
+separado (`test_indice_lexico.py`, 8 tests).
+
+---
+
+## 12. Descomposición + híbrida — 2026-10-19, cerrado
+
+Quinta mejora, construida para responder una pregunta concreta: ¿se puede
+combinar el reparto equilibrado (§10) con la búsqueda léxica (§11) sin que una
+estropee lo que la otra resuelve? No compiten en principio: el reparto decide
+**cuántos** fragmentos le tocan a cada subpregunta; el híbrido decide
+**cuáles** fragmentos concretos rescata dentro de una búsqueda.
+
+### El diseño
+
+Una clase nueva, `RAGServiceDescomposicionHibrida`, hereda de
+`RAGServiceCompleto` y del mismo *mixin* de fusión léxica que usa
+`RAGServiceHibrido` (`fusion_lexica.MezclaLexica`), sin modificar ninguna de
+las cinco clases existentes:
+
+```
+1. descompone la consulta                    (como §8/§10)
+2. para CADA subpregunta:
+     a. búsqueda densa ensanchada
+     b. filtro por umbral                    (como §10)
+     c. fusión con BM25, con el texto de      (como §11, pero una vez
+        ESA subpregunta, no el de la          por subpregunta)
+        consulta completa
+3. si ninguna subpregunta tiene evidencia → abstención, igual que la base
+4. si hay más fragmentos que el presupuesto → reparto en turnos (§10)
+```
+
+Con una sola subpregunta este flujo se reduce exactamente al comportamiento de
+`RAGServiceHibrido` — no hay un caso especial para ello, es la misma secuencia
+sobre una lista de longitud uno.
+
+**Dos errores de diseño reales, encontrados antes de medir contra el índice
+real**, mediante tests con sabotaje deliberado (revertir la corrección,
+confirmar que el test falla, restaurar):
+
+1. Un fragmento rescatado solo por BM25 no tiene puntuación densa. Asignarle
+   `None` habría producido un `TypeError` más adelante, en el filtro heredado
+   de la línea base. Corregido usando el propio umbral de relevancia como
+   valor centinela explícito, nunca como medición real.
+2. El orden de combinación de los rankings densos y léxicos podía hacer que
+   ese valor centinela **sobrescribiera** la puntuación densa real de un
+   fragmento presente en ambos rankings, perdiendo la medición real. Corregido
+   invirtiendo el orden de combinación.
+
+### El resultado
+
+| | Base | Híbrido solo | Descomposición + híbrida |
+|---|---|---|---|
+| hit@3 | 0,50 | 0,58 | **0,67** |
+| MRR | 0,394 | 0,537 | **0,544** |
+| Abstención correcta | 6/6 | 6/6 | 6/6 |
+| `faithfulness` (RAGAS) | 0,939 | 0,965 | 0,913 |
+| Cobertura compuestas | 48 % | 30 % | 37 % |
+| Desequilibrio compuestas | 1,83 | 1,00 | **0,67** |
+| p95 latencia | 4,92 s | 6,97 s | **8,77 s** |
+
+**La caída de `faithfulness` frente al híbrido solo no es una regresión
+real.** Verificado pregunta por pregunta: de las 12 evaluadas, en 6 el
+contexto recuperado y la respuesta generada son **idénticos carácter por
+carácter** entre esta clase y el híbrido solo (con una sola subpregunta, el
+flujo se reduce al mismo comportamiento). Aun así el juez de RAGAS dio notas
+distintas sobre el mismo insumo —1,0 frente a 0,6 en el caso más extremo,
+sobre *"¿qué es un LLM?"*—, lo que por sí solo explica el 64 % de la
+diferencia observada en el promedio. El resto son variaciones de redacción sin
+diferencia de contenido, verificadas a mano en dos casos más, consistentes con
+la falta de reproducibilidad exacta de `temperature=0`. Es la misma limitación
+del modelo juez que ya documenta el §7.5, aquí confirmada con evidencia
+directa en vez de inferida.
+
+**Lo que sí mejora, de forma real y verificable sin modelo juez:** el reparto
+entre subpreguntas — el mejor de las seis configuraciones (desequilibrio
+0,67, frente a 0,83 de la descomposición acotada sola).
+
+**Lo que no logra:** recuperar la cobertura de preguntas compuestas que el
+híbrido solo pierde. Sube del 30 % al 37 %, pero sigue por debajo del 48 % de
+la base y del 52 % de la configuración activa — atenúa el problema, no lo
+resuelve.
+
+### Decisión
+
+**Disponible, medida y documentada; no activa por defecto**
+(`RAG_CONFIGURACION=descomposicion_hibrida`). No hay ganancia limpia que
+compense su costo: es la configuración más lenta de las seis, y el problema
+que la motivó —la pérdida de cobertura en preguntas compuestas del híbrido—
+sigue sin resolverse del todo. Se documenta con el mismo criterio que el
+reordenado y el híbrido: una mejora medida y descartada con razones es tan
+defendible como una activada. Test propio en
+`test_rag_service_descomposicion_hibrida.py` y
+`test_pinecone_listar_namespace.py`.
+
+---
+
 # Plan
 
 El orden importa: **dataset → medición → mejoras**. Sin línea base, reranking e
@@ -706,15 +1114,30 @@ Coste total estimado: **menos de un céntimo** en *embeddings*.
 
 ## Bloque C — Mejoras, cada una medida contra la línea base
 
-- [ ] **C1. Reranking**, medido contra A4 sobre el mismo dataset.
-- [ ] **C2. RAG híbrido** (denso + BM25), o decisión documentada de dejarlo como
-      trabajo futuro con el argumento de cuándo haría falta: siglas, códigos,
-      nombres propios, referencias normativas.
+- [x] **C1. Reranking**, medido contra la línea base con RAGAS. hit@3 de 0,50 a
+      0,667 y MRR de 0,394 a 0,447, pero las cuatro métricas de generación
+      dentro del margen de ruido del juez y coste ×3,7. **Decisión: no
+      activo.** Ver §9. *2026-10-14.*
+- [x] **C2. RAG híbrido** (denso + BM25), medido contra la línea base: hit@1 de
+      0,25 a 0,42, `faithfulness` de 0,939 a 0,965, pero empeora la cobertura
+      de preguntas compuestas (48 %→30 %). **Decisión: no activo** — rompe
+      justo el problema que el tutor preguntó explícitamente. Ver §11.
+      *2026-10-19.*
+- [x] **C5 (no planificada). Descomposición + híbrida**, combinando C4 y C2 en
+      una clase nueva. Mejor hit@3/MRR medidos (0,67 / 0,544) y mejor reparto
+      de las seis (desequilibrio 0,67), pero no recupera del todo la cobertura
+      de compuestas que C2 pierde (37 %, bajo el 48 % de la base) y es la
+      configuración más lenta medida (p95 8,77 s). **Decisión: no activa.**
+      Ver §12. *2026-10-19.*
 - [x] **C3. Descomposición de consultas implementada y medida.** Cobertura
       conjunta del 48 % al 88 % sobre las mismas seis parejas; las seis mejoran.
       `RAGServiceAvanzado` redefine solo `_recuperar`. Coste: +1,2 s de latencia
       mediana y el doble de contexto en las consultas que se descomponen.
       Ver §8. *2026-10-12.*
+- [x] **C4 (no planificada). Reparto equilibrado de contexto**, construida
+      sobre C3 para quitarle el coste de contexto sin perder el reparto entre
+      subpreguntas. Desequilibrio de 1,83 a 0,83 al mismo coste que la base.
+      **Es la configuración activa por defecto.** Ver §10. *2026-10-16.*
 
 ### Por qué C3 es el mejor candidato de los tres
 
@@ -782,15 +1205,18 @@ Una tabla con una fila por configuración. **Esa tabla es el capítulo 5.**
 
 ## Qué cambia en la próxima tutoría
 
-Hoy, a las siete preguntas del tutor, el proyecto respondía *"implementado, sin
-medir"* en casi todas. Cerrados los bloques A y B, las respuestas pasan a ser:
+El 9 de octubre, a las siete preguntas del tutor, el proyecto respondía
+*"implementado, sin medir"* en casi todas. Al 19 de octubre, con los bloques A,
+B y C cerrados o en curso, las respuestas son:
 
-| Pregunta | Respuesta después |
+| Pregunta | Respuesta al 19 de octubre |
 |---|---|
-| ¿Control de alucinaciones? | "Tres mecanismos, medidos con RAGAS. *Faithfulness* de X sobre un dataset de 20 preguntas." |
-| ¿Pruebas con Langfuse y dataset? | "Sí. Dataset de 20 preguntas apuntado contra el RAG, con trazas de cada recuperación." |
-| ¿Qué tipos de preguntas admite? | "Estos tres, y estos cinco no. Lo tengo medido, incluidas las compuestas." |
-| ¿Reranking? ¿Híbrido? | "Medido contra la línea base. Mejora X, cuesta Y." |
+| ¿Control de alucinaciones? | Tres mecanismos, medidos con RAGAS. *Faithfulness* 0,888 en la línea base y 0,946 con reordenado, sobre 12 preguntas con respuesta en el corpus. Abstención 6/6 correcta, 0 indebidas. |
+| ¿Pruebas con Langfuse y dataset? | Sí. 18 preguntas viven como *dataset* dentro de Langfuse y se ejecutaron contra el RAG como una *run* enlazada a sus trazas. |
+| ¿Qué tipos de preguntas admite? | Tres categorías medidas —literal, compuesta, sin respuesta— y una taxonomía explícita de lo que no admite por diseño. |
+| ¿Reranking? | Medido contra la línea base: mejora hit@3 y MRR, no mejora RAGAS, cuesta ×3,7. Disponible, no activo. |
+| ¿Híbrido? | Medido contra la línea base: mejora hit@1 y *faithfulness*, pero empeora la cobertura de preguntas compuestas (48 %→30 %). Se probó además una sexta configuración que lo combina con el reparto equilibrado: mejora el reparto pero no recupera del todo esa cobertura. Disponibles ambas, ninguna activa. |
+| ¿Varias preguntas a la vez? | Resuelto: descomposición sin tope (cobertura 48 %→88 %, coste doble) y reparto equilibrado (cobertura 52 %, desequilibrio 1,83→0,83, sin coste extra) — esta última es la activa. El híbrido, evaluado como alternativa, retrocede aquí al 30 %. |
 
 Esa es la diferencia entre un proyecto que funciona y un proyecto que se
 defiende.

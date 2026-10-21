@@ -13,6 +13,16 @@ BEGIN;
 ALTER TABLE cost_tracking
     ADD COLUMN IF NOT EXISTS operation VARCHAR(20) NOT NULL DEFAULT 'chat';
 
+-- Añadido el 2026-10-20: cuánto tardó la petición al proveedor, en
+-- milisegundos. Antes del registro había medición de latencia solo en los
+-- experimentos (contra un dataset fijo), nunca en consultas reales de
+-- producción. NULL en las filas de operación 'embedding' y en las llamadas
+-- auxiliares (descomposición, reordenado): solo la fila 'chat' —la respuesta
+-- final al usuario— guarda la duración, porque es la que representa la
+-- latencia que de verdad percibe quien pregunta.
+ALTER TABLE cost_tracking
+    ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+
 CREATE INDEX IF NOT EXISTS ix_cost_tracking_company_id      ON cost_tracking (company_id);
 CREATE INDEX IF NOT EXISTS ix_cost_tracking_user_id         ON cost_tracking (user_id);
 CREATE INDEX IF NOT EXISTS ix_cost_tracking_assistant_id    ON cost_tracking (assistant_id);

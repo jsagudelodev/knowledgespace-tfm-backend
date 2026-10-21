@@ -53,10 +53,16 @@ class CostTrackingService:
         conversation_id: Optional[int] = None,
         assistant_id: Optional[int] = None,
         document_id: Optional[int] = None,
+        duration_ms: Optional[int] = None,
     ) -> Optional[float]:
         """Devuelve el costo calculado (USD) para mostrarlo de inmediato al
         caller — p. ej. junto a la respuesta del chat — o None si falló el
-        registro (el costo ya se incurrió en OpenAI de todos modos)."""
+        registro (el costo ya se incurrió en OpenAI de todos modos).
+
+        `duration_ms` es opcional a propósito: solo tiene sentido pasarlo en
+        la operación 'chat', la respuesta final al usuario — las llamadas de
+        'embedding' y las auxiliares (descomposición, reordenado) no se miden
+        por separado, su tiempo ya queda incluido en esa duración total."""
         try:
             cost = self.calculate_cost(model, input_tokens, output_tokens)
             self.db.add(CostTracking(
@@ -70,6 +76,7 @@ class CostTrackingService:
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 total_cost=cost,
+                duration_ms=duration_ms,
             ))
             self.db.commit()
             return cost

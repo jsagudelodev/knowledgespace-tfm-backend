@@ -15,7 +15,9 @@ from app.db.models.user import User
 from app.db.models.document import Document
 from app.db.models.assistant import Assistant
 from app.db.models.notification import NotificationEntityType
+from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.knowledge_gap import (
     KnowledgeGapSummary,
     KnowledgeGapResponse,
@@ -218,8 +220,8 @@ async def link_document(
     if gap.status in ("resolved", "ignored"):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La pregunta ya está cerrada")
 
-    doc = db.get(Document, data.document_id)
-    if not doc or doc.company_id != current_user.company_id:
+    doc = DocumentRepository(db).get_of_company(data.document_id, current_user.company_id)
+    if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento no encontrado")
 
     alias_texts = [gap.question] + [
@@ -303,8 +305,8 @@ async def request_document(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La pregunta ya está cerrada")
 
     if data.assignee_id is not None:
-        assignee = db.get(User, data.assignee_id)
-        if not assignee or assignee.company_id != current_user.company_id:
+        assignee = UserRepository(db).get_of_company(data.assignee_id, current_user.company_id)
+        if not assignee:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
     now = datetime.now(timezone.utc)

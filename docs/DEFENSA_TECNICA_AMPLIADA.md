@@ -19,7 +19,7 @@ Código real: `api/app/services/rag_service.py`, método `generate_response`.
 response = self.client.chat.completions.create(
     model=effective_model,        # "gpt-4o-mini" por defecto, override posible
     messages=messages,
-    temperature=effective_temperature,  # 0.7 por defecto
+    temperature=effective_temperature,  # 0.0 por defecto — era 0.7, bajada tras medirlo (ver RAG_PIPELINE.md §6)
     max_tokens=MAX_RESPONSE_TOKENS,     # 1000
 )
 ```

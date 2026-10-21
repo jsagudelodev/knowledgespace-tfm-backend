@@ -24,6 +24,19 @@ class BaseRepository(Generic[ModelType]):
     def get(self, id) -> Optional[ModelType]:
         return self.db.query(self.model).filter(self.model.id == id).first()
 
+    def get_of_company(self, id, company_id: int) -> Optional[ModelType]:
+        """Como `get`, pero exige que el registro pertenezca a `company_id`.
+
+        Centraliza la verificación de aislamiento multi-tenant que se repetía
+        router a router (`if not x or x.company_id != current_user.company_id:
+        raise HTTPException(404, ...)`) — generalizada aquí desde el patrón
+        que ya existía, duplicado, en `KnowledgeGapRepository.get_of_company`.
+        Asume que `ModelType` tiene una columna `company_id`; no usar en
+        repositorios de modelos que no la tengan.
+        """
+        obj = self.get(id)
+        return obj if obj and obj.company_id == company_id else None
+
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
         return self.db.query(self.model).offset(skip).limit(limit).all()
 

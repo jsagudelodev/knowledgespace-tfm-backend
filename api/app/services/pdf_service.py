@@ -4,6 +4,7 @@ solo cubre todos los casos — ver `_extraer_pdf` y `docs/RAG_PIPELINE.md` §3."
 import io
 from typing import List, Tuple
 
+from app.core.exceptions import DocumentExtractionError
 from app.services.s3_service import S3Service
 
 
@@ -82,7 +83,7 @@ class PDFService:
                     return texto, paginas
             except Exception:
                 continue
-        raise Exception("No se pudo extraer texto del PDF con ningún parser disponible")
+        raise DocumentExtractionError("No se pudo extraer texto del PDF con ningún parser disponible")
 
     # ── DOCX ─────────────────────────────────────────────────────────────────
 
@@ -232,12 +233,12 @@ class PDFService:
 
         extractor = extractores.get(file_type)
         if not extractor:
-            raise Exception(f"Tipo de archivo '{file_type}' no soportado")
+            raise ValueError(f"Tipo de archivo '{file_type}' no soportado")
 
         texto, paginas = extractor(buffer)
 
         if not texto.strip():
-            raise Exception("No se pudo extraer texto del documento")
+            raise DocumentExtractionError("No se pudo extraer texto del documento")
 
         return (
             PDFService.dividir_en_chunks(texto, chunk_size, overlap, semantico),

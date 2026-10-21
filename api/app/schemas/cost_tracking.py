@@ -15,6 +15,7 @@ class CostTrackingResponse(BaseModel):
     input_tokens: int
     output_tokens: int
     total_cost: float
+    duration_ms: Optional[int] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -12,6 +12,9 @@ cuál de las cinco atiende al usuario.
                             equilibrado entre subpreguntas
     RAGServiceHibrido     + búsqueda léxica BM25 fusionada con la densa
                             (Reciprocal Rank Fusion, post-recuperación)
+    RAGServiceDescomposicionHibrida   descomposición con reparto Y BM25 por
+                            subpregunta — resuelven problemas distintos y se
+                            combinan sin pisarse
 
 **Por qué el valor por defecto es `descomposicion_acotada`.** La descomposición
 sin tope (`RAGServiceAvanzado`) sube la cobertura conjunta del 48 % al 88 %,
@@ -52,6 +55,7 @@ from app.core.config import settings
 from app.services.rag_service import RAGService
 from app.services.rag_service_avanzado import RAGServiceAvanzado
 from app.services.rag_service_completo import RAGServiceCompleto
+from app.services.rag_service_descomposicion_hibrida import RAGServiceDescomposicionHibrida
 from app.services.rag_service_hibrido import RAGServiceHibrido
 from app.services.rag_service_reranking import RAGServiceReranking
 
@@ -69,6 +73,7 @@ CONFIGURACIONES: Dict[str, Tuple[Type[RAGService], str]] = {
     "reranking": (RAGServiceReranking, "avanzado_reranking"),
     "descomposicion_acotada": (RAGServiceCompleto, "avanzado_descomposicion_acotada"),
     "hibrido": (RAGServiceHibrido, "avanzado_hibrido_bm25"),
+    "descomposicion_hibrida": (RAGServiceDescomposicionHibrida, "avanzado_descomposicion_hibrida"),
 }
 
 POR_DEFECTO = "base"

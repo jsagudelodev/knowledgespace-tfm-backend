@@ -1,5 +1,6 @@
 """Chat con el asistente: orquesta RAG (recuperación + generación), persiste
 los mensajes con sus fuentes citadas y registra el costo de inferencia."""
+import time
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -77,6 +78,7 @@ async def chat_message(
     # este enrutador: las tres clases conviven y el chat no tiene por qué saber
     # cuál está activa. Ver `rag_factory` para el porqué de cada una.
     rag = crear_rag_service()
+    inicio = time.perf_counter()
     try:
         result = rag.generate_response(
             query=payload.message,
@@ -95,6 +97,7 @@ async def chat_message(
                 f"(falló la etapa: {e.etapa}). Vuelve a intentarlo en unos segundos."
             ),
         ) from e
+    duracion_ms = round((time.perf_counter() - inicio) * 1000)
 
     assistant_message = msg_repo.create_message(
         conversation_id=conversation.id,
@@ -113,6 +116,7 @@ async def chat_message(
         user_id=current_user.id,
         conversation_id=conversation.id,
         assistant_id=assistant.id if assistant else None,
+        duration_ms=duracion_ms,
     )
 
     # Embeber la pregunta es una segunda llamada de pago a OpenAI, aparte de la

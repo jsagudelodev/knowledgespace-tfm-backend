@@ -267,8 +267,8 @@ async def get_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    document = DocumentRepository(db).get(document_id)
-    if not document or document.company_id != current_user.company_id:
+    document = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    if not document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
     return document
 
@@ -281,8 +281,8 @@ async def update_document(
     current_user: User = Depends(get_current_user)
 ):
     repo = DocumentRepository(db)
-    db_document = repo.get(document_id)
-    if not db_document or db_document.company_id != current_user.company_id:
+    db_document = repo.get_of_company(document_id, current_user.company_id)
+    if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
     for key, value in document.model_dump(exclude_unset=True).items():
         setattr(db_document, key, value)
@@ -296,8 +296,8 @@ async def delete_document(
     current_user: User = Depends(get_current_user)
 ):
     repo = DocumentRepository(db)
-    db_document = repo.get(document_id)
-    if not db_document or db_document.company_id != current_user.company_id:
+    db_document = repo.get_of_company(document_id, current_user.company_id)
+    if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
     # 1. Eliminar vectores de Pinecone
@@ -341,8 +341,8 @@ async def download_document(
     La URL expira en 1 hora — el archivo nunca se expone públicamente.
     """
     from fastapi.responses import JSONResponse
-    documento = DocumentRepository(db).get(document_id)
-    if not documento or documento.company_id != current_user.company_id:
+    documento = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
     try:
@@ -374,8 +374,8 @@ async def list_document_chunks(
     La lista viene vacía mientras el documento se procesa o si la ingesta
     falló; el campo `status` del documento distingue ambas situaciones.
     """
-    documento = DocumentRepository(db).get(document_id)
-    if not documento or documento.company_id != current_user.company_id:
+    documento = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
     namespace = PineconeService.construir_namespace(
@@ -410,8 +410,8 @@ async def retry_document(
     current_user: User = Depends(get_current_user),
 ):
     repo = DocumentRepository(db)
-    documento = repo.get(document_id)
-    if not documento or documento.company_id != current_user.company_id:
+    documento = repo.get_of_company(document_id, current_user.company_id)
+    if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
     file_extension = documento.filename.split(".")[-1].lower()

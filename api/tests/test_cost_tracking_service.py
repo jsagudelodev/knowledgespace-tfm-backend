@@ -4,6 +4,8 @@ Estos números son la base de la promesa "eficiencia en costes de
 inferencia" del proyecto: si el cálculo de precio está mal, cada cifra
 que se le muestre al usuario (y a la defensa del TFM) está mal.
 """
+from unittest.mock import MagicMock
+
 from app.services.cost_tracking_service import CostTrackingService, PRICING
 
 
@@ -37,3 +39,34 @@ def test_calculate_cost_scales_linearly_with_tokens():
     cost_1k = CostTrackingService.calculate_cost("gpt-4o", input_tokens=1000, output_tokens=0)
     cost_2k = CostTrackingService.calculate_cost("gpt-4o", input_tokens=2000, output_tokens=0)
     assert round(cost_2k, 6) == round(cost_1k * 2, 6)
+
+
+# ── duration_ms — añadido el 20 de octubre para tener latencia de producción
+# con dato propio, no solo medida en experimentos ──────────────────────────
+
+def test_record_persiste_la_duracion_en_la_operacion_chat():
+    """`duration_ms` debe llegar intacto al objeto que se guarda — es lo que
+    permite, en adelante, detectar con datos propios si el sistema responde
+    lento, sin depender de entrar a Langfuse para verlo."""
+    db = MagicMock()
+    costo = CostTrackingService(db).record(
+        company_id=1, model="gpt-4o-mini", operation="chat",
+        input_tokens=100, output_tokens=50, duration_ms=2345,
+    )
+    guardado = db.add.call_args[0][0]
+    assert guardado.duration_ms == 2345
+    assert costo is not None
+
+
+def test_record_sin_duracion_queda_en_none():
+    """Las llamadas de embedding y las auxiliares (descomposición, reordenado)
+    no se miden por separado — `duration_ms` debe poder omitirse sin romper
+    el registro, y quedar en None en vez de en 0 (que se leería como
+    'instantáneo', una medición falsa, no la ausencia de una)."""
+    db = MagicMock()
+    CostTrackingService(db).record(
+        company_id=1, model="text-embedding-3-small", operation="embedding",
+        input_tokens=10,
+    )
+    guardado = db.add.call_args[0][0]
+    assert guardado.duration_ms is None
