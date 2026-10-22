@@ -6,7 +6,7 @@ que se le muestre al usuario (y a la defensa del TFM) está mal.
 """
 from unittest.mock import MagicMock
 
-from app.services.cost_tracking_service import CostTrackingService, PRICING
+from app.services.cost_tracking_service import PRICING, CostTrackingService
 
 
 def test_calculate_cost_gpt4o_mini_known_pricing():

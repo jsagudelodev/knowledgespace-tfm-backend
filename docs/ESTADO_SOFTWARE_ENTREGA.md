@@ -58,17 +58,24 @@ la misma:
 |---|---|---|
 | **Organizado** | ✅ Sólido | Capas separadas sin mezclas, patrón por *features* homogéneo en los 10 módulos del frontend |
 | **Limpio** | ✅ Bien | Sin código muerto relevante; sin `console.log` ni tipos `any` sueltos en el frontend (grep en 0 resultados); archivos de tamaño razonable (el router/servicio más grande fuera del RAG es `documents.py`, 443 líneas); decisiones comentadas explicando el *por qué*, no solo el qué, en los módulos críticos (`security.py`, `database.py`, `documents.py`) |
-| **Mantenible** | ✅ Mejorado el 20-10 | Las 14 excepciones genéricas quedaron tipadas (`EmbeddingError`, `VectorStoreError`, `StorageError`, `DocumentExtractionError` en `app/core/exceptions.py`), y la verificación de aislamiento multi-tenant —repetida en 17 sitios de 5 routers— se centralizó en `BaseRepository.get_of_company`. Sigue sin Alembic (ver abajo), decisión, no urgencia |
-| **Buenas prácticas de ingeniería** | 🟡 Dos huecos reales | Cero tests en el frontend (`vitest` instalado, 0 archivos `.spec.ts` escritos, frente a 117 tests en el backend); ningún *linting* ni CI automatizado en ninguno de los dos repos (sin `ruff`/`black`/`mypy`, sin `.github/workflows`) |
+| **Mantenible** | ✅ Mejorado el 20 y 21-10 | Las 14 excepciones genéricas quedaron tipadas (`EmbeddingError`, `VectorStoreError`, `StorageError`, `DocumentExtractionError` en `app/core/exceptions.py`), la verificación de aislamiento multi-tenant —repetida en 17 sitios de 5 routers— se centralizó en `BaseRepository.get_of_company`, y **Alembic quedó implementado** (ver abajo) en lugar de los `migrate_*.sql` sueltos |
+| **Buenas prácticas de ingeniería** | 🟡 Mejorado el 21-10 | **Backend: `ruff` configurado** (`api/ruff.toml`), 295 avisos iniciales reducidos a 0 — 61 arreglos mecánicos (imports sin usar y desordenados) y el resto revisado caso por caso, incluido un **bug real encontrado**: una clave de diccionario duplicada en `experimentos/medir_chunking.py` que descartaba en silencio el conteo de caracteres totales del documento (sin afectar ninguna cifra ya citada en la memoria). Sigue pendiente: cero tests en el frontend, y CI automatizado en ningún repo (sin `.github/workflows`) |
 
-**Sobre las migraciones de base de datos:** no hay Alembic. El propio código
-lo reconoce sin rodeos en `api/app/core/database.py`: el esquema se crea una
-vez con `Base.metadata.create_all` (autobloqueado tras el primer uso) y los
-cambios posteriores van en archivos SQL sueltos (`migrate_cost_tracking.sql`,
-`migrate_knowledge_gaps.sql`, `migrate_widget_assistant.sql`) pensados para
-aplicar a mano en Supabase. Es una limitación real, pero está admitida en el
-propio código, no oculta — mejor tener lista la respuesta de por qué se
-quedó así (tiempo/alcance del TFM) que fingir que no existe.
+**Sobre las migraciones de base de datos — resuelto el 21-10.** Alembic
+quedó implementado (`api/alembic/`), con una línea base vacía estampada
+contra la base real (las tablas ya existían, no había nada que crear) y un
+hallazgo real en el camino: al configurarlo apareció una tabla
+`alembic_version` con una fila huérfana de un intento anterior y abandonado
+(probablemente del producto comercial del que parte este proyecto), sin
+ninguna migración real detrás — se limpió y se reemplazó por la línea base
+propia. El autogenerate también sacó a la luz deuda real no documentada
+antes (cuatro columnas huérfanas nuevas en `documents`, y varias columnas
+`nullable` en la base real donde el modelo exige `NOT NULL`), que queda
+señalada para reconciliar con calma, no corregida de golpe contra producción
+— ver `MODELO_DATOS.md` §3.7 para el detalle completo. Los `migrate_*.sql`
+anteriores (`migrate_cost_tracking.sql`, etc.) quedan como registro
+histórico de cómo se llegó al esquema actual, no como el procedimiento
+vigente.
 
 **Sobre la autenticación:** JWT HS256 sin *refresh token* ni revocación,
 decisión documentada y justificada en `api/app/core/security.py`. El
@@ -145,8 +152,10 @@ la entrega:
 | ~~Excepciones genéricas sin tipar~~ — **resuelto el 20-10** | Calidad de código | `app/core/exceptions.py` (nuevo), 4 servicios actualizados |
 | ~~Verificación multi-tenant duplicada~~ — **resuelto el 20-10** | Mantenibilidad | `BaseRepository.get_of_company`, 17 sitios en 5 routers |
 | Cero tests en el frontend | Buenas prácticas | Todo `knowledgespace-tfm-frontend/src` |
-| Sin *linting*/CI automatizado | Buenas prácticas | Ambos repos |
-| Sin Alembic (migraciones a mano) | Mantenibilidad | `api/app/core/database.py` (ya documentado ahí) |
+| ~~Sin *linting* en el backend~~ — **resuelto el 21-10** | Buenas prácticas | `api/ruff.toml`, `api/requirements-dev.txt` |
+| Sin *linting* en el frontend, sin CI en ningún repo | Buenas prácticas | Ambos repos |
+| ~~Sin Alembic~~ — **resuelto el 21-10** | Mantenibilidad | `api/alembic/`, `MODELO_DATOS.md` §3.7 |
+| Deuda de esquema encontrada al adoptar Alembic (columnas `nullable`, tipos) | Mantenibilidad, no bloqueante | `MODELO_DATOS.md` §3.7 |
 | Método de ancla sin variantes equivalentes (`\|`) | Evaluación, no producto | `experimentos/ejecutar_dataset.py` |
 | Alucinación de alcance global sin corregir | Producto, caso conocido | Sin código — requiere detectar preguntas de alcance global y responder con metadatos del corpus |
 | Corpus `.txt` de evaluación con extracción incompleta | Evaluación, no producto | `experimentos/dataset_evaluacion.csv` (caso P8) |

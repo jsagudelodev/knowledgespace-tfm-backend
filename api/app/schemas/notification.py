@@ -1,6 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
 from app.db.models.notification import NotificationEntityType  # noqa: F401 — re-exported for routers
 from app.schemas.notification_type import NotificationTypeResponse
 

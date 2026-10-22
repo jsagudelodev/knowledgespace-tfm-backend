@@ -30,7 +30,9 @@ async def register(data: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Empresa no encontrada")
 
     if user_repo.count_by_company(data.company_id) >= company.max_users:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La empresa alcanzó el límite máximo de usuarios")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="La empresa alcanzó el límite máximo de usuarios"
+        )
 
     new_user = User(
         email=data.email,
@@ -83,7 +85,9 @@ async def change_password(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña actual es incorrecta")
 
     if verify_password(data.new_password, current_user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La nueva contraseña debe ser diferente a la actual")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="La nueva contraseña debe ser diferente a la actual"
+        )
 
     current_user.hashed_password = get_password_hash(data.new_password)
     UserRepository(db).update(current_user)

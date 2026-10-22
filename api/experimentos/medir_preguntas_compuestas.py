@@ -47,8 +47,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.services.embedding_service import EmbeddingService  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
-from app.services.rag_service import RELEVANCE_THRESHOLD  # noqa: E402
 from app.services.rag_factory import CONFIGURACIONES  # noqa: E402
+from app.services.rag_service import RELEVANCE_THRESHOLD  # noqa: E402
 
 TOP_K = 5
 
@@ -182,7 +182,8 @@ def main() -> int:
     print(f"  Fragmentos que superan el umbral en las compuestas: "
           f"{total_sobre}/{TOP_K * len(res)} - el umbral NO detecta la cobertura parcial.")
 
-    salida = Path(__file__).parent / "resultados" / f"preguntas_compuestas_{date.today().isoformat()}_{args.configuracion}.json"
+    nombre_salida = f"preguntas_compuestas_{date.today().isoformat()}_{args.configuracion}.json"
+    salida = Path(__file__).parent / "resultados" / nombre_salida
     salida.parent.mkdir(exist_ok=True)
     salida.write_text(json.dumps({
         "fecha": date.today().isoformat(),

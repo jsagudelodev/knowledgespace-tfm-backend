@@ -93,7 +93,7 @@ class RAGServiceDescomposicionHibrida(MezclaLexica, RAGServiceCompleto):
         )
 
         listas_fusionadas: List[List[Any]] = []
-        for sub, docs in zip(subpreguntas, listas_densas):
+        for sub, docs in zip(subpreguntas, listas_densas, strict=True):
             relevantes = [d for d in docs
                           if float(getattr(d, "score", 0)) >= RELEVANCE_THRESHOLD]
             if not relevantes:

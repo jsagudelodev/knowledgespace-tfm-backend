@@ -139,6 +139,6 @@ def index_alias(
                 "text": text[:1000],
             },
         }
-        for i, (text, embedding) in enumerate(zip(texts, embeddings))
+        for i, (text, embedding) in enumerate(zip(texts, embeddings, strict=True))
     ]
     PineconeService().upsert_vectores(vectors, namespace=namespace)

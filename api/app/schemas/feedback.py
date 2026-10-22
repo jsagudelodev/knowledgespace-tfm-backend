@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Dict, List, Literal, Optional
+
+from pydantic import BaseModel, Field
 
 FeedbackStatus = Literal["new", "reviewed", "converted", "dismissed", "stale"]
 FeedbackPeriod = Literal["month", "90d", "12m"]

@@ -1,7 +1,9 @@
 from enum import Enum as PyEnum
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Enum
-from sqlalchemy.sql import func
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.core.database import Base
 
 
@@ -22,7 +24,9 @@ class Notification(Base):
     title   = Column(String(120), nullable=False)
     message = Column(Text, nullable=False)
 
-    entity_type = Column(Enum(NotificationEntityType, values_callable=lambda obj: [e.value for e in obj]), nullable=True)
+    entity_type = Column(
+        Enum(NotificationEntityType, values_callable=lambda obj: [e.value for e in obj]), nullable=True
+    )
     entity_id   = Column(Integer, nullable=True)
 
     read    = Column(Boolean, nullable=False, default=False, index=True)

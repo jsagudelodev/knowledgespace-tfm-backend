@@ -22,8 +22,6 @@ esta en `experimentos/medir_preguntas_compuestas.py`.
 """
 from types import SimpleNamespace
 
-import pytest
-
 from app.services import rag_service_avanzado as mod
 from app.services.rag_service_avanzado import MAX_SUBPREGUNTAS, RAGServiceAvanzado
 

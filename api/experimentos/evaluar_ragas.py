@@ -43,15 +43,14 @@ Uso:
 
     cd api
     .venv-eval\\Scripts\\python.exe experimentos\\evaluar_ragas.py
-    .venv-eval\\Scripts\\python.exe experimentos\\evaluar_ragas.py --entrada resultados\\dataset_ejecutado_2026-10-11.json
+    .venv-eval\\Scripts\\python.exe experimentos\\evaluar_ragas.py \\
+        --entrada resultados\\dataset_ejecutado_2026-10-11.json
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
-import statistics
-import sys
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List
@@ -117,13 +116,13 @@ def main() -> int:
 
     from langchain_openai import ChatOpenAI, OpenAIEmbeddings
     from ragas import EvaluationDataset, evaluate
-    from ragas.llms import LangchainLLMWrapper
     from ragas.embeddings import LangchainEmbeddingsWrapper
+    from ragas.llms import LangchainLLMWrapper
     from ragas.metrics import (
         Faithfulness,
-        ResponseRelevancy,
         LLMContextPrecisionWithReference,
         LLMContextRecall,
+        ResponseRelevancy,
     )
 
     juez = LangchainLLMWrapper(ChatOpenAI(model=args.modelo, temperature=0))

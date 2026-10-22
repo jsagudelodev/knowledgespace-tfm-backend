@@ -99,8 +99,11 @@ dist/
 *.crt
 *.p12
 
-# Alembic
-alembic.ini
+# Alembic: `alembic.ini` SÍ se versiona — no tiene la URL de conexión escrita
+# a mano, `api/alembic/env.py` la toma de `settings.DATABASE_URL`. El patrón
+# de abajo solo cubre un posible override local de esa URL, si alguna vez
+# hiciera falta uno fuera de .env.
+alembic.ini.local
 
 # Coverage
 coverage.xml

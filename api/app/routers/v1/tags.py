@@ -1,13 +1,14 @@
-from fastapi import APIRouter, HTTPException, status, Depends
-from sqlalchemy.orm import Session
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.tag import Tag
 from app.db.models.user import User
 from app.repositories.tag_repository import TagRepository
-from app.schemas.tag import TagResponse, TagCreate, TagUpdate
+from app.routers.v1.security import get_current_user
+from app.schemas.tag import TagCreate, TagResponse, TagUpdate
 
 router = APIRouter()
 

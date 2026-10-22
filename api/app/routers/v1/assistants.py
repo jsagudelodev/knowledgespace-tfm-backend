@@ -5,12 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.assistant import Assistant
 from app.db.models.user import User
 from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.document_repository import DocumentRepository
-from app.schemas.assistant import AssistantCreate, AssistantUpdate, AssistantResponse
+from app.routers.v1.security import get_current_user
+from app.schemas.assistant import AssistantCreate, AssistantResponse, AssistantUpdate
 from app.schemas.document import DocumentResponse
 
 router = APIRouter()

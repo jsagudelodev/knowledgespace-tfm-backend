@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.services.rag_service import RELEVANCE_THRESHOLD, TOP_K
+from app.services.rag_service import TOP_K
 from app.services.rag_service_descomposicion_hibrida import RAGServiceDescomposicionHibrida
 
 
@@ -55,6 +55,7 @@ class _ClienteDescomposicion:
 @pytest.fixture(autouse=True)
 def _parches(monkeypatch):
     import contextlib
+
     from app.services import rag_service as rag_service_mod
     from app.services import rag_service_descomposicion_hibrida as mod
 

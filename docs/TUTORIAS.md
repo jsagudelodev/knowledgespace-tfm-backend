@@ -257,16 +257,23 @@ reproducibles desde `api/experimentos/`:
 
 **Lo que falta, por orden de urgencia:**
 
-1. **Verificar la bibliografía.** 22-23 referencias compuestas, cero
-   verificadas, cero transferidas al documento. Es lo único que no se puede
-   acelerar al final, y hoy sigue sin empezar a pesar de estar ya redactada.
+1. ~~Verificar la bibliografía~~ — **resuelto el 20 de octubre.** 22
+   referencias verificadas, formato y las dos citas con *venue* dudoso
+   decididos. Ver `BIBLIOGRAFIA.md`. Queda pendiente solo el trabajo mecánico
+   de transcribirla al capítulo 9 del `.docx`.
 2. **Confirmar el estado del correo al tutor.** Al 12 de octubre seguía sin
    enviarse y bloqueaba la decisión sobre reranking e híbrido. Ambos se
    implementaron y midieron igualmente desde entonces; falta registrar aquí si
-   el tutor llegó a responder y qué dijo.
+   el tutor llegó a responder y qué dijo. **Sigue siendo lo más urgente** — es
+   lo único de esta lista que no depende de ti, sino de una respuesta externa,
+   y cuanto más tarde en confirmarse más tarde se sabe si hay que ajustar algo.
 3. **La memoria.** Faltan los capítulos 2, 8, 9 y 10, y las secciones 6.2 y
-   7.2. El código ya no es el cuello de botella — lleva varios días siéndolo
-   cada vez menos.
+   7.2. El capítulo 2 se empezó el 20 de octubre con el método de
+   pregunta-respuesta (no generado de una sola vez, por la advertencia de la
+   rúbrica contra texto sin adaptación propia) y quedó pausado en la sección
+   2.1, a la espera de una lectura activa del paper de Vaswani et al. El
+   código ya no es el cuello de botella — lleva varios días siéndolo cada vez
+   menos.
 
 El bloque C del plan —mejoras del pipeline RAG, cada una medida contra la
 línea base— **queda completo el 19 de octubre**: reordenado, híbrido,

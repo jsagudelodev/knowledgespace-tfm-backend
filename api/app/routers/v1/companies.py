@@ -32,7 +32,9 @@ async def list_companies(
     return CompanyRepository(db).get_all()
 
 
-@router.post("/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED, summary="Crear empresa (superadmin)")
+@router.post(
+    "/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED, summary="Crear empresa (superadmin)"
+)
 async def create_company(
     data: CompanyCreate,
     db: Session = Depends(get_db),

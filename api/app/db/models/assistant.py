@@ -1,8 +1,10 @@
 
-from sqlalchemy import Boolean, Column, Integer, Numeric, String, Text, DateTime, ForeignKey, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
+
 from app.core.database import Base
+
 
 class Assistant(Base):
     __tablename__ = "assistants"
@@ -13,10 +15,10 @@ class Assistant(Base):
     description = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     model = Column(String(50), default="gpt-4o-mini", nullable=False)
-    # Era 0.7. Se baja a 0 porque el sistema debe responder solo con el
-    # contexto recibido, no redactar con margen creativo. La medición que lo
-    # justifica está en `rag_service.DEFAULT_TEMPERATURE`. Afecta solo a los
-    # asistentes nuevos: los existentes conservan el valor que tuvieran.
+    # Columna sin uso: la temperatura ya no es configurable por asistente y el
+    # chat usa siempre `RAG_TEMPERATURA` (ver `rag_service.DEFAULT_TEMPERATURE`).
+    # Se conserva para no exigir una migración; los valores que tenga (0.7 en
+    # los asistentes creados desde el formulario antiguo) ya no se leen.
     temperature = Column(Numeric(3, 2), default=0.0, nullable=False)
     avatar = Column(String(255), nullable=True)
     quick_prompts = Column(JSONB, nullable=True)

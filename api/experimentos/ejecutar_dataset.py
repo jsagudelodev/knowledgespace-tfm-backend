@@ -46,6 +46,7 @@ from typing import Any, Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core import observabilidad  # noqa: E402
+
 # Las tres configuraciones comparables se definen en el propio servicio, no
 # aqui: la etiqueta viaja al JSON de resultados y de ahi al nombre del fichero
 # de RAGAS, de modo que lo que se mide y lo que atiende al usuario no pueden

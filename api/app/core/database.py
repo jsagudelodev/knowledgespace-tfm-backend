@@ -14,13 +14,17 @@ Notas de implementación:
 
 - **`pool_pre_ping`** — ver el comentario junto a `create_engine`.
 
-- **El esquema no se gestiona desde aquí.** Las tablas se crean una sola vez,
-  con `Base.metadata.create_all` desde el endpoint de bootstrap
+- **El esquema no se gestiona desde aquí.** El primer arranque crea las
+  tablas con `Base.metadata.create_all` desde el endpoint de bootstrap
   (`routers/v1/setup.py`), que se autobloquea en cuanto existe un usuario.
-  A partir de ahí, cada cambio de esquema se aplica a mano con los
-  `migrate_*.sql` de `api/`. **No hay Alembic**, así que no existe historial
-  de migraciones ni forma automática de revertir uno: es una limitación
-  conocida y el primer punto a resolver si el proyecto siguiera creciendo.
+  **A partir del 21 de octubre de 2026, los cambios de esquema posteriores
+  se gestionan con Alembic** (`api/alembic/`), no con los `migrate_*.sql`
+  sueltos de versiones anteriores —esos quedan como registro histórico de
+  cómo se llegó al esquema actual, no como el procedimiento vigente—.
+  Flujo: `alembic revision --autogenerate -m "..."`, revisar el archivo
+  generado a mano (autogenerate propone, no decide) y `alembic upgrade
+  head`. La URL de conexión la toma `alembic/env.py` de
+  `settings.DATABASE_URL`, la misma que usa la aplicación.
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker

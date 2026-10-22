@@ -123,7 +123,7 @@ class RAGServiceAvanzado(RAGService):
             logger.warning("[RAG+] Falló la descomposición, se usa la consulta original: %s", e)
             return [query]
 
-        subs = [l.strip() for l in texto.splitlines() if l.strip()]
+        subs = [linea.strip() for linea in texto.splitlines() if linea.strip()]
         # Una descomposición vacía o excesiva no es de fiar: se ignora.
         if not subs or len(subs) > MAX_SUBPREGUNTAS:
             logger.warning("[RAG+] Descomposición descartada (%d líneas)", len(subs))

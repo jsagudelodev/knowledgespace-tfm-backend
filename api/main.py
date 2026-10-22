@@ -5,25 +5,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 import app.db.models  # noqa: F401 — registra todos los mappers antes de que SQLAlchemy resuelva relaciones
-
 from app.core.config import settings
 from app.core.database import engine
-from app.routers.v1.auth import router as auth_router
-from app.routers.v1.users import router as users_router
-from app.routers.v1.companies import router as companies_router
-from app.routers.v1.categories import router as categories_router
-from app.routers.v1.tags import router as tags_router
-from app.routers.v1.documents import router as documents_router
 from app.routers.v1.assistants import router as assistants_router
+from app.routers.v1.auth import router as auth_router
+from app.routers.v1.categories import router as categories_router
 from app.routers.v1.chat import router as chat_router
+from app.routers.v1.companies import router as companies_router
 from app.routers.v1.conversation import router as conversation_router
-from app.routers.v1.message import router as message_router
-from app.routers.v1.feedback import router as feedback_router
-from app.routers.v1.notification import router as notification_router
-from app.routers.v1.knowledge_gaps import router as knowledge_gaps_router
 from app.routers.v1.cost_tracking import router as cost_tracking_router
 from app.routers.v1.dashboard import router as dashboard_router
+from app.routers.v1.documents import router as documents_router
+from app.routers.v1.feedback import router as feedback_router
+from app.routers.v1.knowledge_gaps import router as knowledge_gaps_router
+from app.routers.v1.message import router as message_router
+from app.routers.v1.notification import router as notification_router
 from app.routers.v1.setup import router as setup_router
+from app.routers.v1.tags import router as tags_router
+from app.routers.v1.users import router as users_router
 
 
 @asynccontextmanager

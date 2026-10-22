@@ -6,7 +6,6 @@ from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 
 
-
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str = Field(..., min_length=1, max_length=255)

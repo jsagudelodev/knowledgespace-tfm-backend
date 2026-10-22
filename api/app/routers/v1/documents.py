@@ -4,21 +4,21 @@ usuario reciba respuesta inmediata mientras el documento se procesa."""
 import uuid
 from typing import List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.document import Document
 from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.document_repository import DocumentRepository
-from app.schemas.document import DocumentUpdate, DocumentResponse, DocumentStatus
+from app.routers.v1.security import get_current_user
+from app.schemas.document import DocumentResponse, DocumentStatus, DocumentUpdate
 from app.services.document_service import DocumentService
 from app.services.notification_service import NotificationService
-from app.services.s3_service import S3Service
 from app.services.pinecone_service import PineconeService
+from app.services.s3_service import S3Service
 
 router = APIRouter()
 
@@ -77,14 +77,14 @@ def _procesar_documento_background(
     Se ejecuta de forma asíncrona después de responder al cliente —
     el usuario ve el documento en estado "processing" mientras esto ocurre.
     """
-    from app.core.database import SessionLocal
-    from app.core.config import settings
-    from app.services.pdf_service import PDFService
-    from app.services.embedding_service import EmbeddingService
-    from app.services.cost_tracking_service import CostTrackingService
-
     import logging
     import traceback
+
+    from app.core.config import settings
+    from app.core.database import SessionLocal
+    from app.services.cost_tracking_service import CostTrackingService
+    from app.services.embedding_service import EmbeddingService
+    from app.services.pdf_service import PDFService
     logger = logging.getLogger("uvicorn.error")
 
     db = SessionLocal()
@@ -140,7 +140,7 @@ def _procesar_documento_background(
                     "text": chunk[:1000],   # guardar extracto del texto para mostrarlo en resultados
                 },
             }
-            for i, (chunk, embedding) in enumerate(zip(chunks, embeddings))
+            for i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=True))
         ]
 
         # ── 5. Subir a Pinecone ────────────────────────────────────────────
@@ -207,7 +207,9 @@ async def upload_document(
     file_extension = file.filename.split(".")[-1].lower() if "." in file.filename else ""
 
     if not DocumentService.validate_file_type(file_extension):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tipo de archivo no soportado. Soportados: PDF, DOCX, TXT")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Tipo de archivo no soportado. Soportados: PDF, DOCX, TXT"
+        )
 
     if not DocumentService.validate_file_size(file.size):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo supera el límite de 10MB")
@@ -222,7 +224,9 @@ async def upload_document(
         key = S3Service.construir_key(current_user.company_id, safe_filename)
         file_path = s3.subir_archivo(file, key)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error subiendo archivo a S3: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error subiendo archivo a S3: {str(e)}"
+        ) from e
 
     document = Document(
         company_id=current_user.company_id,
@@ -314,7 +318,9 @@ async def delete_document(
     try:
         S3Service().eliminar_archivo(db_document.file_path)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error eliminando archivo de S3: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error eliminando archivo de S3: {str(e)}"
+        ) from e
 
     # 3. Notificar al autor original, si fue otra persona quien borró
     if db_document.uploaded_by != current_user.id:
@@ -349,7 +355,7 @@ async def download_document(
         url = S3Service().generar_url_temporal(documento.file_path, segundos=3600)
         return JSONResponse({"url": url, "filename": documento.original_filename})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando URL de descarga: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generando URL de descarga: {str(e)}") from e
 
 
 @router.get("/{document_id}/chunks", summary="Ver los fragmentos indexados de un documento")
@@ -387,7 +393,7 @@ async def list_document_chunks(
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"No se pudieron leer los fragmentos del índice: {e}",
-        )
+        ) from e
 
     return {
         "document_id": document_id,

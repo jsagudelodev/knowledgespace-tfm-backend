@@ -1,0 +1,3 @@
+# Herramientas de desarrollo, no de producción. No se instalan en el
+# contenedor que sirve el backend, solo en el entorno de quien lo desarrolla.
+ruff==0.17.1

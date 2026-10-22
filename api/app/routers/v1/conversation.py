@@ -1,17 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.user import User
 from app.repositories.conversation_repository import ConversationRepository
-from app.schemas.conversation import ConversationResponse, ConversationCreateRequest, ConversationUpdateRequest
+from app.routers.v1.security import get_current_user
+from app.schemas.conversation import ConversationCreateRequest, ConversationResponse, ConversationUpdateRequest
 
 router = APIRouter()
 
 
-@router.post("/", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED, summary="Crear conversación")
+@router.post(
+    "/", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED, summary="Crear conversación"
+)
 async def create_conversation(
     conversation_data: ConversationCreateRequest,
     db: Session = Depends(get_db),

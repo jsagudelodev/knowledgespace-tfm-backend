@@ -8,9 +8,8 @@ from sqlalchemy.orm import Session, joinedload
 from app.db.models.feedback import Feedback
 from app.db.models.knowledge_gap import KnowledgeGap
 from app.db.models.message import Message
-from app.db.models.user import User
 from app.repositories.base import BaseRepository
-from app.schemas.feedback import WeekStats, ThemeCount, SignalBand
+from app.schemas.feedback import SignalBand, ThemeCount, WeekStats
 from app.services.knowledge_gap_index_service import find_candidates
 
 
@@ -143,8 +142,8 @@ class FeedbackRepository(BaseRepository[Feedback]):
         # de un asistente contra los mensajes de toda la empresa, así que con
         # filtro activo se devuelve `None` en vez de una cifra que no significa
         # nada.
-        from app.db.models.message import Message
         from app.db.models.conversation import Conversation
+        from app.db.models.message import Message
         messages_count = (
             self.db.query(Message)
             .join(Conversation, Message.conversation_id == Conversation.id)

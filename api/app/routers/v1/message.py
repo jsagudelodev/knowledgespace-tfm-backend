@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.user import User
 from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
+from app.routers.v1.security import get_current_user
 from app.schemas.message import MessageCreate, MessageResponse
 
 router = APIRouter()

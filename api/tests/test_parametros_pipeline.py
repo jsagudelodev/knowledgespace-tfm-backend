@@ -25,7 +25,6 @@ from app.services.rag_service_avanzado import MAX_SUBPREGUNTAS
 from app.services.rag_service_reranking import CANDIDATOS
 from app.services.reordenador import RECORTE
 
-
 # ── Los nombres de modulo reflejan la configuracion ────────────────────────
 
 def test_los_parametros_salen_de_la_configuracion():

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db, Base, engine
-from app.core.security import get_password_hash, create_access_token
+from app.core.database import Base, engine, get_db
+from app.core.security import create_access_token, get_password_hash
 from app.db.models.company import Company
 from app.db.models.notification_type import NotificationType
 from app.db.models.user import User

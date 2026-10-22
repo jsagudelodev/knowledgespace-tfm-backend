@@ -1,6 +1,8 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from app.db.models.document import Document
 from app.repositories.base import BaseRepository
 

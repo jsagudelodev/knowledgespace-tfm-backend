@@ -2,29 +2,29 @@
 conocimiento indexado. Tres vías de resolución (vincular documento existente,
 escribir respuesta, pedir documento) y verificación automática contra el índice
 al resolver, para demostrar que la pregunta ahora sí se responde."""
-from typing import List, Optional
 from datetime import datetime, timedelta, timezone
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
-from app.db.models.knowledge_gap import KnowledgeGap
-from app.db.models.user import User
-from app.db.models.document import Document
 from app.db.models.assistant import Assistant
+from app.db.models.document import Document
+from app.db.models.knowledge_gap import KnowledgeGap
 from app.db.models.notification import NotificationEntityType
+from app.db.models.user import User
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
 from app.repositories.user_repository import UserRepository
+from app.routers.v1.security import get_current_user
 from app.schemas.knowledge_gap import (
-    KnowledgeGapSummary,
-    KnowledgeGapResponse,
-    KnowledgeGapLinkRequest,
     KnowledgeGapAnswerRequest,
-    KnowledgeGapRequestDocumentRequest,
     KnowledgeGapIgnoreRequest,
+    KnowledgeGapLinkRequest,
+    KnowledgeGapRequestDocumentRequest,
+    KnowledgeGapResponse,
+    KnowledgeGapSummary,
 )
 from app.services.knowledge_gap_index_service import best_score, index_alias, index_answer
 from app.services.notification_service import NotificationService
@@ -209,7 +209,9 @@ async def get_gap(
     return _enrich(gap, db)
 
 
-@router.post("/{gap_id}/link", response_model=KnowledgeGapResponse, summary="Vincular a documento existente y reindexar")
+@router.post(
+    "/{gap_id}/link", response_model=KnowledgeGapResponse, summary="Vincular a documento existente y reindexar"
+)
 async def link_document(
     gap_id: int,
     data: KnowledgeGapLinkRequest,
@@ -237,11 +239,11 @@ async def link_document(
             company_id=gap.company_id,
             assistant_id=gap.assistant_id,
         )
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="No se pudo reindexar el alias en el índice. Intenta de nuevo.",
-        )
+        ) from e
 
     now = datetime.now(timezone.utc)
     gap.status = "resolved"
@@ -275,11 +277,11 @@ async def write_answer(
             assistant_id=gap.assistant_id,
             answered_by=current_user.id,
         )
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="No se pudo indexar la respuesta en el índice. Intenta de nuevo.",
-        )
+        ) from e
 
     now = datetime.now(timezone.utc)
     gap.status = "resolved"
@@ -293,7 +295,11 @@ async def write_answer(
     return _enrich(gap, db)
 
 
-@router.post("/{gap_id}/request-document", response_model=KnowledgeGapResponse, summary="Solicitar documento — pasa a en curso")
+@router.post(
+    "/{gap_id}/request-document",
+    response_model=KnowledgeGapResponse,
+    summary="Solicitar documento — pasa a en curso",
+)
 async def request_document(
     gap_id: int,
     data: KnowledgeGapRequestDocumentRequest,
@@ -360,11 +366,11 @@ async def verify_gap(
 
     try:
         gap.verify_score_after = best_score(gap.question, gap.company_id, gap.assistant_id)
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="No se pudo reejecutar la verificación contra el índice. Intenta de nuevo.",
-        )
+        ) from e
 
     now = datetime.now(timezone.utc)
     gap.verify_passed = (gap.verify_score_after or 0.0) >= VERIFY_THRESHOLD

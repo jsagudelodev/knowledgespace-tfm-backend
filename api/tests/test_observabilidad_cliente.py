@@ -19,7 +19,7 @@ def test_sin_langfuse_activo_falla_con_mensaje_claro(monkeypatch):
 
     try:
         observabilidad.cliente()
-        assert False, "deberia haber lanzado"
+        raise AssertionError("deberia haber lanzado")
     except RuntimeError as e:
         assert "LANGFUSE_ENABLED" in str(e)
 

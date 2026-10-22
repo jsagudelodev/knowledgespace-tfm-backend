@@ -1,7 +1,18 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.services.cost_tracking_service import MODELOS_CHAT
+
+
+def _validar_modelo(model: Optional[str]) -> Optional[str]:
+    """Solo modelos con precio en `cost_tracking_service.PRICING`; si no, el
+    costo de cada consulta se registraría con un precio que no es el suyo."""
+    if model is not None and model not in MODELOS_CHAT:
+        opciones = ", ".join(sorted(MODELOS_CHAT))
+        raise ValueError(f"Modelo no soportado: {model}. Opciones: {opciones}")
+    return model
 
 
 class AssistantBase(BaseModel):
@@ -9,16 +20,18 @@ class AssistantBase(BaseModel):
     description: Optional[str] = None
     system_prompt: Optional[str] = None
     model: str = Field(default="gpt-4o-mini")
-    # Por defecto 0: ver la medición en `rag_service.DEFAULT_TEMPERATURE`. El
-    # rango sigue abierto hasta 1 para que un asistente pueda subirla si su uso
-    # lo justifica, pero quien lo haga debe saber que la fidelidad baja.
-    temperature: float = Field(default=0.0, ge=0.0, le=1.0)
+    # Sin `temperature`: no es configurable por asistente. El chat usa siempre
+    # `RAG_TEMPERATURA` (0), el valor medido en `rag_service.DEFAULT_TEMPERATURE`.
+    # Mientras fue editable, el formulario enviaba 0.7 y anulaba esa decisión.
     avatar: Optional[str] = None
     quick_prompts: Optional[List[str]] = None
 
 
 class AssistantCreate(AssistantBase):
-    pass
+    # La validación va en la entrada y no en `AssistantBase`: si fuera en la
+    # base, `AssistantResponse` la heredaría y un asistente antiguo con un
+    # modelo fuera de la lista dejaría de poder leerse.
+    _modelo_con_precio = field_validator("model")(_validar_modelo)
 
 
 class AssistantUpdate(BaseModel):
@@ -26,10 +39,11 @@ class AssistantUpdate(BaseModel):
     description: Optional[str] = None
     system_prompt: Optional[str] = None
     model: Optional[str] = None
-    temperature: Optional[float] = Field(None, ge=0.0, le=1.0)
     avatar: Optional[str] = None
     is_active: Optional[bool] = None
     quick_prompts: Optional[List[str]] = None
+
+    _modelo_con_precio = field_validator("model")(_validar_modelo)
 
 
 class AssistantResponse(AssistantBase):

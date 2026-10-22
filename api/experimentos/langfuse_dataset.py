@@ -57,7 +57,6 @@ if hasattr(sys.stdout, "reconfigure"):
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core import observabilidad  # noqa: E402
-from app.core.config import settings  # noqa: E402
 from app.services.rag_factory import CONFIGURACIONES  # noqa: E402
 
 AQUI = Path(__file__).parent

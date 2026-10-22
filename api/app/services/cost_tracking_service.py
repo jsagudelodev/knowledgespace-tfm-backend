@@ -23,6 +23,12 @@ PRICING = {
     "text-embedding-3-large": {"input": 0.00013, "output": 0.0},
 }
 
+# Modelos de chat que un asistente puede usar: solo los que tienen precio.
+# El fallback de arriba evita que falle el registro, pero registra un modelo
+# desconocido con el precio de gpt-4o-mini sin avisar; validar el modelo al
+# crear o editar el asistente impide llegar a ese caso.
+MODELOS_CHAT = frozenset(m for m in PRICING if not m.startswith("text-embedding"))
+
 
 class CostTrackingService:
     """Registra el costo de cada llamada a OpenAI (chat o embeddings).

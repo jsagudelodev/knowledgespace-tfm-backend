@@ -3,8 +3,8 @@ con OpenAI. Es el núcleo del producto — ver `docs/RAG_PIPELINE.md` §4."""
 import logging
 from typing import Any, Dict, List, Optional
 
-from app.core.config import settings
 from app.core import observabilidad
+from app.core.config import settings
 from app.core.exceptions import EmbeddingError, VectorStoreError
 from app.services.embedding_service import EmbeddingService
 from app.services.pinecone_service import PineconeService
@@ -257,6 +257,9 @@ class RAGService:
         messages = self._build_messages(query, context, conversation_history, system_prompt_override)
 
         effective_model = model_override or settings.OPENAI_CHAT_MODEL
+        # El chat nunca pasa `temperature_override`: la temperatura no es
+        # configurable por asistente. Solo lo usan los experimentos, para medir
+        # otras temperaturas sin cambiar la configuración.
         effective_temperature = (
             temperature_override if temperature_override is not None else DEFAULT_TEMPERATURE
         )

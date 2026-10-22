@@ -5,23 +5,25 @@ Son los trabajos canónicos de lo que este proyecto implementa: nada está aquí
 por rellenar una cuota.
 
 > ✅ **Verificadas las 22 fichas el 19 de octubre**, contrastadas contra ACL
-> Anthology, NeurIPS/arXiv, IEEE y los boletines oficiales (DOUE, Diario
-> Oficial de Colombia). Ninguna resultó inventada: autores, año y *venue*
-> coinciden en las 22. Dos detalles a decidir, no a corregir:
+> Anthology, NeurIPS/arXiv, IEEE y los boletines oficiales (DOUE). Ninguna
+> resultó inventada: autores, año y *venue* coinciden en las 22.
 >
-> - **Ma et al. (2.2, recuperación léxica)**: el título cambió entre el
->   preprint de arXiv (*"Query Rewriting **for**..."*, el que está aquí) y la
->   versión final de EMNLP (*"Query Rewriting **in**..."*). Decide cuál citas
->   antes de redactar.
-> - **Hu et al., LoRA (2.2, adaptación)**: solo está como *preprint* de arXiv;
->   el trabajo se publicó después en ICLR 2022. Si prefieres citar la versión
->   revisada por pares, cambia el *venue*.
+> ✅ **Las cuatro decisiones abiertas, resueltas el 20 de octubre:**
 >
-> La columna **Ver.** queda marcada para las 22 comprobadas. La ficha de la
-> ley colombiana sigue pendiente de que decidas si aplica tu jurisdicción.
->
-> ⚠️ **Formato por confirmar.** Está escrito en APA 7. Si EBIS exige IEEE u
-> otro, se reconvierte, pero conviene saberlo antes de redactar.
+> - **Formato: APA 7**, confirmado. Ya estaba así redactado, no hace falta
+>   reconvertir nada.
+> - **Jurisdicción: solo RGPD/UE.** El TFM se evalúa en España; se descarta la
+>   ficha de la Ley 1581/2012 de Colombia. El apartado 2.3 cubre únicamente el
+>   marco legal europeo.
+> - **Ma et al. (2.2, recuperación léxica): se cita la versión de EMNLP.**
+>   Verificado contra ACL Anthology (`2023.emnlp-main.322`): el título correcto
+>   es *"Query Rewriting **in** Retrieval-Augmented Large Language Models"*
+>   (no "for", que era el título del *preprint*), mismos cinco autores.
+>   Ficha actualizada más abajo.
+> - **Hu et al., LoRA (2.2, adaptación): se cita la versión de ICLR 2022.**
+>   Verificado: mismo título y mismos ocho autores que el *preprint* de arXiv,
+>   publicado después como artículo de conferencia. Ficha actualizada más
+>   abajo.
 
 > 📖 **Y léelas.** La rúbrica penaliza *«la simple reproducción de texto
 > generado por herramientas automáticas sin adaptación propia»*. Esta lista es
@@ -83,9 +85,9 @@ llegar al mínimo de 15-25 referencias.
 
 | Ver. | Pri. | Referencia | Para qué la usas |
 |---|---|---|---|
-| ☑ | ⭐ | Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., & Chen, W. (2021). LoRA: Low-rank adaptation of large language models. *arXiv:2106.09685*. | *Fine-tuning* eficiente. Es la alternativa frente a la que justificas haber elegido RAG. |
+| ☑ | ⭐ | Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., & Chen, W. (2022). LoRA: Low-rank adaptation of large language models. *International Conference on Learning Representations (ICLR)*. | *Fine-tuning* eficiente. Es la alternativa frente a la que justificas haber elegido RAG. |
 | ☑ | ○ | Wei, J., et al. (2022). Chain-of-thought prompting elicits reasoning in large language models. *Advances in Neural Information Processing Systems*, 35. | Ingeniería de *prompt* como técnica de adaptación. |
-| ☑ | ○ | Ma, X., Gong, Y., He, P., Zhao, H., & Duan, N. (2023). Query rewriting for retrieval-augmented large language models. *EMNLP*. | Reescritura de consulta: el marco en el que encaja tu descomposición. |
+| ☑ | ○ | Ma, X., Gong, Y., He, P., Zhao, H., & Duan, N. (2023). Query rewriting in retrieval-augmented large language models. *Proceedings of EMNLP 2023 (Main)* (ACL Anthology 2023.emnlp-main.322). | Reescritura de consulta: el marco en el que encaja tu descomposición. |
 
 ## 5 — Evaluación y alucinaciones
 
@@ -97,14 +99,14 @@ llegar al mínimo de 15-25 referencias.
 
 ## 2.3 — Marco legal
 
-> ⚠️ **Pendiente de tu respuesta:** tu empresa es colombiana y el máster es
-> español. Según lo que decidas, se queda la europea, la colombiana o ambas.
+> ✅ **Decidido el 20 de octubre: solo RGPD/UE.** El TFM se evalúa en España,
+> así que el marco legal europeo es el que aplica a la institución académica.
+> Se descarta la ficha de la Ley 1581/2012 de Colombia.
 
 | Ver. | Pri. | Referencia |
 |---|---|---|
 | ☑ | ⭐ | Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al tratamiento de datos personales (RGPD). *DOUE* L 119. |
 | ☑ | ○ | Reglamento (UE) 2024/1689 del Parlamento Europeo y del Consejo, por el que se establecen normas armonizadas en materia de inteligencia artificial. *DOUE* L. |
-| ☐ | ? | Ley 1581 de 2012, por la cual se dictan disposiciones generales para la protección de datos personales. *Diario Oficial*, Colombia. |
 
 ---
 
@@ -113,23 +115,33 @@ llegar al mínimo de 15-25 referencias.
 ```
 esenciales  ⭐   11
 contexto    ○     9
-legales           2-3 según jurisdicción
+legales           2   (solo RGPD/UE)
                  ───
-total            22-23     (requisito: 15-25)
+total            22     (requisito: 15-25)
 ```
 
 Llegas al mínimo sin rellenar. Si alguna no te convence al leerla, quítala:
 veinte referencias leídas valen más que veinticinco citadas de oídas.
 
-## Lo que falta decidir
+## Decisiones — todas resueltas el 20 de octubre
 
-1. **Jurisdicción** del apartado 2.3 — condiciona si la ficha de Colombia entra
-   o no. Es la única sin verificar: el hecho (fecha de expedición, objeto de
-   la ley) ya está contrastado, lo pendiente es solo si aplica a tu caso.
-2. **Formato de cita** que exige EBIS (APA, IEEE, otro).
-3. ~~Verificar las fichas~~ — **hecho el 19 de octubre.** Las 21 restantes
-   están contrastadas contra ACL Anthology, NeurIPS/arXiv, IEEE y los
-   boletines oficiales. Dos detalles a resolver antes de redactar: el título
-   de Ma et al. cambió entre el *preprint* y la versión publicada (nota al
-   inicio del documento), y LoRA se cita hoy solo como *preprint* pudiendo
-   citarse por su versión de ICLR 2022.
+1. ~~Jurisdicción~~ — **resuelto: solo RGPD/UE.** Se descarta la ficha de
+   Colombia.
+2. ~~Formato de cita~~ — **resuelto: APA 7**, el que ya estaba redactado.
+3. ~~Verificar las fichas~~ — **hecho el 19 de octubre**, contrastadas contra
+   ACL Anthology, NeurIPS/arXiv, IEEE y los boletines oficiales.
+4. ~~Título y *venue* de Ma et al. y de LoRA~~ — **resuelto: versión EMNLP
+   para Ma et al., versión ICLR 2022 para LoRA**, ambas verificadas y con la
+   ficha ya actualizada arriba.
+
+**Pendiente de transcripción, no de decisión:** la página exacta de Ma et al.
+dentro de las actas de EMNLP no quedó confirmada en la verificación —la ficha
+cita el identificador de ACL Anthology (`2023.emnlp-main.322`), que es
+suficiente para localizarla, pero si APA 7 exige el rango de páginas conviene
+tomarlo directamente de `aclanthology.org/2023.emnlp-main.322` al transcribir
+al capítulo 9, en vez de inventarlo.
+
+**Bibliografía lista para transferir al capítulo 9 del documento.** Ya no
+queda ninguna decisión abierta — lo que falta es el trabajo mecánico de
+pasar las 22 fichas verificadas al `.docx`, en el orden y formato APA 7 en
+que están redactadas aquí.

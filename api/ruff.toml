@@ -1,0 +1,51 @@
+# Configuración de ruff — linter y formateador para el backend.
+# Uso: .venv/Scripts/python.exe -m ruff check .
+
+target-version = "py312"
+# 120 y no el default de 88: el estilo de este proyecto son comentarios
+# explicativos largos (el porqué de cada decisión, no solo el qué), y forzar
+# el ancho de Black habría significado reescribir decenas de comentarios por
+# estética, sin ganar nada de corrección. Bajado de 158 (la línea más larga
+# real) a 120 porque sigue siendo un límite reconocible, no "lo que hiciera
+# falta para que no saliera ningún aviso".
+line-length = 120
+
+exclude = [
+    ".venv",
+    ".venv-eval",
+    "__pycache__",
+    "experimentos/resultados",
+    # Generadas por `alembic revision`, a partir de una plantilla que siempre
+    # importa `op` y `sa` aunque la migración no los use (como la línea base,
+    # vacía a propósito) — no es código propio que debamos reformatear.
+    "alembic/versions",
+]
+
+[lint]
+# E/F: errores de Pyflakes y pycodestyle (imports sin usar, variables muertas,
+#      sintaxis sospechosa) — el núcleo de lo que un linter debe atrapar.
+# I:   orden de imports.
+# B:   bugbear — patrones que no son errores de sintaxis pero suelen ser bugs
+#      (mutable default arguments, except genérico sin re-lanzar, etc.).
+select = ["E", "F", "I", "B"]
+
+# B008: FastAPI exige `Depends(...)` como valor por defecto del parámetro —
+# es el patrón de inyección de dependencias de la propia librería, no un
+# error. Revisada una muestra: las 155 veces que aparece son todas
+# `Depends(get_db)` / `Depends(get_current_user)` o equivalentes.
+ignore = ["B008"]
+
+[lint.per-file-ignores]
+# `app/db/models/__init__.py` reexporta los modelos a propósito, para que el
+# resto del código pueda hacer `from app.db.models import User` sin conocer
+# el submódulo exacto, y para que SQLAlchemy los registre al importar el
+# paquete. F401 (import sin usar) no aplica a un barril de reexportación.
+"app/db/models/__init__.py" = ["F401"]
+
+# `rag_service.py` y `rag_service_avanzado.py` definen el texto literal de los
+# *prompts* que se envían al LLM en cadenas de comillas triples. Envolver esas
+# líneas insertaría un salto de línea real dentro del *prompt* -cambiaría lo
+# que el modelo recibe, no solo el estilo del código-, así que aquí sí se
+# acepta la línea larga en vez de tocar el contenido.
+"app/services/rag_service.py" = ["E501"]
+"app/services/rag_service_avanzado.py" = ["E501"]

@@ -1,9 +1,10 @@
 # Modelo de Datos - KnowSpace Backend
 
 ## Versión
-- **Fecha**: 20 de octubre de 2026
-- **Versión**: 12.4
+- **Fecha**: 21 de octubre de 2026
+- **Versión**: 12.5
 - **Estado**: Verificado contra el esquema real de Supabase (introspección directa vía `DATABASE_URL`), incluyendo `cost_tracking` (§2.15) confirmado en producción.
+- **Cambios v12.5**: Adoptado Alembic para la gestión de esquema (ver §3.7). Se encontraron y documentaron 4 columnas huérfanas nuevas en `documents` (`source_url`, `fetched_at`, `source_type`, `source_domain`), no registradas antes de esta auditoría, y una lista de desviaciones reales entre los modelos y la base (`nullable`, tipos) pendientes de reconciliar una a una.
 - **Cambios v12.4**: `cost_tracking` ganó `duration_ms` (Integer, nullable) vía `ALTER TABLE ADD COLUMN IF NOT EXISTS` en `migrate_cost_tracking.sql`. Antes solo se medía latencia en los experimentos contra el dataset de referencia; ahora `chat.py` cronometra cada `generate_response` y lo registra junto al costo de la operación `chat` — ver sección 2.15.
 - **Cambios v12.3**: `cost_tracking` pasó de "tabla sin modelo ORM" a módulo completo — modelo, `CostTrackingService`, router (`GET /`, `/summary`, `/daily-trend`) e instrumentación real en `chat.py` y `documents.py`. Ganó la columna `operation` (`chat`/`embedding`) vía `ALTER TABLE`, aplicada y verificada contra la BD real — ver sección 2.15.
 - **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. **Ya están en `app/db/models/knowledge_gap.py`, pero no necesariamente en la tabla real de Supabase**: `create_all` no hace `ALTER TABLE`. Aplicar `api/migrate_knowledge_gaps.sql` en cada entorno antes de asumir que esta sección refleja la BD real.
@@ -1086,3 +1087,84 @@ También existe `alembic_version` (tabla de control de migraciones de Alembic, s
 
 ### 3.6 Base de datos objetivo
 Conexión vía **Supabase Session Pooler** (`aws-*.pooler.supabase.com:6543`, pgbouncer en modo transacción) — configurado en `DATABASE_URL` (`.env`), consumido por `app/core/database.py`.
+
+### 3.7 Gestión de esquema: Alembic — adoptado el 21 de octubre de 2026
+
+Antes de esta fecha, los cambios de esquema posteriores al `create_all`
+inicial se aplicaban a mano con los `migrate_*.sql` de `api/` (ver §0 y §3.5
+para el contexto histórico). A partir de ahora se gestionan con Alembic
+(`api/alembic/`).
+
+**Hallazgo al configurarlo: ya había una tabla `alembic_version` en la base
+real**, con una fila huérfana apuntando a una revisión (`m8n9o0p1q2r3`) que no
+existe en ningún archivo de este repositorio — residuo de un intento de
+Alembic anterior, probablemente del producto comercial del que parte este
+proyecto (consistente con `.gitignore` excluyendo hasta ahora `alembic.ini`,
+señal de que esa configuración anterior sí tenía la URL de conexión escrita a
+mano). Esa fila no contenía más que el puntero —sin historial de migraciones
+reconstruible—, así que se limpió y se reemplazó por una línea base propia.
+
+**La línea base (`5434de64e568`) está deliberadamente vacía.** Las tablas ya
+existían, creadas por `create_all`; no había nada que crear. Un primer intento
+de generarla con `alembic revision --autogenerate` sí produjo una migración
+real, pero con decenas de cambios de golpe —ver más abajo—, incluidos varios
+que ni siquiera se ejecutarían sin fallar (restricciones sin nombre que
+Alembic no sabe cómo referenciar para borrar). Se descartó a propósito: mezclar
+"empezar a usar Alembic" con "corregir desviaciones acumuladas" en un solo paso
+contra producción no es una decisión que deba tomar una herramienta automática
+sin revisión línea por línea.
+
+**`include_object` en `alembic/env.py` excluye del autogenerate lo que existe
+en Supabase pero no tiene modelo**, para que nunca se proponga borrarlo:
+las ocho tablas de §3.5, y columnas huérfanas en tres tablas que sí tienen
+modelo:
+
+| Tabla | Columna huérfana | Ya documentada antes de hoy |
+|---|---|---|
+| `assistants` | `suggested_prompts` | Sí (v12.1) |
+| `cost_tracking` | `metadata` | Sí (§2.15) |
+| `documents` | `source_url`, `fetched_at`, `source_type`, `source_domain` | **No — encontradas hoy** |
+
+Las cuatro columnas de `documents` no estaban documentadas en ningún sitio
+antes de esta auditoría. Por el nombre, son restos de una funcionalidad de
+ingesta de documentos desde una URL (scraping), descartada del alcance del
+TFM igual que el resto de lo heredado del producto comercial — no confirmado
+con el autor, queda como hipótesis razonable, no como hecho verificado.
+
+**Deuda real encontrada, pendiente de reconciliar — una migración a la vez,
+revisada antes de aplicarse, no de golpe:**
+
+| Columna/tabla | Lo que declara el modelo | Lo que tiene la base real |
+|---|---|---|
+| `categories.is_active` | `Boolean`, `NOT NULL` | `INTEGER`, nullable |
+| `companies.is_active` | `Boolean`, `NOT NULL` | `INTEGER`, nullable |
+| `companies.plan`, `.max_users`, `.max_documents` | `NOT NULL` | nullable |
+| `conversations.title` | `NOT NULL` | nullable |
+| `documents.file_path`, `.chunk_count`, `.status` | `NOT NULL` | nullable |
+| `notifications.type_id` | `NOT NULL` | nullable |
+| `notifications.entity_type` | `Enum(...)` | `VARCHAR(30)` |
+| `messages.sources` | `JSON` | `JSONB` |
+| `tags.name` | `String(100)` | `VARCHAR(50)` |
+| `users.role` | `NOT NULL` | nullable |
+
+A esto se suma que varios índices y restricciones llevan nombres `idx_*`
+(de cuando el esquema no lo gestionaba SQLAlchemy) en vez de la convención
+`ix_*` que genera el ORM, y varias claves foráneas no tienen nombre asignado
+—Alembic avisó explícitamente de que no podría generar un `DROP CONSTRAINT`
+fiable para ellas sin una convención de nombres declarada en `Base.metadata`.
+Ninguno de estos dos puntos es urgente: son cosméticos, no afectan a la
+integridad de los datos, y renombrar sin una convención declarada de por
+medio sería otro cambio a ciegas.
+
+**Flujo a partir de ahora:**
+
+```
+1. Cambiar el modelo en app/db/models/
+2. alembic revision --autogenerate -m "descripcion"
+3. Revisar el archivo generado a mano -autogenerate propone, no decide-
+4. alembic upgrade head
+```
+
+La URL de conexión la toma `alembic/env.py` de `settings.DATABASE_URL` —no
+se duplica en `alembic.ini`, que por eso ya puede versionarse sin exponer
+ningún secreto.

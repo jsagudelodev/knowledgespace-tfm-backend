@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import or_
-from typing import Optional, List
 from datetime import datetime, timezone
+from typing import List, Optional
+
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, selectinload
 
 from app.db.models.notification import Notification, NotificationEntityType
 from app.db.models.notification_type import NotificationType

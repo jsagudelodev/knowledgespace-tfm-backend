@@ -7,16 +7,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.assistant import Assistant
 from app.db.models.user import User
 from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
+from app.routers.v1.security import get_current_user
 from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.cost_tracking_service import CostTrackingService
 from app.services.rag_factory import crear_rag_service
 from app.services.rag_service import RAGUnavailableError
-from app.services.cost_tracking_service import CostTrackingService
 
 router = APIRouter()
 
@@ -87,7 +87,6 @@ async def chat_message(
             assistant_id=assistant.id if assistant else None,
             system_prompt_override=assistant.system_prompt if assistant else None,
             model_override=assistant.model if assistant else None,
-            temperature_override=float(assistant.temperature) if assistant and assistant.temperature is not None else None,
         )
     except RAGUnavailableError as e:
         raise HTTPException(

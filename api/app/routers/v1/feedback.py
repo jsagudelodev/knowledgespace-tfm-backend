@@ -7,17 +7,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers.v1.security import get_current_user
 from app.db.models.feedback import Feedback
 from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.feedback_repository import FeedbackRepository
+from app.routers.v1.security import get_current_user
 from app.schemas.feedback import (
     FeedbackConvertGap,
     FeedbackCreate,
-    FeedbackUpdate,
     FeedbackResponse,
     FeedbackStats,
+    FeedbackUpdate,
 )
 from app.services.notification_service import NotificationService
 
@@ -153,7 +153,9 @@ async def convert_to_gap(
     if not feedback:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback no encontrado")
     if feedback.knowledge_gap_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este feedback ya tiene una pregunta sin respuesta asociada")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Este feedback ya tiene una pregunta sin respuesta asociada"
+        )
     gap = repo.convert_to_gap(
         feedback=feedback,
         question=data.question,

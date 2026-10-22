@@ -131,7 +131,7 @@ def analizar_documento(ruta: Path) -> Dict[str, Any]:
         "documento": ruta.name,
         "kb": round(ruta.stat().st_size / 1024, 1),
         "paginas": paginas,
-        "caracteres": len(texto),
+        "caracteres_totales": len(texto),
         "densidad_puntos_por_mil": densidad_de_puntos(texto),
         "caracteres": medir(por_caracteres, texto),
         "oraciones": medir(por_oraciones, texto),
