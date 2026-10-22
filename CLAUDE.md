@@ -97,7 +97,7 @@ KnowledgeSpace/
   - `get_current_superadmin` — solo superadmin
 
 ## Multi-tenant
-Cada recurso está filtrado por `company_id` extraído del JWT, nunca del request body.
+Cada recurso está filtrado por el `company_id` del usuario autenticado, nunca del request body. El JWT solo lleva el email (`sub`); `get_current_user` carga el usuario de la base de datos y su empresa sale de ahí.
 
 ## Key Patterns
 1. **Models**: heredan de `Base` (`app.core.database`)

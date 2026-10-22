@@ -16,8 +16,10 @@ evolucionando por separado.
   habría hecho desaparecer el punto de referencia. Ver
   `docs/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué se
   descartaron otras (RAG híbrido, agéntico, GraphRAG).
-- **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por
-  `company_id` extraído del JWT en cada recurso — ver `docs/MODELO_DATOS.md`.
+- **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por el
+  `company_id` del usuario autenticado en cada recurso. El JWT solo lleva el
+  email (`sub`); la empresa se lee del usuario en la base de datos en cada
+  petición, de modo que el cliente no puede elegirla — ver `docs/MODELO_DATOS.md`.
 - **Mitigación de alucinaciones, con dos niveles de evidencia**:
   - En producción: umbral de relevancia medido sobre el corpus
     (`RAGService.RELEVANCE_THRESHOLD`, justificado en `docs/RAG_PIPELINE.md`
@@ -92,10 +94,11 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 13 archivos y 91 tests unitarios sobre lógica pura
-  —las cuatro configuraciones del pipeline RAG, construcción del contexto,
-  cálculo de costos, namespaces de Pinecone, métricas del dashboard y períodos
-  de knowledge gaps—. **Sin tests de integración**: ninguno levanta la
+- Cobertura de tests: 19 archivos y 128 tests unitarios sobre lógica pura
+  —las configuraciones del pipeline RAG, construcción del contexto, parámetros
+  del pipeline, cálculo de costos, validación del modelo de cada asistente,
+  namespaces de Pinecone, métricas del dashboard y períodos de knowledge
+  gaps—. **Sin tests de integración**: ninguno levanta la
   aplicación ni toca la base de datos, en parte porque
   `Base.metadata.create_all` no funciona sobre SQLite (`assistants.quick_prompts`
   usa `JSONB`, exclusivo de Postgres), así que una base en memoria para pruebas

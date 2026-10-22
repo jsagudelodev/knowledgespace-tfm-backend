@@ -2,7 +2,14 @@
 
 **Documento:** Registro de las funcionalidades implementadas y de las que
 quedaron fuera de alcance, con el motivo.  
-**Última actualización:** 2026-10-08
+**Última actualización:** 2026-10-21
+
+> **Ejercicios frente a mediciones.** F2–F7 y F9–F12 son ejercicios de práctica
+> de `docs/practica-tfm/`, carpeta que no se versiona. Usan datos didácticos
+> —su propio código lo indica ("DATOS PRE-CALCULADOS", "Simula latencia")—, así
+> que **sus valores no son mediciones del sistema** y este documento ya no los
+> cita. Las mediciones reales, reproducibles con un comando, están en
+> `api/experimentos/resultados/`.
 
 ---
 
@@ -10,7 +17,7 @@ quedaron fuera de alcance, con el motivo.
 
 | Completadas | En progreso | Planificadas | Total |
 |---|---|---|---|
-| **14** | **0** | **2** | **16** |
+| **15** | **0** | **1** | **16** |
 
 ---
 
@@ -35,9 +42,8 @@ quedaron fuera de alcance, con el motivo.
 ### **F2: Métrica Precision@k**
 - **Descripción:** Mide certeza: de los k chunks devueltos, ¿cuántos son relevantes?
 - **Fórmula:** aciertos / k
-- **Valor típico:** 0.222 (antes), 0.289 (después de optimización)
 - **Uso:** Validar calidad de recuperación
-- **Estado:** ✅ Implementado y medido
+- **Estado:** Ejercicio de práctica con datos didácticos (sin valor medido)
 - **Código:** `docs/practica-tfm/5.1_precision_recall.py`
 
 ---
@@ -45,9 +51,8 @@ quedaron fuera de alcance, con el motivo.
 ### **F3: Métrica Recall@k**
 - **Descripción:** Mide cobertura: de los chunks relevantes que existen, ¿cuántos encontramos?
 - **Fórmula:** aciertos / total_relevantes
-- **Valor típico:** 1.000 (100% — encontramos todo lo que existe)
 - **Uso:** Validar no dejamos cosas afuera
-- **Estado:** ✅ Implementado y medido
+- **Estado:** Ejercicio de práctica con datos didácticos (sin valor medido)
 - **Código:** `docs/practica-tfm/5.1_precision_recall.py`
 
 ---
@@ -55,9 +60,10 @@ quedaron fuera de alcance, con el motivo.
 ### **F4: Métrica MRR (Mean Reciprocal Rank)**
 - **Descripción:** Mide orden: ¿en qué posición encontramos el primer chunk relevante?
 - **Fórmula:** 1 / posición_del_primero_bueno
-- **Valor típico:** 0.389 (antes), 0.456 (después)
 - **Uso:** Validar que lo bueno aparece arriba (importante para LLM)
-- **Estado:** ✅ Implementado y medido
+- **Estado:** Ejercicio de práctica con datos didácticos (sin valor medido).
+  El MRR medido sobre el sistema real está en el apartado 5.3 de la memoria
+  (comparación del reordenado, ver F14)
 - **Código:** `docs/practica-tfm/5.2_mrr.py`
 
 ---
@@ -66,9 +72,8 @@ quedaron fuera de alcance, con el motivo.
 - **Descripción:** Mide velocidad: ¿cuánto tarda una consulta?
 - **p50:** Mediana (mitad de queries ≤ este tiempo)
 - **p95:** Percentil 95 (95% de queries son más rápidas)
-- **Valor típico:** p50=510ms (antes), p50=650ms (después)
 - **Uso:** Validar SLA y aceptabilidad
-- **Estado:** ✅ Implementado y medido
+- **Estado:** Ejercicio de práctica con latencia simulada (sin valor medido)
 - **Código:** `docs/practica-tfm/5.3_latencia.py`
 
 ---
@@ -78,8 +83,10 @@ quedaron fuera de alcance, con el motivo.
 - **Entrada:** pregunta + contexto + respuesta
 - **Salida:** True/False (¿es fiel al contexto?)
 - **Uso:** Validar sin alucinaciones
-- **Valor típico:** 100% faithful
-- **Estado:** ✅ Implementado y validado
+- **Estado:** Ejercicio de práctica (sin valor medido). No está en el código
+  productivo: no hay validación posterior de la respuesta (ver `ALCANCE_TFM.md`).
+  La fidelidad medida del sistema es la de RAGAS (`faithfulness`), en
+  `api/experimentos/resultados/ragas_*.json`
 - **Código:** `docs/practica-tfm/5.5_llm_as_judge.py`
 
 ---
@@ -98,33 +105,30 @@ quedaron fuera de alcance, con el motivo.
 - **Descripción:** Divide documentos respetando oraciones (no corta en mitad de frase)
 - **Antes:** Corta por caracteres fijos → rompe oraciones
 - **Ahora:** Agrupa oraciones hasta ~1000 caracteres → contexto coherente
-- **Mejora:** Precision +30% (0.222 → 0.289), MRR +17% (0.389 → 0.456)
-- **Trade-off:** Latencia +140ms (510ms → 650ms), aceptable
+- **Medición:** calidad estructural (cortes a mitad de palabra y de frase,
+  regularidad, cobertura) con `api/experimentos/medir_chunking.py`; resultados en
+  `api/experimentos/resultados/chunking_2026-10-07.json` y `chunking_2026-10-09.json`
 - **Estado:** ✅ Implementado en producción
 - **Código:** `api/app/services/pdf_service.py` (función `dividir_en_chunks_semantico()`)
 
 ---
 
 ### **F9: Tabla Comparativa de Configuraciones (6.2)**
-- **Descripción:** Mide 4 configuraciones de chunking en la misma tabla
-- **Configuraciones:**
-  1. Antiguo (1000/200): 0.222 precision, 510ms latencia
-  2. Semántico (1000/200): 0.289 precision, 650ms latencia ← **ELEGIDO**
-  3. Agresivo (500/100): 0.311 precision, 920ms latencia
-  4. Conservador (1500/300): 0.178 precision, 420ms latencia
-- **Uso:** Validar decisión de qué usar
-- **Estado:** ✅ Implementado y analizado
+- **Descripción:** Compara 4 configuraciones de chunking en la misma tabla
+- **Uso:** Practicar cómo se justifica una decisión con una tabla comparativa
+- **Estado:** Ejercicio de práctica con datos pre-calculados (sin valor medido).
+  La comparación real de las dos estrategias de chunking es la de F8
 - **Código:** `docs/practica-tfm/6.2_tabla_comparativa.py`
 
 ---
 
 ### **F10: Harness Completo (6.3)**
 - **Descripción:** Ejecuta todas las métricas (precision, recall, MRR, faithfulness, latencia) sobre el mismo dataset
-- **Entrada:** 9 preguntas con ground truth
 - **Salida:** tabla con todas las métricas + promedio final
-- **Uso:** Validación final integrada
-- **Resultado:** Precision 0.267, Recall 1.0, MRR 1.0, Faithfulness 100%, Latencia 1.4s
-- **Estado:** ✅ Implementado y ejecutado
+- **Uso:** Practicar la validación integrada
+- **Estado:** Ejercicio de práctica con recuperación y latencia simuladas (sin
+  valor medido). La evaluación real del sistema usa el dataset de 18 preguntas
+  de `api/experimentos/dataset_evaluacion.csv` y RAGAS
 - **Código:** `docs/practica-tfm/6.3_harness_completo.py`
 
 ---
@@ -136,11 +140,12 @@ quedaron fuera de alcance, con el motivo.
   2. Problema identificado (chunking rompe oraciones)
   3. Hipótesis (respetando oraciones mejorará)
   4. Intervención (chunking semántico)
-  5. Validación (resultados +30%)
+  5. Validación
   6. Decisión final (por qué lo elegimos)
   7. Cómo reproducir (pasos exactos)
   8. Implicaciones en producción
-- **Estado:** ✅ Completo
+- **Estado:** Material de práctica; sus tablas usan los datos didácticos de los
+  ejercicios, no mediciones del sistema
 - **Código:** `docs/practica-tfm/ESTRATEGIA_RENDIMIENTO_RAG.md`
 
 ---
@@ -195,6 +200,25 @@ quedaron fuera de alcance, con el motivo.
 
 ---
 
+### **F14: Reordenado de fragmentos con LLM**
+- **Descripción:** Tras recuperar los candidatos por similitud, un LLM los
+  reordena por relevancia antes de construir el contexto
+- **Estado:** ✅ Implementado y medido el 2026-10-14, **no activo**
+- **Medición:** mejora la recuperación —context precision de 0,877 a 0,920
+  (`ragas_2026-10-14_reranking_temp0.json` frente a `ragas_2026-10-14_base_temp0.json`),
+  hit@3 de 0,500 a 0,667 y MRR de 0,394 a 0,447—, pero las métricas de
+  generación se mueven dentro del margen de ruido del modelo evaluador
+- **Por qué no está activo:** la llamada del reordenador consume unos 4.600
+  tokens de entrada y multiplica por 3,7 el coste de cada consulta sin haber
+  demostrado mejores respuestas. Ver `api/app/services/rag_factory.py` y el
+  apartado 5.3 de la memoria
+- **Código:** `api/app/services/rag_service_reranking.py`, `api/app/services/reordenador.py`
+
+> Esta funcionalidad figuraba como planificada y "fuera de alcance" cuando ya
+> estaba implementada y medida. Se corrigió el 2026-10-21.
+
+---
+
 ## ⏳ Funcionalidades en Progreso
 
 Ninguna actualmente.
@@ -202,20 +226,6 @@ Ninguna actualmente.
 ---
 
 ## 📋 Funcionalidades Planificadas
-
-### **F14: Reranking con LLM** (Baja prioridad, alta valor)
-- **Descripción:** Después de recuperar top-5 por similitud, un LLM los reordena por relevancia semántica
-- **Componentes:**
-  - Función `reranquear(pregunta, chunks)` 
-  - LLM evalúa cada chunk
-  - Devuelve chunks reordenados
-  - Integración en `rag_service.py`
-- **Mejora esperada:** Precision +10% (estimado)
-- **Costo:** +200-300ms latencia, +0.0001 USD/query
-- **Esfuerzo:** 2-3 horas
-- **Decisión:** ⏳ PENDIENTE (ver BACKLOG_TFM.md)
-
----
 
 ### **F16: Fine-tuning de Embeddings** (Baja prioridad, producción)
 - **Descripción:** Entrenar embeddings custom en el corpus de la empresa
@@ -230,7 +240,7 @@ Ninguna actualmente.
 ## 🎯 Roadmap por fase
 
 ### **Fase 1: Completada**
-- ✅ F1-F13 y F15: todas las funcionalidades críticas para la defensa
+- ✅ F1-F15: todas las funcionalidades críticas para la defensa (F14 medida pero no activa)
 - ✅ Código integrado
 - ✅ Documentación completa
 
@@ -239,7 +249,6 @@ Ninguna actualmente.
 - 🎯 Preparar la presentación
 
 ### **Fase 3: Post-defensa**
-- 🟢 F14 (Reranking con LLM)
 - 🟢 F16 (Fine-tuning de embeddings): para producción real
 
 ---
@@ -249,18 +258,12 @@ Ninguna actualmente.
 | Feature | Para la defensa | Para usuarios | Esfuerzo | Estado |
 |---|---|---|---|---|
 | F1-F13, F15 | ✅ Críticas | ✅ Esencial | — | **Implementadas** |
-| F14 (Reranking) | ⭐⭐⭐ Fortalece | ⭐⭐ Mejora | 2-3 h | Fuera de alcance |
+| F14 (Reordenado) | ⭐⭐⭐ Fortalece | ⭐⭐ Mejora | — | **Implementada y medida, no activa** |
 | F16 (Fine-tuning) | ⭐ Extra | ⭐⭐ Mejora | 8 h | Fuera de alcance |
 
 ---
 
 ## Qué quedó fuera y por qué
-
-**F14, reranking con LLM.** Añadiría una segunda pasada del modelo para reordenar
-los chunks recuperados. Se descartó para esta entrega: el umbral de relevancia ya
-filtra la evidencia débil y la mejora no está medida sobre este corpus, así que
-habría sido una afirmación sin respaldo. Es el siguiente paso natural si el
-porcentaje de respuestas útiles se queda corto.
 
 **F16, fine-tuning de embeddings.** Requiere un conjunto de entrenamiento propio
 y un coste de entrenamiento que no se justifica con el volumen actual de
@@ -271,4 +274,4 @@ documentos.
 ---
 
 **Documento mantenido por:** Estudiante TFM  
-**Última revisión:** 2026-10-03
+**Última revisión:** 2026-10-21

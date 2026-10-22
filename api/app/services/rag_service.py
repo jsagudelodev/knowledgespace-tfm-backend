@@ -77,9 +77,10 @@ TOP_K = settings.RAG_TOP_K
 # descompositor de `rag_service_avanzado` ya usaba 0 — la tarea determinista
 # tenía el valor correcto y la que no debe inventar, el incorrecto.
 #
-# Medición sobre las 18 preguntas de `experimentos/dataset_evaluacion.csv`,
-# mismos contextos recuperados en las dos pasadas (la temperatura no afecta a
-# la búsqueda):
+# Medición con RAGAS sobre las 12 preguntas con respuesta de
+# `experimentos/dataset_evaluacion.csv` (las 6 sin respuesta se evalúan aparte,
+# por abstención), mismos contextos recuperados en las dos pasadas (la
+# temperatura no afecta a la búsqueda):
 #
 #     fidelidad (RAGAS)        0,888 -> 0,939
 #     mínimo por pregunta      0,538 -> 0,750

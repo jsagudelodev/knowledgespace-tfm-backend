@@ -97,11 +97,13 @@ def _get_user_in_company(repo, user_id: int, company_id: int) -> User:
 
 **Dos decisiones deliberadas aquí, ambas defendibles si te preguntan:**
 
-1. **El filtro nunca viene del request, siempre del JWT** (`current_user.company_id`,
-   inyectado por `Depends(get_current_admin_user)`). Un usuario nunca puede
-   pasar `company_id=5` en el body o la URL para acceder a otra empresa —
-   el valor se ignora si viene del cliente; el único `company_id` que cuenta
-   es el que el servidor extrajo del token firmado.
+1. **El filtro nunca viene del request, siempre del usuario autenticado**
+   (`current_user.company_id`, inyectado por `Depends(get_current_admin_user)`).
+   El token firmado solo lleva el email (`sub`); con él se carga el usuario de
+   la base de datos, y su empresa es la que cuenta. Un usuario nunca puede
+   pasar `company_id=5` en el body o la URL para acceder a otra empresa — el
+   valor se ignora si viene del cliente. Y como la empresa se lee en cada
+   petición, desactivar o mover a un usuario surte efecto de inmediato.
 2. **404, no 403, cuando el recurso es de otra empresa.** Si devolvieras 403
    ("prohibido"), un atacante confirma que el `user_id` *existe* en algún
    lado — solo que no puede verlo. Con 404 ("no encontrado"), la empresa A

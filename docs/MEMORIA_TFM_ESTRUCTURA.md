@@ -82,7 +82,7 @@ sin coste de reentrenamiento, y con trazabilidad de la fuente.
 ### 2.3 Marco legal y ético (2)
 Más fácil de lo que parece, porque ya está implementado:
 - **RGPD**: documentos corporativos que viajan a un tercero (OpenAI)
-- **Aislamiento**: `company_id` del JWT y namespaces de Pinecone
+- **Aislamiento**: `company_id` del usuario autenticado (el JWT solo lleva el email) y namespaces de Pinecone
 - **Alucinaciones** como riesgo ético, y el umbral de 0.30 como mitigación
 
 > ⚠️ La rúbrica penaliza *"la simple reproducción de texto generado por
