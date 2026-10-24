@@ -4,6 +4,7 @@ y `docs/PINECONE_VECTORES.md`."""
 from typing import Any, Dict, List, Optional
 
 from pinecone import Pinecone, ServerlessSpec
+from pinecone.exceptions import NotFoundException
 
 from app.core.config import settings
 from app.core.exceptions import VectorStoreError
@@ -104,7 +105,16 @@ class PineconeService:
     def eliminar_por_documento(self, document_id: int, namespace: Optional[str] = None) -> None:
         """
         Elimina todos los chunks de un documento usando filtro de metadata.
-        Se llama cuando el usuario borra un documento — limpia Pinecone también.
+        Se llama cuando el usuario borra un documento, y antes de cada
+        reindexado para que sea idempotente (ver el comentario en
+        `documents.py` junto a su llamada).
+
+        Si el namespace todavía no existe —el primer documento que se indexa
+        para un asistente nuevo, por ejemplo— Pinecone responde 404 en vez de
+        no borrar nada. No hay nada que borrar, así que se trata como éxito:
+        sin esto, subir el primer documento de cualquier asistente fallaba
+        siempre con "Namespace not found", sin que el documento tuviera
+        ningún problema real.
         """
         indice = self.pc.Index(self.nombre_indice)
         kwargs: Dict[str, Any] = {"filter": {"document_id": document_id}}
@@ -112,6 +122,8 @@ class PineconeService:
             kwargs["namespace"] = namespace
         try:
             indice.delete(**kwargs)
+        except NotFoundException:
+            pass
         except Exception as e:
             raise VectorStoreError(f"Error eliminando documento de Pinecone: {str(e)}") from e
 
