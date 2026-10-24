@@ -8,8 +8,9 @@ de recuperación.
 Metodología y formato en [`../api/experimentos/GUIA_DATASET.md`](../api/experimentos/GUIA_DATASET.md).
 Corpus en `Test-Documentos/corpus-indexado/` (8 documentos, 87 fragmentos).
 
-**Estado:** ✅ **completo** — 18 preguntas · 16 frases ancla verificadas · 12
-respuestas de referencia escritas. Listo para pasar a CSV.
+**Estado:** ✅ **27 preguntas** en `api/experimentos/dataset_evaluacion.csv`.
+Las 18 originales (1–18) más 9 de tipos nuevos añadidas el 2026-10-22 (19–27),
+escritas y validadas una a una: ver [Ampliación](#ampliación-2026-10-22-tres-tipos-nuevos).
 
 ---
 
@@ -343,7 +344,7 @@ arquitectura eficiente y contexto de hasta 10M tokens"*.
 - [x] **Frases ancla** de las 12 con respuesta — verificadas el 2026-10-11
 - [x] **Respuestas de referencia** — las 12, escritas el 2026-10-11
 - [x] Verificar la unicidad del ancla de la 5 — resuelta fijándola en el `doc38`
-- [ ] Pasar a CSV en `api/experimentos/` con el formato de la guía
+- [x] Pasar a CSV en `api/experimentos/` con el formato de la guía
 
 ### Reparto actual
 
@@ -351,8 +352,11 @@ arquitectura eficiente y contexto de hasta 10M tokens"*.
 literal         8    ✔ dentro del objetivo (~7)
 multi           4    ✔ casi (~5)
 sin_respuesta   6    ✔ en el objetivo (~6)
+parafrasis      3    añadidas el 2026-10-22
+premisa_falsa   3    añadidas el 2026-10-22
+parcial         3    añadidas el 2026-10-22
                 ──
-                18
+                27
 ```
 
 Siguen faltando una o dos `multi`, que son las que miden si el sistema sabe
@@ -365,3 +369,87 @@ documento **define en un sitio y aplica o critica en otro**. Las GAN, por
 ejemplo, se definen al principio de `doc39` y sus limitaciones aparecen mucho
 después — *"¿para qué sirven las GAN y en qué casos no conviene usarlas?"*
 obliga a recuperar ambas secciones.
+
+---
+
+## Ampliación 2026-10-22: tres tipos nuevos
+
+El dataset original medía encontrar un dato, juntar piezas y callarse cuando no
+hay nada. No medía tres comportamientos que también deciden si un RAG es fiable,
+así que se añadieron 9 preguntas, escritas a mano leyendo el corpus y validadas
+una a una. Criterios de cada tipo en `GUIA_DATASET.md` §2.
+
+| # | Tipo | Pregunta (resumida) | Documento | Qué se espera |
+|---|---|---|---|---|
+| 19 | `parafrasis` | Técnica de medición entre vectores inmune a la extensión de los documentos | `doc43` | Similitud coseno, sin que la pregunta la nombre |
+| 20 | `parafrasis` (inversa) | Sistema que entiende y escribe textos adivinando la palabra siguiente | `doc40` | Nombrar el LLM |
+| 21 | `parafrasis` (inversa) | Sistema de OpenAI que procesa voz, imagen y texto en tiempo real | `doc40` | GPT-4o, no los otros modelos de OpenAI de la misma tabla |
+| 22 | `premisa_falsa` | Por qué las GAN generan texto tan bien | `doc38` | Corregir: no son adecuadas para texto |
+| 23 | `premisa_falsa` | Por qué hay que reducir el learning rate al subir el batch size | `doc36` | Corregir: se aumenta, no se reduce |
+| 24 | `premisa_falsa` | Por qué GET es el estándar para enviar datos e inferir | `doc41` | Corregir: es POST |
+| 25 | `parcial` | Características de FastAPI y quién lo creó | `doc41` | Responder las características; el creador no está |
+| 26 | `parcial` | En qué se diferencia StyleGAN de otras GAN y qué empresa lo hizo | `doc39` | Responder la diferencia; la empresa no está |
+| 27 | `parcial` | Qué hito marcó *Attention Is All You Need* y quién lo publicó | `doc37`, `doc40` | Responder el hito; los autores no están |
+
+Las tres `parcial` piden un dato que el modelo conoce por su entrenamiento, y en
+la 26 y la 27 el nombre que lo delataría (NVIDIA, Google) aparece en el corpus en
+otro contexto: si lo menciona, usó conocimiento externo o mezcló fragmentos.
+
+### Primera medición (2026-10-23, configuración activa)
+
+`descomposicion_acotada`, temperatura 0. Resultados en
+`resultados/dataset_ejecutado_2026-10-23_descomposicion_acotada_temp0.0.json` y
+`resultados/ragas_2026-10-23_avanzado_descomposicion_acotada_temp0.0.json`.
+
+| # | Respuesta del sistema | Criterio |
+|---|---|---|
+| 19 | «Similitud del coseno» | ✅ |
+| 20 | «Un modelo generativo, como GPT»: no dice LLM y no recupera el fragmento esperado | ⚠️ |
+| 21 | **«GPT-5»**: la otra fila multimodal de OpenAI de la tabla | ❌ |
+| 22 | «No encontré información», con el fragmento recuperado en 3.ª posición | ❌ |
+| 23 | **Acepta la premisa**: «es necesario reducir el learning rate», con el fragmento correcto en 1.ª posición | ❌ |
+| 24 | «No encontré información» | ❌ |
+| 25 | Características correctas; «no encontré información sobre el creador» | ✅ |
+| 26 | «No encontré información», sin responder la parte que sí estaba | ❌ |
+| 27 | Hito correcto; «no encontré información sobre los autores» | ✅ |
+
+**Criterios sí/no** (juez gpt-4.1): `premisa_falsa` 0/3 · `parcial` 2/3.
+
+**RAGAS por tipo** (juez gpt-4o-mini; precisión de contexto, recall, fidelidad y
+relevancia):
+
+| Tipo | n | Precisión | Recall | Fidelidad | Relevancia |
+|---|---|---|---|---|---|
+| `literal` | 8 | 0,877 | 0,938 | 0,919 | 0,816 |
+| `multi` | 4 | 0,774 | 0,812 | 0,975 | 0,855 |
+| `parafrasis` | 3 | 0,962 | 1,000 | 0,694 | 0,803 |
+| `premisa_falsa` | 3 | 0,444 | 0,722 | 0,111 | 0,247 |
+| `parcial` | 3 | 0,889 | 0,889 | 0,869 | 0,518 |
+
+La media sobre las 21 preguntas (0,810 · 0,885 · 0,775 · 0,698) **no es
+comparable** con las líneas base de 12 preguntas: baja porque se añadieron tipos
+más difíciles, no porque el sistema empeorara.
+
+### Hallazgos
+
+1. **El sistema no sabe corregir una premisa falsa.** Falla en las tres, de dos
+   formas: se abstiene (22 y 24) o la acepta y la justifica (23). La 23 es el
+   caso más grave: con la respuesta correcta en el primer fragmento, construye
+   una explicación contraria al documento, arrastrado por la justificación que
+   trae la pregunta («para evitar inestabilidad»).
+2. **Abstención excesiva.** El 100 % de abstención correcta de las 6
+   `sin_respuesta` tiene un reverso que el dataset original no podía ver: el
+   sistema también se calla cuando sí tiene información (22, 24 y 26). El prompt
+   le pide abstenerse si el contexto no responde la pregunta, y ante una premisa
+   falsa o una pregunta compuesta interpreta que no la responde.
+3. **La abstención parcial sí funciona** cuando el sistema responde (25 y 27):
+   dice qué no sabe y no completa con conocimiento externo. No nombró ni al
+   creador de FastAPI ni a Google.
+4. **La fidelidad de RAGAS no detecta una entidad equivocada.** En la 21,
+   «GPT-5» está en el contexto recuperado, así que la respuesta es fiel al
+   contexto y aun así es incorrecta. Por eso las preguntas de entidad necesitan
+   un criterio propio o una revisión manual.
+5. **El juez también se equivoca.** Con gpt-4o-mini, el criterio `parcial`
+   rechazó las respuestas correctas de la 25 y la 27. Se cambió a gpt-4.1 para
+   los criterios, y los veredictos descartados quedan en `criterios_anteriores`
+   del JSON de RAGAS.

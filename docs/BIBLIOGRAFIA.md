@@ -87,7 +87,7 @@ llegar al mínimo de 15-25 referencias.
 |---|---|---|---|
 | ☑ | ⭐ | Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., & Chen, W. (2022). LoRA: Low-rank adaptation of large language models. *International Conference on Learning Representations (ICLR)*. | *Fine-tuning* eficiente. Es la alternativa frente a la que justificas haber elegido RAG. |
 | ☑ | ○ | Wei, J., et al. (2022). Chain-of-thought prompting elicits reasoning in large language models. *Advances in Neural Information Processing Systems*, 35. | Ingeniería de *prompt* como técnica de adaptación. |
-| ☑ | ○ | Ma, X., Gong, Y., He, P., Zhao, H., & Duan, N. (2023). Query rewriting in retrieval-augmented large language models. *Proceedings of EMNLP 2023 (Main)* (ACL Anthology 2023.emnlp-main.322). | Reescritura de consulta: el marco en el que encaja tu descomposición. |
+| ☑ | ○ | Ma, X., Gong, Y., He, P., Zhao, H., & Duan, N. (2023). Query rewriting in retrieval-augmented large language models. *Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP)*, 5303–5315. | Reescritura de consulta: el marco en el que encaja tu descomposición. |
 
 ## 5 — Evaluación y alucinaciones
 
@@ -113,12 +113,17 @@ llegar al mínimo de 15-25 referencias.
 ## Recuento
 
 ```
-esenciales  ⭐   11
-contexto    ○     9
-legales           2   (solo RGPD/UE)
+esenciales  ⭐   11   (incluye el RGPD)
+contexto    ○    10   (incluye el AI Act)
                  ───
-total            22     (requisito: 15-25)
+total            21     (requisito: 15-25)
 ```
+
+> Corregido el 22 de octubre: la versión anterior de esta tabla sumaba las
+> dos referencias legales una vez dentro de esenciales/contexto y otra vez
+> aparte, dando 22 en vez de 21. Verificado contando las filas reales de
+> este documento (21) contra las del capítulo 9 del `.docx` (21,
+> transcritas correctamente) — coinciden, no falta ninguna referencia.
 
 Llegas al mínimo sin rellenar. Si alguna no te convence al leerla, quítala:
 veinte referencias leídas valen más que veinticinco citadas de oídas.

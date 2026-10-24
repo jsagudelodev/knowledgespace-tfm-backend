@@ -1,8 +1,8 @@
 """Experimento 5b - evaluacion con RAGAS.
 
 Segunda mitad de la evaluacion. Lee el JSON que produce `ejecutar_dataset.py` y
-calcula las cuatro metricas de RAGAS sobre las 12 preguntas con respuesta en el
-corpus.
+calcula las cuatro metricas de RAGAS sobre las preguntas con respuesta en el
+corpus (12 en el dataset original de 18 preguntas; 21 desde que se amplio a 27).
 
 **Se ejecuta en `.venv-eval`, no en el entorno de la aplicacion.** RAGAS arrastra
 mas de sesenta dependencias —LangChain, LangGraph, pandas, numpy, scipy,
@@ -34,6 +34,20 @@ abstencion, y medir la fidelidad de "no encontre informacion" respecto de un
 contexto vacio no significa nada. Esas se evaluan con la tasa de abstencion
 correcta, que calcula `ejecutar_dataset.py` y que dio el 100 %.
 
+**Criterios si/no para `premisa_falsa` y `parcial`.** RAGAS no sabe si una
+respuesta corrige una premisa falsa ni si se abstiene en la parte de la pregunta
+que el corpus no cubre. Esos dos tipos se juzgan ademas con un criterio propio,
+definido en `criterios.py`, que un modelo juez responde con SI o NO.
+
+**El juez de los criterios no es el de RAGAS.** Con gpt-4o-mini, el criterio
+`parcial` rechazo respuestas correctas (P25 y P27, 2026-10-23): afirmo que una
+respuesta nombraba al creador de FastAPI cuando no lo hacia. Con gpt-4.1 los
+veredictos coinciden con la lectura manual de las seis respuestas. Los
+criterios se juzgan con `--modelo gpt-4.1 --solo-criterios <ragas.json>`;
+RAGAS sigue con gpt-4o-mini para que sus cifras sean comparables con las
+mediciones anteriores. Los veredictos descartados quedan en
+`criterios_anteriores` del propio JSON.
+
 **Limitacion que hay que declarar:** RAGAS emplea un LLM como juez, es decir, un
 modelo evaluando a otro modelo. Es la practica estandar del campo y es lo que
 se pidio, pero introduce su propio sesgo y figura como limitacion en el
@@ -54,6 +68,8 @@ import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List
+
+from criterios import aplica, construir_prompt, interpretar_veredicto, justificacion
 
 AQUI = Path(__file__).parent
 RESULTADOS = AQUI / "resultados"
@@ -100,10 +116,88 @@ def construir_muestras(datos: Dict[str, Any]) -> List[Any]:
     return muestras
 
 
+def evaluar_criterios(datos: Dict[str, Any], llm: Any) -> List[Dict[str, Any]]:
+    """Aplica el criterio si/no a cada pregunta cuyo tipo lo tiene.
+
+    `llm` es un ChatOpenAI a temperatura 0, el mismo modelo que juzga en RAGAS.
+    """
+    veredictos = []
+    for r in datos["resultados"]:
+        if not aplica(r["tipo"]):
+            continue
+        texto = llm.invoke(construir_prompt(
+            r["tipo"], r["pregunta"], r["referencia"], r["respuesta"])).content
+        veredictos.append({
+            "id": r["id"],
+            "tipo": r["tipo"],
+            "cumple": interpretar_veredicto(texto),
+            "justificacion": justificacion(texto),
+        })
+    return veredictos
+
+
+def resumir_criterios(veredictos: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Tasa de cumplimiento por tipo. Los veredictos ilegibles (None) se
+    cuentan aparte y no entran en la tasa."""
+    resumen = {}
+    for tipo in dict.fromkeys(v["tipo"] for v in veredictos):
+        grupo = [v for v in veredictos if v["tipo"] == tipo]
+        validos = [v for v in grupo if v["cumple"] is not None]
+        resumen[tipo] = {
+            "n": len(grupo),
+            "cumplen": sum(v["cumple"] for v in validos),
+            "ilegibles": len(grupo) - len(validos),
+            "tasa": sum(v["cumple"] for v in validos) / len(validos) if validos else None,
+        }
+    return resumen
+
+
+def recalcular_criterios(datos: Dict[str, Any], ragas_json: Path, modelo: str) -> int:
+    """Vuelve a aplicar los criterios sobre un resultado de RAGAS existente.
+
+    Sirve cuando se corrige un criterio: RAGAS es la parte cara y no cambia.
+    Los veredictos anteriores se conservan en `criterios_anteriores`, con su
+    fecha, para que la correccion quede a la vista y no se pierda la cifra
+    que se sustituye.
+    """
+    from langchain_openai import ChatOpenAI
+
+    if not ragas_json.is_absolute():
+        ragas_json = AQUI / ragas_json
+    previo = json.loads(ragas_json.read_text(encoding="utf-8"))
+    # Que sean las mismas preguntas es la comprobacion que importa: un JSON de
+    # RAGAS de otra ejecucion recibiria veredictos que no le corresponden.
+    ids_previos = {v["id"] for v in previo.get("criterios", {}).get("por_pregunta", [])}
+
+    veredictos = evaluar_criterios(datos, ChatOpenAI(model=modelo, temperature=0))
+    if ids_previos and ids_previos != {v["id"] for v in veredictos}:
+        raise SystemExit("Las preguntas no coinciden con las del JSON de RAGAS indicado.")
+
+    resumen = resumir_criterios(veredictos)
+    if "criterios" in previo:
+        previo.setdefault("criterios_anteriores", []).append(
+            {"sustituidos_el": date.today().isoformat(), **previo["criterios"]})
+    previo["criterios"] = {"modelo_juez": modelo, "resumen": resumen, "por_pregunta": veredictos}
+    ragas_json.write_text(json.dumps(previo, ensure_ascii=False, indent=2, default=str),
+                          encoding="utf-8")
+
+    for tipo, r in resumen.items():
+        tasa = f"{r['tasa']:.0%}" if r["tasa"] is not None else "—"
+        print(f"  {tipo:<14} cumplen {r['cumplen']}/{r['n'] - r['ilegibles']}  {tasa}")
+    for v in veredictos:
+        print(f"    P{v['id']} {'SI' if v['cumple'] else 'NO' if v['cumple'] is False else '??'}: "
+              f"{v['justificacion'][:90]}")
+    print(f"\nCriterios actualizados en {ragas_json.name}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--entrada", help="JSON de ejecutar_dataset.py (por defecto, el más reciente)")
     ap.add_argument("--modelo", default="gpt-4o-mini", help="modelo juez")
+    ap.add_argument("--solo-criterios", metavar="RAGAS_JSON",
+                    help="recalcula solo los criterios si/no y los escribe en ese "
+                         "JSON de RAGAS ya existente, sin repetir RAGAS")
     args = ap.parse_args()
 
     cargar_clave()
@@ -113,6 +207,9 @@ def main() -> int:
         entrada = AQUI / entrada
     datos = json.loads(entrada.read_text(encoding="utf-8"))
     print(f"Entrada: {entrada.name}  ({datos['fecha']})")
+
+    if args.solo_criterios:
+        return recalcular_criterios(datos, Path(args.solo_criterios), args.modelo)
 
     from langchain_openai import ChatOpenAI, OpenAIEmbeddings
     from ragas import EvaluationDataset, evaluate
@@ -125,7 +222,8 @@ def main() -> int:
         ResponseRelevancy,
     )
 
-    juez = LangchainLLMWrapper(ChatOpenAI(model=args.modelo, temperature=0))
+    chat_juez = ChatOpenAI(model=args.modelo, temperature=0)
+    juez = LangchainLLMWrapper(chat_juez)
     emb = LangchainEmbeddingsWrapper(OpenAIEmbeddings(model="text-embedding-3-small"))
 
     muestras = construir_muestras(datos)
@@ -151,9 +249,10 @@ def main() -> int:
     cols = [c for c in df.columns
             if c not in IGNORAR and df[c].dtype.kind in "fi"]
 
+    config = datos.get("configuracion", "desconocida")
     print()
     print("=" * 74)
-    print("LINEA BASE — Naive RAG con filtro por umbral")
+    print(f"RAGAS — {config}")
     print("=" * 74)
     for c in cols:
         serie = df[c].dropna()
@@ -164,7 +263,9 @@ def main() -> int:
     df = df.assign(tipo=tipos)
     print()
     print("  Por tipo de pregunta:")
-    for t in ("literal", "multi"):
+    # En el orden en que aparecen en el dataset, para que un tipo nuevo salga
+    # en el informe sin tener que añadirlo a mano a una lista.
+    for t in dict.fromkeys(tipos):
         sub = df[df["tipo"] == t]
         if sub.empty:
             continue
@@ -181,12 +282,28 @@ def main() -> int:
             print(f"    P{fila['id']}  faithfulness={fila['faithfulness']:.3f}  "
                   f"{str(fila['user_input'])[:46]}")
 
+    # ── Criterios si/no ─────────────────────────────────────────────────────
+    veredictos = evaluar_criterios(datos, chat_juez)
+    resumen_criterios = resumir_criterios(veredictos)
+    if veredictos:
+        print()
+        print("=" * 74)
+        print("CRITERIOS SI/NO (premisa_falsa, parcial)")
+        print("=" * 74)
+        for tipo, r in resumen_criterios.items():
+            tasa = f"{r['tasa']:.0%}" if r["tasa"] is not None else "—"
+            ilegibles = f"  ({r['ilegibles']} ilegibles)" if r["ilegibles"] else ""
+            print(f"  {tipo:<14} cumplen {r['cumplen']}/{r['n'] - r['ilegibles']}  {tasa}{ilegibles}")
+        for v in veredictos:
+            if v["cumple"] is not True:
+                estado = "NO cumple" if v["cumple"] is False else "ilegible"
+                print(f"    P{v['id']} {estado}: {v['justificacion'][:70]}")
+
     # El nombre arrastra la configuracion que se evaluo. Antes era solo la
     # fecha, y evaluar dos configuraciones el mismo dia sobrescribia la
     # primera: se perdio asi una linea base que hubo que recuperar de git.
     # La configuracion sale del propio JSON de entrada, no de aqui, para que
     # no puedan divergir.
-    config = datos.get("configuracion", "desconocida")
     salida = RESULTADOS / f"ragas_{date.today().isoformat()}_{config}.json"
     salida.write_text(json.dumps({
         "fecha": date.today().isoformat(),
@@ -196,6 +313,8 @@ def main() -> int:
         "n_preguntas": len(muestras),
         "promedios": {c: float(df[c].dropna().mean()) for c in cols},
         "por_pregunta": df.to_dict(orient="records"),
+        "criterios": {"modelo_juez": args.modelo, "resumen": resumen_criterios,
+                      "por_pregunta": veredictos},
     }, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"\nResultados en {salida.relative_to(AQUI.parent)}")
     return 0

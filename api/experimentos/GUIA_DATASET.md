@@ -49,15 +49,48 @@ el control de alucinaciones.
 
 ---
 
-## 2. Los tres tipos de pregunta
+## 2. Los tipos de pregunta
 
-No es burocracia: cada tipo mide algo distinto.
+No es burocracia: cada tipo mide algo distinto. Los tres primeros forman el
+dataset original (preguntas 1–18); los demás se añadieron a partir del
+2026-10-22 para cubrir comportamientos que esos tres no medían.
 
-| Tipo | Qué mide |
-|---|---|
-| `literal` | ¿Sabe encontrar un dato que está en un fragmento? |
-| `multi` | ¿Sabe juntar piezas separadas? ← **aquí se nota la fragmentación** |
-| `sin_respuesta` | ¿Sabe cuándo callarse? ← **aquí está la aportación del trabajo** |
+| Tipo | Qué mide | Cómo se evalúa |
+|---|---|---|
+| `literal` | ¿Sabe encontrar un dato que está en un fragmento? | RAGAS + anclas |
+| `multi` | ¿Sabe juntar piezas separadas? ← **aquí se nota la fragmentación** | RAGAS + anclas |
+| `sin_respuesta` | ¿Sabe cuándo callarse? ← **aquí está la aportación del trabajo** | Tasa de abstención |
+| `parafrasis` | ¿Recupera cuando la pregunta no usa las palabras del documento? | RAGAS + anclas |
+| `otro_idioma` | ¿Recupera si preguntan en inglés sobre documentos en español? | RAGAS + anclas |
+| `comparativa` | ¿Contrasta dos conceptos de partes distintas del corpus? | RAGAS + anclas en ambos lados |
+| `alcance_global` | ¿Qué hace ante una pregunta sobre todo el corpus? (defecto declarado en 5.4) | RAGAS |
+| `dato_exacto` | ¿Da cifras, fechas y nombres sin redondear ni inventar? | RAGAS + comparación con la referencia |
+| `premisa_falsa` | ¿Corrige la premisa en vez de seguirle la corriente? | Criterio sí/no con juez |
+| `parcial` | ¿Responde la parte que está y se abstiene en la que no? | Fidelidad + criterio sí/no |
+| `ambigua` | ¿Reconoce que la pregunta admite varias lecturas? | Criterio sí/no con juez |
+| `seguimiento` | ¿Usa el historial para entender la pregunta? (necesita columna de historial) | RAGAS con historial |
+| `inyeccion` | ¿Resiste instrucciones metidas en la pregunta? (sin guardrails: se espera que falle) | Criterio sí/no |
+
+**Estado (2026-10-22):** el dataset tiene 27 preguntas. Además de los tres
+tipos originales (1–18), se escribieron y validaron tres tipos nuevos:
+`parafrasis` (19–21), `premisa_falsa` (22–24) y `parcial` (25–27). Los demás
+tipos de la tabla quedan **propuestos, no incluidos**. Si se añaden, las
+comparativas no deben repetir las que ya existen como `multi` o `literal`
+(preguntas 5, 8 y 11), que conservan su tipo original porque ya están medidas
+con él.
+
+Reglas que salieron al validar las preguntas nuevas:
+
+- **Paráfrasis:** no nombrar el concepto ni copiar sus términos clave; una
+  paráfrasis inversa (describe y pide el nombre) necesita una referencia que
+  nombre el concepto.
+- **Premisa falsa:** presuponer lo falso («¿por qué…?»), no preguntarlo («¿es
+  cierto que…?»); lo falso contradice algo explícito del corpus.
+- **Parcial:** la parte ausente se verifica con búsquedas en todo el corpus;
+  mejor si es algo que el modelo sabe por su cuenta.
+- **Respuesta de referencia:** le habla al usuario (nada de «según el
+  documento»), no afirma más que el corpus («estrictamente», «exclusivamente») y,
+  si la pregunta compara, la referencia compara.
 
 El tercero es el menos habitual y el más importante. La mayoría de los datasets
 de evaluación solo contienen preguntas con respuesta, y por eso solo miden

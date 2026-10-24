@@ -125,13 +125,39 @@ corpus en lugar de con fragmentos recuperados.
 
 ### Preguntas abiertas para el tutor
 
-> ⚠️ **Al 12 de octubre el correo sigue sin enviarse.** Las preguntas 1 y 2
-> bloquean las dos únicas mejoras que quedan del plan —reranking y RAG
-> híbrido—, porque de su respuesta depende si hay que implementarlas o basta
-> con conocerlas y justificar su ausencia.
+> 🟡 **Aclarado el 22 de octubre — no es una autorización institucional
+> explícita, es una circunstancia.** El máster describe el TFM como "de
+> desarrollo grupal", pese a lo cual este se hace en solitario. Lo que
+> ocurrió: la asesora del máster indicó vincularse al grupo de WhatsApp
+> para formar equipo; nadie respondió ni apareció; ante eso, decidió
+> continuar solo. No hay una confirmación explícita y por escrito de que
+> EBIS acepte la entrega individual por esta razón — es una decisión propia
+> ante la falta de respuesta del canal oficial.
+>
+> **Recomendación: dejarlo documentado, no solo decidido.** Conviene (a)
+> mandar un correo breve a la asesora o al tutor dejando constancia de que
+> se intentó formar grupo por el canal indicado y nadie respondió, aunque
+> sea después de los hechos, para tener un rastro escrito; y (b) mencionarlo
+> en una línea de la introducción o los preliminares de la memoria, para que
+> el corrector no se pregunte por qué no hay reparto de responsabilidades
+> entre varios integrantes sin que nadie se lo haya explicado.
+>
+> ⚠️ **Al 12 de octubre el correo con las otras cinco preguntas seguía sin
+> enviarse.** Las preguntas 1 y 2 bloquean las dos únicas mejoras que quedan
+> del plan —reranking y RAG híbrido—, porque de su respuesta depende si hay
+> que implementarlas o basta con conocerlas y justificar su ausencia. Ambas
+> ya se implementaron y midieron de todos modos (ver §11 y §12 de
+> `NUCLEO_RAG.md`), así que esta pregunta concreta perdió urgencia; las
+> demás siguen abiertas.
 
 Enviar por correo mientras la reunión esté reciente:
 
+0. ~~El TFM es de desarrollo grupal y se está entregando en solitario por no
+   haber encontrado grupo. ¿Es aceptable así?~~ — **aclarado el 2026-10-22,
+   pero sin confirmación institucional por escrito.** Se intentó formar
+   grupo vía el canal que indicó la asesora (grupo de WhatsApp); nadie
+   respondió; se decidió continuar solo. Pendiente, si no se ha hecho ya:
+   un correo breve dejando constancia de esto por escrito.
 1. La lista de temas (Langfuse, RAGAS, reranking, híbrido), ¿es de
    implementación obligatoria o de conocimiento y mención en la memoria?
 2. ¿Hay alguno imprescindible frente a los demás?
@@ -257,16 +283,22 @@ reproducibles desde `api/experimentos/`:
 
 **Lo que falta, por orden de urgencia:**
 
+0. **Dejar constancia por escrito de por qué el TFM se entrega en
+   solitario.** Aclarado el 22 de octubre: se intentó formar grupo por el
+   canal que indicó la asesora (WhatsApp), nadie respondió, se decidió
+   continuar solo — pero eso no es lo mismo que una autorización
+   institucional explícita. Un correo breve dejando esto documentado, más
+   una línea en la introducción de la memoria, cierra el riesgo de que el
+   corrector se lo pregunte sin que quede una respuesta ya dada.
 1. ~~Verificar la bibliografía~~ — **resuelto el 20 de octubre.** 22
    referencias verificadas, formato y las dos citas con *venue* dudoso
    decididos. Ver `BIBLIOGRAFIA.md`. Queda pendiente solo el trabajo mecánico
    de transcribirla al capítulo 9 del `.docx`.
-2. **Confirmar el estado del correo al tutor.** Al 12 de octubre seguía sin
-   enviarse y bloqueaba la decisión sobre reranking e híbrido. Ambos se
-   implementaron y midieron igualmente desde entonces; falta registrar aquí si
-   el tutor llegó a responder y qué dijo. **Sigue siendo lo más urgente** — es
-   lo único de esta lista que no depende de ti, sino de una respuesta externa,
-   y cuanto más tarde en confirmarse más tarde se sabe si hay que ajustar algo.
+2. **Confirmar el estado del correo al tutor** (las preguntas 1-5 de la lista
+   de abajo). Al 12 de octubre seguía sin enviarse y bloqueaba la decisión
+   sobre reranking e híbrido. Ambos se implementaron y midieron igualmente
+   desde entonces; falta registrar aquí si el tutor llegó a responder y qué
+   dijo.
 3. **La memoria.** Faltan los capítulos 2, 8, 9 y 10, y las secciones 6.2 y
    7.2. El capítulo 2 se empezó el 20 de octubre con el método de
    pregunta-respuesta (no generado de una sola vez, por la advertencia de la

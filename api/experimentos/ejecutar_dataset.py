@@ -1,7 +1,8 @@
 """Experimento 5a - ejecuta el dataset de evaluacion contra el RAG.
 
-Primera mitad de la evaluacion. Lanza las 18 preguntas de
-`dataset_evaluacion.csv` contra el pipeline de produccion y guarda, por cada
+Primera mitad de la evaluacion. Lanza las preguntas de
+`dataset_evaluacion.csv` (18 en el dataset original, 27 desde que se amplio)
+contra el pipeline de produccion y guarda, por cada
 una, lo que el sistema respondio y que fragmentos recupero. El resultado
 alimenta tres cosas distintas:
 
@@ -21,8 +22,9 @@ colapsados y minusculas— porque la extraccion del PDF introduce saltos de
 linea dentro de las frases. No se quitan las tildes: el corpus escribe
 "Euclidia" y "Euclidea" en documentos distintos y son terminos diferentes.
 
-Coste: 18 consultas completas al RAG, unos 0,008 USD segun las mediciones de
-`cost_tracking`. Se registran ademas en esa tabla, como cualquier consulta.
+Coste: una consulta completa al RAG por pregunta. Las 18 originales costaron
+unos 0,008 USD segun las mediciones de `cost_tracking`. Se registran ademas en
+esa tabla, como cualquier consulta.
 
 Uso:
 
@@ -185,13 +187,17 @@ def resumir(datos: Dict[str, Any]) -> None:
     print("=" * 74)
     print("RECUPERACION (por frase ancla, determinista)")
     print("=" * 74)
-    for etiqueta, grupo in (("todas", con_ancla),
-                            ("literal", [r for r in con_ancla if r["tipo"] == "literal"]),
-                            ("multi", [r for r in con_ancla if r["tipo"] == "multi"])):
+    # Un grupo por tipo, en el orden del dataset: un tipo nuevo aparece en el
+    # informe sin tener que añadirlo a mano.
+    grupos = [("todas", con_ancla)] + [
+        (t, [r for r in con_ancla if r["tipo"] == t])
+        for t in dict.fromkeys(r["tipo"] for r in con_ancla)
+    ]
+    for etiqueta, grupo in grupos:
         if not grupo:
             continue
         n = len(grupo)
-        print(f"  {etiqueta:<9} n={n:<3} "
+        print(f"  {etiqueta:<14} n={n:<3} "
               f"hit@1={sum(r['anclas']['hit_1'] for r in grupo)/n:.2f}  "
               f"hit@3={sum(r['anclas']['hit_3'] for r in grupo)/n:.2f}  "
               f"hit@5={sum(r['anclas']['hit_5'] for r in grupo)/n:.2f}  "

@@ -1,0 +1,13 @@
+El Trabajo Final de Máster (TFM) constituye una parte esencial del proceso formativo en EBIS, donde se demuestra la capacidad de aplicar los conocimientos adquiridos de forma autónoma. Su propósito fundamental es validar las competencias técnicas mediante el diseño y construcción de un sistema funcional basado en código Python que implemente una solución de IA Generativa como eje central.
+
+El TFM en el Máster en Ingeniería y Desarrollo de Soluciones de IA Generativa (MID) se centra en la ingeniería aplicada y el desarrollo grupal de aplicaciones. El objetivo trasciende el análisis de datos para enfocarse en el desarrollo íntegro de la lógica de IA y el backend, asegurando la entrega de un MVP (Producto Mínimo Viable) funcional que aporte valor real, sea reproducible y demuestre eficiencia en el consumo de recursos y costes de inferencia.
+
+El proceso de desarrollo del TFM constará de tres puntos principales:
+
+Elaboración y entrega de la propuesta
+La entrega de la propuesta se realizará en el recurso "Entrega propuesta de TFM", el cual se situa entre el "Tema 6 - Embeddings, búsqueda semántica y recuperación de contexto" y "Tema 7  - Modelos Generativos de otros formatos". Para más información deberás consultar el bloque en cuestión.
+Entrega final del TFM
+La entrega final del TFM se realizará en el recurso "Entrega TFM", dentro del bloque "Trabajo Final de Máster (entrega)", el cual encontrarás al final, después de haber visualizado todos los temas y completado todos los entregables del máster.
+Defensa del TFM
+Una vez realizada la entrega final del TFM, se habilitará en el mismo bloque un nuevo recurso llamado "Reserva la fecha y hora de la presentación oral de tu TFM (OF)", en el cual podrás reservar una fecha y hora con el corrector para la defensa del TFM.
+Toda la información detallada sobre la estructura, fases y criterios de evaluación se encuentra disponible en el documento PDF adjunto en este apartado.
