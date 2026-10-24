@@ -187,6 +187,11 @@ def test_la_descomposicion_queda_registrada_como_coste():
     assert anotada["operacion"] == "descomposicion"
     assert anotada["tokens_entrada"] == 120
     assert anotada["tokens_salida"] == 18
+    # Se cronometra la llamada al proveedor, no si el modelo tarda 0ms de
+    # verdad -el doble responde al instante-, sino que el dato exista y sea
+    # un numero razonable, no None ni negativo.
+    assert isinstance(anotada["duracion_ms"], int)
+    assert anotada["duracion_ms"] >= 0
 
 
 def test_una_descomposicion_fallida_no_registra_coste():

@@ -1,9 +1,10 @@
 # Modelo de Datos - KnowSpace Backend
 
 ## Versión
-- **Fecha**: 21 de octubre de 2026
-- **Versión**: 12.5
+- **Fecha**: 24 de octubre de 2026
+- **Versión**: 12.6
 - **Estado**: Verificado contra el esquema real de Supabase (introspección directa vía `DATABASE_URL`), incluyendo `cost_tracking` (§2.15) confirmado en producción.
+- **Cambios v12.6**: `duration_ms` en `cost_tracking` ya no se limita a la operación `chat` — las llamadas auxiliares (`descomposicion`, `reordenado`) también cronometran su propia duración, alrededor de la llamada al proveedor en `rag_service_avanzado.py` y `reordenador.py`. Sin cambio de esquema, solo de qué filas rellenan la columna que ya existía desde v12.4.
 - **Cambios v12.5**: Adoptado Alembic para la gestión de esquema (ver §3.7). Se encontraron y documentaron 4 columnas huérfanas nuevas en `documents` (`source_url`, `fetched_at`, `source_type`, `source_domain`), no registradas antes de esta auditoría, y una lista de desviaciones reales entre los modelos y la base (`nullable`, tipos) pendientes de reconciliar una a una.
 - **Cambios v12.4**: `cost_tracking` ganó `duration_ms` (Integer, nullable) vía `ALTER TABLE ADD COLUMN IF NOT EXISTS` en `migrate_cost_tracking.sql`. Antes solo se medía latencia en los experimentos contra el dataset de referencia; ahora `chat.py` cronometra cada `generate_response` y lo registra junto al costo de la operación `chat` — ver sección 2.15.
 - **Cambios v12.3**: `cost_tracking` pasó de "tabla sin modelo ORM" a módulo completo — modelo, `CostTrackingService`, router (`GET /`, `/summary`, `/daily-trend`) e instrumentación real en `chat.py` y `documents.py`. Ganó la columna `operation` (`chat`/`embedding`) vía `ALTER TABLE`, aplicada y verificada contra la BD real — ver sección 2.15.
@@ -866,7 +867,7 @@ en `cost_tracking`.
 | `input_tokens` | Integer | Default 0 |
 | `output_tokens` | Integer | Default 0 — siempre 0 en `operation = embedding` |
 | `total_cost` | Numeric(12,6) | USD, calculado por `CostTrackingService` según tabla de precios por modelo |
-| `duration_ms` | Integer | Nullable, añadida el 2026-10-20. Solo se rellena en `operation = chat`: cuánto tardó `generate_response` de punta a punta. `NULL` en `embedding` y en las llamadas auxiliares, cuyo tiempo ya queda incluido en esa duración total. Antes de esto, la latencia solo se medía en los experimentos contra el dataset de referencia, nunca en consultas reales |
+| `duration_ms` | Integer | Nullable, añadida el 2026-10-20. En `operation = chat`: cuánto tardó `generate_response` de punta a punta. Desde el 2026-10-24, también en las llamadas auxiliares (`descomposicion`, `reordenado`): cuánto tardó esa llamada en particular, cronometrada en `rag_service_avanzado.py`/`reordenador.py` alrededor de la llamada al proveedor —no incluye el procesamiento de la respuesta, solo la red más la inferencia—. Sigue en `NULL` en `embedding`, que no se mide por separado. Antes del 20-10, la latencia solo se medía en los experimentos contra el dataset de referencia, nunca en consultas reales |
 | `metadata` | JSON | Nullable — columna heredada de una integración anterior (pre-KnowledgeSpace), **no mapeada** en el modelo actual; se conserva en la BD pero el código no la lee ni la escribe |
 | `created_at` | DateTime TZ | Auto, indexado |
 

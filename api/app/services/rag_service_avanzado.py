@@ -65,6 +65,7 @@ Si la descomposición falla por cualquier motivo, se recupera como el pipeline
 base: nunca debe impedir una respuesta.
 """
 import logging
+import time
 from typing import Any, List, Tuple
 
 from app.core.config import settings
@@ -106,6 +107,7 @@ class RAGServiceAvanzado(RAGService):
         descomposición es una mejora, nunca un punto de fallo.
         """
         try:
+            inicio = time.perf_counter()
             respuesta = self.client.chat.completions.create(
                 model=settings.OPENAI_CHAT_MODEL,
                 messages=[{
@@ -117,7 +119,8 @@ class RAGServiceAvanzado(RAGService):
                 temperature=0,
                 max_tokens=200,
             )
-            self._anotar_llamada("descomposicion", respuesta)
+            duracion_ms = round((time.perf_counter() - inicio) * 1000)
+            self._anotar_llamada("descomposicion", respuesta, duracion_ms=duracion_ms)
             texto = (respuesta.choices[0].message.content or "").strip()
         except Exception as e:  # noqa: BLE001
             logger.warning("[RAG+] Falló la descomposición, se usa la consulta original: %s", e)

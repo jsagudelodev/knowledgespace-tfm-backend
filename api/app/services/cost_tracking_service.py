@@ -65,10 +65,13 @@ class CostTrackingService:
         caller — p. ej. junto a la respuesta del chat — o None si falló el
         registro (el costo ya se incurrió en OpenAI de todos modos).
 
-        `duration_ms` es opcional a propósito: solo tiene sentido pasarlo en
-        la operación 'chat', la respuesta final al usuario — las llamadas de
-        'embedding' y las auxiliares (descomposición, reordenado) no se miden
-        por separado, su tiempo ya queda incluido en esa duración total."""
+        `duration_ms` es opcional porque no todas las llamadas se miden: la
+        operación 'chat' siempre la trae (el total de `generate_response`), y
+        desde el 2026-10-24 también las auxiliares (descomposición,
+        reordenado), cronometradas alrededor de su propia llamada al
+        proveedor. La de 'embedding' sigue sin medirse por separado —es una
+        llamada rápida y ya corre dentro del total de 'chat'—, así que ahí
+        queda en `None`."""
         try:
             cost = self.calculate_cost(model, input_tokens, output_tokens)
             self.db.add(CostTracking(

@@ -207,6 +207,8 @@ def test_el_reordenado_queda_registrado_como_coste():
     anotada = svc.llamadas_auxiliares[0]
     assert anotada["operacion"] == "reordenado"
     assert anotada["tokens_entrada"] == 4800
+    assert isinstance(anotada["duracion_ms"], int)
+    assert anotada["duracion_ms"] >= 0
 
 
 def test_sin_candidatos_no_hay_coste_que_registrar():

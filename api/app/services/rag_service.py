@@ -332,13 +332,24 @@ class RAGService:
             "llamadas_auxiliares": self.llamadas_auxiliares,
         }
 
-    def _anotar_llamada(self, operacion: str, respuesta: Any) -> None:
-        """Registra el consumo de una llamada auxiliar al modelo.
+    def _anotar_llamada(
+        self, operacion: str, respuesta: Any, duracion_ms: Optional[int] = None
+    ) -> None:
+        """Registra el consumo —y, si se mide, la duración— de una llamada
+        auxiliar al modelo.
 
         La usan las subclases tras descomponer o reordenar. Si el proveedor no
         devolviera el consumo —no debería, pero la respuesta es de un tercero—
         la llamada no se anota en lugar de anotarse con ceros: una fila de
         coste con cero tokens es peor que ninguna, porque parece una medición.
+
+        `duracion_ms` es opcional porque medirla es responsabilidad de quien
+        llama —cronometrar alrededor de `_anotar_llamada` mediría también el
+        procesamiento de la respuesta, no solo la llamada al proveedor—. Antes
+        de esto, el único dato de latencia por consulta era el total de
+        `generate_response`; esta columna permite además saber cuánto de ese
+        total se va en descomponer o reordenar, no solo en la generación
+        final.
         """
         uso = getattr(respuesta, "usage", None)
         if uso is None:
@@ -355,6 +366,7 @@ class RAGService:
             "modelo": settings.OPENAI_CHAT_MODEL,
             "tokens_entrada": uso.prompt_tokens,
             "tokens_salida": uso.completion_tokens,
+            "duracion_ms": duracion_ms,
         })
 
     @staticmethod

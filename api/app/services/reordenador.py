@@ -25,6 +25,7 @@ cualquiera de las dos configuraciones hay que decirlo.
 """
 import logging
 import re
+import time
 from typing import Any, List
 
 from app.core.config import settings
@@ -73,6 +74,7 @@ class MezclaReordenado:
         )
 
         try:
+            inicio = time.perf_counter()
             respuesta = self.client.chat.completions.create(
                 model=settings.OPENAI_CHAT_MODEL,
                 messages=[{
@@ -82,7 +84,8 @@ class MezclaReordenado:
                 temperature=0,
                 max_tokens=120,
             )
-            self._anotar_llamada("reordenado", respuesta)
+            duracion_ms = round((time.perf_counter() - inicio) * 1000)
+            self._anotar_llamada("reordenado", respuesta, duracion_ms=duracion_ms)
             texto = (respuesta.choices[0].message.content or "").strip()
         except Exception as e:  # noqa: BLE001
             logger.warning("[RAG=] Falló el reordenado, se conserva el orden original: %s", e)

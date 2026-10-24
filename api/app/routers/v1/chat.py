@@ -138,6 +138,10 @@ async def chat_message(
     # se facturan igual que las otras dos. Se registran con su propia
     # `operation` para que el desglose por tipo siga siendo legible y para
     # poder responder cuánto cuesta cada mejora, no solo si funciona.
+    # Desde el 2026-10-24 también llevan su propia `duration_ms` —medida
+    # alrededor de la llamada al proveedor en `rag_service_avanzado.py` y
+    # `reordenador.py`—, así que ya no hace falta inferir cuánto de la
+    # duración total de la fila `chat` se fue en descomponer o reordenar.
     # En la configuración básica la lista viene vacía y este bucle no se ejecuta.
     for llamada in result.get("llamadas_auxiliares", []):
         CostTrackingService(db).record(
@@ -149,6 +153,7 @@ async def chat_message(
             user_id=current_user.id,
             conversation_id=conversation.id,
             assistant_id=assistant.id if assistant else None,
+            duration_ms=llamada.get("duracion_ms"),
         )
 
     return ChatResponse(
