@@ -26,7 +26,7 @@ quedaron fuera de alcance, con el motivo.
 ### **F1: RAG Pipeline completo (5.0)**
 - **Descripción:** Implementación de punta a punta: documento → chunks → embeddings → búsqueda → filtro → prompt → LLM
 - **Componentes:**
-  - Extracción de documentos (PDF/DOCX/TXT)
+  - Extracción de documentos (PDF/DOCX/TXT/MD)
   - División en chunks
   - Generación de embeddings (OpenAI text-embedding-3-small)
   - Búsqueda en Pinecone

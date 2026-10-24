@@ -208,7 +208,8 @@ async def upload_document(
 
     if not DocumentService.validate_file_type(file_extension):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Tipo de archivo no soportado. Soportados: PDF, DOCX, TXT"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tipo de archivo no soportado. Soportados: PDF, DOCX, TXT, MD",
         )
 
     if not DocumentService.validate_file_size(file.size):

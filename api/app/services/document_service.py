@@ -1,7 +1,7 @@
 class DocumentService:
     """Validaciones estáticas para archivos subidos por el usuario."""
 
-    SUPPORTED_TYPES = {"pdf", "docx", "txt"}
+    SUPPORTED_TYPES = {"pdf", "docx", "txt", "md"}
     MAX_SIZE_MB = 10
 
     @staticmethod

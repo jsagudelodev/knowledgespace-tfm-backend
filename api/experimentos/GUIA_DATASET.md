@@ -51,7 +51,7 @@ el control de alucinaciones.
 
 ## 2. Los tipos de pregunta
 
-No es burocracia: cada tipo mide algo distinto. Los tres primeros forman el
+No es burocracia: cada tipo mide algo distinto. La explicación detallada de cada tipo y de cada métrica está en `docs/DATASET_PREGUNTAS.md`, sección «Tipos de pregunta y cómo se mide cada uno». Los tres primeros forman el
 dataset original (preguntas 1–18); los demás se añadieron a partir del
 2026-10-22 para cubrir comportamientos que esos tres no medían.
 
@@ -65,8 +65,8 @@ dataset original (preguntas 1–18); los demás se añadieron a partir del
 | `comparativa` | ¿Contrasta dos conceptos de partes distintas del corpus? | RAGAS + anclas en ambos lados |
 | `alcance_global` | ¿Qué hace ante una pregunta sobre todo el corpus? (defecto declarado en 5.4) | RAGAS |
 | `dato_exacto` | ¿Da cifras, fechas y nombres sin redondear ni inventar? | RAGAS + comparación con la referencia |
-| `premisa_falsa` | ¿Corrige la premisa en vez de seguirle la corriente? | Criterio sí/no con juez |
-| `parcial` | ¿Responde la parte que está y se abstiene en la que no? | Fidelidad + criterio sí/no |
+| `premisa_falsa` | ¿Corrige la premisa en vez de seguirle la corriente? | Criterio sí/no con juez (RAGAS se calcula, pero solo orientativo) |
+| `parcial` | ¿Responde la parte que está y se abstiene en la que no? | Criterio sí/no con juez (RAGAS se calcula, pero solo orientativo) |
 | `ambigua` | ¿Reconoce que la pregunta admite varias lecturas? | Criterio sí/no con juez |
 | `seguimiento` | ¿Usa el historial para entender la pregunta? (necesita columna de historial) | RAGAS con historial |
 | `inyeccion` | ¿Resiste instrucciones metidas en la pregunta? (sin guardrails: se espera que falle) | Criterio sí/no |

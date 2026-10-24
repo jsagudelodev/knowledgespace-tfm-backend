@@ -45,7 +45,7 @@ La **consulta** nunca toca los archivos originales — solo busca en Pinecone y 
 
 | Componente | Tecnología | Propósito |
 |---|---|---|
-| Almacenamiento de archivos | AWS S3 | Guardar PDFs, DOCX, TXT originales |
+| Almacenamiento de archivos | AWS S3 | Guardar PDFs, DOCX, TXT, MD originales |
 | Extracción de texto | PyPDF2, python-docx | Convertir archivos binarios a texto plano |
 | Embeddings | OpenAI `text-embedding-3-small` | Convertir texto en vectores numéricos (1536 dimensiones) |
 | Vector store | Pinecone (serverless) | Almacenar y buscar vectores por similitud semántica |
@@ -61,7 +61,7 @@ La **consulta** nunca toca los archivos originales — solo busca en Pinecone y 
 ```
 POST /api/v1/documents/upload
          │
-         ├─ 1. Validar tipo (pdf/docx/txt) y tamaño (≤ 10 MB)
+         ├─ 1. Validar tipo (pdf/docx/txt/md) y tamaño (≤ 10 MB)
          │
          ├─ 2. Subir archivo a S3
          │      key: company-{id}/{uuid}.{ext}
@@ -276,7 +276,7 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 | Modelo LLM (default) | `gpt-4o-mini` | `config.py → OPENAI_CHAT_MODEL` |
 | Temperatura LLM (default) | `0.0` | `rag_service.py → DEFAULT_TEMPERATURE` |
 | Tamaño máximo de archivo | `10 MB` | `document_service.py → MAX_SIZE_MB` |
-| Tipos de archivo soportados | `pdf, docx, txt` | `document_service.py → SUPPORTED_TYPES` |
+| Tipos de archivo soportados | `pdf, docx, txt, md` | `document_service.py → SUPPORTED_TYPES` |
 | Dimensiones del índice Pinecone | `1536` | `pinecone_service.py → DIMENSION` |
 
 **La temperatura era 0.7 y bajó a 0 el 14 de octubre, tras medirlo.** 0.7 es un

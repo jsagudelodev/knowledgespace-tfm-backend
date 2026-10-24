@@ -14,6 +14,42 @@ escritas y validadas una a una: ver [Ampliación](#ampliación-2026-10-22-tres-t
 
 ---
 
+## Tipos de pregunta y cómo se mide cada uno
+
+### Qué es cada tipo y para qué se usa
+
+Los tres primeros prueban la **búsqueda**: si el sistema encuentra la
+información. Los otros tres prueban el **control de alucinaciones**: si sabe qué
+hacer cuando no debe responder tal cual.
+
+| Tipo | Qué es | Comportamiento correcto | Para qué se usa | Preguntas |
+|---|---|---|---|---|
+| `literal` | La respuesta está en un solo fragmento y la pregunta usa sus palabras | Responder con ese fragmento | Comprobar que la búsqueda encuentra un dato en el caso más directo | 2–4, 6–10 |
+| `multi` | La respuesta está repartida en dos partes del corpus, a veces en dos documentos | Recuperar las dos partes y unirlas | Medir si la fragmentación deja la información demasiado repartida | 1, 5, 11, 12 |
+| `parafrasis` | La misma pregunta sin los términos del documento; la variante inversa describe el concepto y pide su nombre | Encontrar el mismo fragmento y responder igual | Medir si la búsqueda entiende el significado y no solo la coincidencia de palabras | 19–21 |
+| `sin_respuesta` | Lo preguntado no está en ningún documento (tangencial o claramente fuera) | Abstenerse: «No encontré información…» | Medir el control de alucinaciones en su caso básico | 13–18 |
+| `premisa_falsa` | La pregunta da por cierto algo que el corpus contradice | Corregir la premisa con lo que dice el documento | Medir si el sistema resiste a un usuario que lo empuja hacia un error teniendo el contexto que lo refuta | 22–24 |
+| `parcial` | Una parte de la pregunta está en el corpus y la otra no | Responder la parte que está y decir que la otra no aparece, sin aportarla | Medir si sabe abstenerse a medias sin completar con el conocimiento propio del modelo | 25–27 |
+
+### Qué mide cada métrica y a qué tipos se aplica
+
+| Métrica | Qué pregunta responde | Cómo se calcula | Se aplica a | Por qué |
+|---|---|---|---|---|
+| **hit@1, hit@3, hit@5 y MRR** (anclas) | ¿Se recuperó el fragmento correcto, y en qué posición? | Busca la frase ancla en los fragmentos recuperados; determinista, sin juez y sin costo | Todos los tipos con ancla | Es la medida directa de la búsqueda. En `multi` exige las dos anclas |
+| **Context precision** (RAGAS) | De lo que se recuperó, ¿cuánto servía? | Juez LLM, contra la respuesta de referencia | Todos menos `sin_respuesta` | Mide el ruido de la recuperación |
+| **Context recall** (RAGAS) | De lo que hacía falta, ¿cuánto se recuperó? | Juez LLM, contra la respuesta de referencia | Todos menos `sin_respuesta` | Mide si falta información en el contexto |
+| **Faithfulness** (RAGAS) | ¿Cada afirmación de la respuesta está respaldada por los fragmentos? | Juez LLM: descompone la respuesta en afirmaciones y verifica cada una | Todos menos `sin_respuesta` | Es el control mínimo de alucinaciones que pidió el tutor |
+| **Answer relevancy** (RAGAS) | ¿La respuesta trata de lo que se preguntó? | Juez LLM y embeddings | Todos menos `sin_respuesta` | Detecta respuestas que se van por las ramas |
+| **Tasa de abstención correcta** | ¿Dijo «No encontré información» cuando debía? | Busca la frase de abstención; determinista | `sin_respuesta` | RAGAS no sabe puntuar una abstención (ver Hallazgos, punto 4) |
+| **Criterio sí/no** (`experimentos/criterios.py`) | ¿Hizo lo que debía en este tipo de pregunta? | Juez LLM (gpt-4.1) con una pregunta concreta por tipo | `premisa_falsa`, `parcial` | RAGAS no comprueba si se corrigió la premisa ni si se inventó la parte ausente |
+
+En `premisa_falsa` y `parcial` las métricas de RAGAS se calculan, pero son
+**orientativas**: el veredicto lo da el criterio sí/no. Además, el script avisa
+cuando el sistema se abstiene del todo en una pregunta que sí tenía respuesta,
+que es el fallo de abstención excesiva.
+
+---
+
 ## Con respuesta en el corpus (12)
 
 | # | Pregunta | Tipo | Doc | Ancla | Resp. ref. |
@@ -445,10 +481,14 @@ más difíciles, no porque el sistema empeorara.
 3. **La abstención parcial sí funciona** cuando el sistema responde (25 y 27):
    dice qué no sabe y no completa con conocimiento externo. No nombró ni al
    creador de FastAPI ni a Google.
-4. **La fidelidad de RAGAS no detecta una entidad equivocada.** En la 21,
-   «GPT-5» está en el contexto recuperado, así que la respuesta es fiel al
-   contexto y aun así es incorrecta. Por eso las preguntas de entidad necesitan
-   un criterio propio o una revisión manual.
+4. **RAGAS no sabe juzgar estos dos tipos.** La misma respuesta —«No encontré
+   información sobre este tema en los documentos de la empresa»— recibió una
+   fidelidad de 0,00 en la 22 y la 24, y de 1,00 en la 26: ante una abstención,
+   la cifra no significa nada. Y aceptar la premisa falsa de la 23 obtuvo una
+   relevancia de 0,74, porque la respuesta sí trata de lo que se preguntó. La
+   fidelidad baja avisa de que algo va mal (0,33 en la 23, 0,25 en la 21, que
+   nombra un modelo equivocado), pero no dice qué. Por eso estos tipos se
+   juzgan además con el criterio sí/no.
 5. **El juez también se equivoca.** Con gpt-4o-mini, el criterio `parcial`
    rechazó las respuestas correctas de la 25 y la 27. Se cambió a gpt-4.1 para
    los criterios, y los veredictos descartados quedan en `criterios_anteriores`

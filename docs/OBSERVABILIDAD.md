@@ -305,10 +305,16 @@ existe.
 **Funcionando:** instrumentación completa, credenciales válidas, trazas llegando
 con sus cinco observaciones, sesión y latencia registradas.
 
+**Dataset ejecutado desde Langfuse** (la segunda mitad de lo que pidió el tutor):
+hecho con `experimentos/langfuse_dataset.py`. Las 18 preguntas originales se
+subieron y ejecutaron el 2026-10-18; las 9 de la ampliación (paráfrasis,
+premisa falsa y parcial) se añadieron el 2026-10-24, y el conjunto de 27 se
+ejecutó contra la configuración activa, `descomposicion_acotada`. La
+descripción del dataset en la interfaz de Langfuse se fija al crearlo, así que
+sigue mencionando las 18 originales salvo que se edite a mano.
+
 **Lo que falta:**
 
-- **Ejecutar un dataset contra el RAG desde Langfuse**, que es la segunda mitad
-  de lo que pidió el tutor. Requiere el conjunto de evaluación.
 - **Instrumentar la ingesta por completo.** El *embedding* de los fragmentos al
   subir un documento ya queda trazado —`EmbeddingService` pide el cliente a
   `observabilidad.cliente_openai()` desde el 2026-10-17, por el mismo motivo que

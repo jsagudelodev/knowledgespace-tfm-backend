@@ -12,9 +12,10 @@ ejecuciones completas del conjunto de referencia desde la propia interfaz.
 **Qué hace este script.**
 
 1. Crea el dataset en Langfuse si no existe —se identifica por nombre, así que
-   ejecutar el script dos veces no lo duplica— y sube como fila cada una de las
-   dieciocho preguntas de `dataset_evaluacion.csv`, con su tipo y sus anclas
-   como metadatos.
+   ejecutar el script dos veces no lo duplica— y sube como fila cada pregunta
+   de `dataset_evaluacion.csv` que aún no esté, con su tipo y sus anclas como
+   metadatos. Se subieron 18 el 2026-10-19 y las 9 de la ampliación, el
+   2026-10-24.
 2. Ejecuta el dataset contra la configuración indicada usando
    `dataset.run_experiment`, que es la API de alto nivel del SDK 4: por cada
    fila llama a la función de tarea, crea la traza, la vincula al dataset y
@@ -88,10 +89,11 @@ def asegurar_dataset(cliente) -> None:
         cliente.create_dataset(
             name=NOMBRE_DATASET,
             description=(
-                "Las 18 preguntas de experimentos/dataset_evaluacion.csv: 8 de "
-                "respuesta literal, 4 de respuesta distribuida y 6 sin respuesta "
-                "en el corpus. Construido a mano, con frases ancla verificadas "
-                "como únicas en el corpus — ver GUIA_DATASET.md."
+                "Las preguntas de experimentos/dataset_evaluacion.csv: 8 "
+                "literales, 4 de respuesta distribuida, 6 sin respuesta en el "
+                "corpus y, desde el 2026-10-24, 3 paráfrasis, 3 con premisa "
+                "falsa y 3 parciales. Construido a mano, con frases ancla "
+                "verificadas en el corpus — ver GUIA_DATASET.md."
             ),
         )
         print(f"Dataset '{NOMBRE_DATASET}' creado.")

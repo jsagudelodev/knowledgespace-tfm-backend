@@ -1,4 +1,4 @@
-"""Etapa de ingesta del pipeline RAG: extracción de texto (PDF/DOCX/TXT) y
+"""Etapa de ingesta del pipeline RAG: extracción de texto (PDF/DOCX/TXT/MD) y
 división en chunks. Los PDFs pasan por tres parsers en cascada porque ninguno
 solo cubre todos los casos — ver `_extraer_pdf` y `docs/RAG_PIPELINE.md` §3."""
 import io
@@ -18,6 +18,8 @@ class PDFService:
             PyPDF2 como último recurso.
     - DOCX: python-docx (párrafos + tablas).
     - TXT:  lectura directa UTF-8.
+    - MD:   lectura directa UTF-8, igual que TXT — se indexa con la sintaxis
+            de marcado incluida, sin parsear Markdown.
 
     Nunca escribe en disco — todo en memoria (io.BytesIO).
     """
@@ -213,7 +215,7 @@ class PDFService:
     ) -> Tuple[List[str], int]:
         """
         Descarga el archivo desde S3, extrae texto y devuelve (chunks, páginas).
-        Soporta: pdf, docx, txt.
+        Soporta: pdf, docx, txt, md.
 
         Parámetros:
             s3_key: ruta del archivo en S3
@@ -229,6 +231,11 @@ class PDFService:
             "pdf":  PDFService._extraer_pdf,
             "docx": PDFService._extraer_docx,
             "txt":  PDFService._extraer_txt,
+            # Markdown es texto plano con sintaxis de marcado: se indexa tal
+            # cual, con los `#`/`*`/etc. incluidos. No se le quita el formato
+            # porque siguen siendo palabras buscables, y quitarlo exigiría un
+            # parser de Markdown que esta extracción no necesita para nada más.
+            "md":   PDFService._extraer_txt,
         }
 
         extractor = extractores.get(file_type)
