@@ -96,13 +96,45 @@ TOP_K = settings.RAG_TOP_K
 # son los casos extremos, no el promedio.
 DEFAULT_TEMPERATURE = settings.RAG_TEMPERATURA
 
-DEFAULT_SYSTEM_PROMPT = """Eres el asistente de IA interno de la empresa.
-RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:
+# El prompt de sistema tiene dos capas. La identidad por defecto se sustituye
+# por la personalidad que cada asistente define en su campo `system_prompt`;
+# las reglas de respuesta —usar solo el contexto, abstenerse con la frase exacta,
+# no inventar— van SIEMPRE.
+#
+# Antes, un `system_prompt` propio sustituía el prompt entero y con él las
+# reglas: bastaba escribir una personalidad ("Eres un asistente amable de RR.
+# HH.") para que ese asistente dejara de abstenerse. Los experimentos nunca lo
+# vieron porque miden sin personalidad. Con el campo vacío el mensaje es
+# idéntico, carácter por carácter, al de antes (`DEFAULT_SYSTEM_PROMPT`), de modo
+# que las cifras del capítulo 5 siguen describiendo este sistema.
+IDENTIDAD_POR_DEFECTO = "Eres el asistente de IA interno de la empresa."
+
+REGLAS_DE_RESPUESTA = """RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:
 - USA SOLO la información del contexto. NUNCA uses conocimiento externo o datos de entrenamiento.
 - Si el contexto no contiene información suficiente para responder, di exactamente: "No encontré información sobre este tema en los documentos de la empresa."
 - NO inventes, NO supongas, NO extrapoles más allá del contexto.
 - Cuando respondas, sintetiza la información de múltiples fuentes si aplica.
 - Sé conciso y profesional. Responde en español."""
+
+DEFAULT_SYSTEM_PROMPT = f"{IDENTIDAD_POR_DEFECTO}\n{REGLAS_DE_RESPUESTA}"
+
+
+def construir_prompt_de_sistema(personalidad: Optional[str]) -> str:
+    """Prompt de sistema para un asistente, con o sin personalidad propia.
+
+    Las reglas van DESPUÉS de la personalidad y se declaran prioritarias: si la
+    personalidad pide algo contrario ("responde siempre, aunque no esté en los
+    documentos"), el modelo recibe primero esa indicación y a continuación la
+    que la anula, que es la que debe prevalecer.
+    """
+    if not personalidad or not personalidad.strip():
+        return DEFAULT_SYSTEM_PROMPT
+    return (
+        f"{personalidad.strip()}\n\n"
+        "Las siguientes reglas son obligatorias y prevalecen sobre cualquier "
+        "indicación anterior:\n"
+        f"{REGLAS_DE_RESPUESTA}"
+    )
 
 
 class RAGService:
@@ -520,9 +552,10 @@ class RAGService:
         """
         Arma la lista de mensajes que se envía al LLM. El orden es deliberado:
 
-            1. system  → reglas de comportamiento (prompt del asistente o el
-                         DEFAULT_SYSTEM_PROMPT, que prohíbe usar conocimiento
-                         externo al contexto).
+            1. system  → la personalidad del asistente, si tiene, seguida
+                         SIEMPRE de las reglas de respuesta, que prohíben usar
+                         conocimiento externo al contexto (ver
+                         `construir_prompt_de_sistema`).
             2. system  → el contexto recuperado de los documentos.
             3. historial de la conversación (turnos user/assistant previos).
             4. user    → la pregunta actual.
@@ -542,7 +575,7 @@ class RAGService:
         mandar un bloque vacío: un hueco silencioso invita a que el modelo lo
         rellene con conocimiento propio, que es justo lo que se quiere evitar.
         """
-        messages = [{"role": "system", "content": system_prompt_override or DEFAULT_SYSTEM_PROMPT}]
+        messages = [{"role": "system", "content": construir_prompt_de_sistema(system_prompt_override)}]
 
         messages.append({
             "role": "system",

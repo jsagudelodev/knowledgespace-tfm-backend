@@ -100,13 +100,34 @@ def test_el_prompt_prohibe_el_conocimiento_externo():
     assert "NUNCA uses conocimiento externo" in DEFAULT_SYSTEM_PROMPT
 
 
-def test_el_prompt_del_asistente_sustituye_al_por_defecto():
-    """Un asistente puede traer su propio prompt. Conviene saber que al hacerlo
-    se pierde la instrucción de abstención del prompt por defecto: es una
-    limitación conocida, no un descuido."""
+def test_sin_personalidad_el_prompt_es_identico_al_medido():
+    """Con el campo vacío el mensaje no cambia ni un carácter: es el que midieron
+    los experimentos del capítulo 5, y sus cifras siguen siendo válidas."""
+    for vacio in (None, "", "   "):
+        mensajes = RAGService._build_messages("pregunta", "ctx", None, vacio)
+        assert mensajes[0]["content"] == DEFAULT_SYSTEM_PROMPT
+
+
+def test_la_personalidad_del_asistente_no_elimina_las_reglas():
+    """Regresión: un `system_prompt` propio sustituía el prompt entero, y el
+    asistente dejaba de abstenerse. Ahora la personalidad se suma y las reglas
+    se mantienen."""
     mensajes = RAGService._build_messages("pregunta", "ctx", None, "Eres un asistente legal.")
-    assert mensajes[0]["content"] == "Eres un asistente legal."
-    assert FRASE_DE_ABSTENCION not in mensajes[0]["content"]
+    prompt = mensajes[0]["content"]
+    assert prompt.startswith("Eres un asistente legal.")
+    assert FRASE_DE_ABSTENCION in prompt
+    assert "NUNCA uses conocimiento externo" in prompt
+    # La identidad por defecto no se mezcla con la del asistente.
+    assert "Eres el asistente de IA interno de la empresa." not in prompt
+
+
+def test_las_reglas_van_despues_de_la_personalidad_y_prevalecen():
+    """Si la personalidad pide lo contrario, la última indicación que recibe el
+    modelo es la que la anula, y se declara prioritaria."""
+    personalidad = "Responde siempre, aunque no esté en los documentos."
+    prompt = RAGService._build_messages("pregunta", "ctx", None, personalidad)[0]["content"]
+    assert prompt.index(personalidad) < prompt.index(FRASE_DE_ABSTENCION)
+    assert "prevalecen sobre cualquier indicación anterior" in prompt
 
 
 # ── Orden de los mensajes ───────────────────────────────────────────────────
