@@ -147,6 +147,16 @@ POST /api/v1/documents/{id}/retry
 POST /api/v1/chat/message
   { "message": "¿Cuál es la política de vacaciones?", "assistant_id": 3 }
          │
+         ├─ 0. ¿Pregunta de ALCANCE GLOBAL? ("¿qué documentos tienes?")
+         │      Si sí → responde con los metadatos reales de `documents`
+         │      (nombres de archivo), sin tocar Pinecone ni el LLM, y
+         │      termina aquí. La recuperación semántica nunca es exhaustiva
+         │      por diseño —devuelve los top-k MÁS PARECIDOS, no "todo"—,
+         │      así que para estas preguntas alucinaba la composición del
+         │      corpus (ver `app/services/alcance_global.py`, 2026-10-25).
+         │      Filtro conservador por patrones de texto, sin llamada al
+         │      modelo: si no hay señal clara, sigue el flujo normal.
+         │
          ├─ 1. Resolver asistente
          │      Si se pasa assistant_id → verificar que existe y está activo
          │      Si no → usar el primero activo de la empresa
@@ -201,8 +211,9 @@ POST /api/v1/chat/message
 
 | Archivo | Responsabilidad |
 |---|---|
-| `routers/v1/chat.py` | Endpoint `/message`, resolver asistente y conversación |
-| `services/rag_service.py` | `generate_response()` — embedding + búsqueda + LLM |
+| `routers/v1/chat.py` | Endpoint `/message` (y `/message/stream`), resolver asistente y conversación |
+| `services/alcance_global.py` | Detecta preguntas de alcance global y responde desde metadatos, sin RAG |
+| `services/rag_service.py` | `generate_response()` / `generate_response_stream()` — embedding + búsqueda + LLM |
 | `services/embedding_service.py` | `generar_embedding()` — embed de la query |
 | `services/pinecone_service.py` | `buscar_vectores()` — búsqueda semántica |
 | `repositories/conversation_repository.py` | Crear/obtener conversación |
@@ -457,7 +468,7 @@ Ver `BACKLOG_BACKEND.md` → Módulo 7B para el detalle de endpoints.
 |---|---|---|
 | Registro automático de `KnowledgeGap` al responder el chat | Cuando ningún chunk supera el umbral, guardar la pregunta en `knowledge_gaps` en el momento — hoy solo existe la conversión manual desde Feedback (`POST /api/v1/feedback/{id}/convert-gap`), ver Módulo 7B en `BACKLOG_BACKEND.md` | P1 |
 | Auditar vectores huérfanos de antes del 2026-09-08 | Ya no es posible generar nuevos huérfanos (el borrado de un asistente con documentos/widgets vinculados está bloqueado), pero asistentes borrados *antes* de ese fix pueden tener vectores viejos sin dueño en Pinecone — revisar y limpiar manualmente si aplica | P3 |
-| Streaming SSE | `StreamingResponse` con `text/event-stream` para que la respuesta aparezca token a token | P1 |
+| ~~Streaming SSE~~ — **resuelto el 2026-10-25** | `POST /v1/chat/message/stream`, `StreamingResponse` con `text/event-stream`, `RAGService.generate_response_stream()`. Convive con `/message` sin sustituirla | — |
 | Reranking | Tras recuperar top_k=10, usar un modelo de reranking (ej. Cohere) para seleccionar los 5 más relevantes antes de construir el contexto | P2 |
 | Chunks por párrafo | En vez de chunks por caracteres, dividir respetando párrafos naturales del documento | P2 |
 | Soporte de tablas en DOCX | `python-docx` extrae párrafos pero no celdas de tabla | P2 |

@@ -205,3 +205,33 @@ def test_un_fallo_inmediato_tambien_produce_un_evento_error_sin_romper(monkeypat
     eventos = _parsear_eventos(lineas)
 
     assert eventos == [{"type": "error", "etapa": "búsqueda vectorial"}]
+
+
+# ── Preguntas de alcance global: ni tocan el RAG ni cuestan nada ───────────
+
+class _RAGQueNuncaDeberiaLlamarse:
+    def generate_response_stream(self, **kwargs):
+        raise AssertionError("una pregunta de alcance global no debe llegar al RAG")
+
+
+def test_una_pregunta_de_alcance_global_no_llega_al_rag_y_no_cuesta_nada(monkeypatch):
+    monkeypatch.setattr(
+        chat_module, "es_pregunta_de_alcance_global", lambda msg: True,
+    )
+    monkeypatch.setattr(
+        chat_module, "responder_alcance_global",
+        lambda db, company_id, assistant_id: "Tienes acceso a 2 documentos:\n- a.pdf\n- b.pdf",
+    )
+    msg_repo = _MsgRepoFalso()
+    db = _DBFalsa()
+    lineas, _, _ = _generar(_RAGQueNuncaDeberiaLlamarse(), monkeypatch, msg_repo=msg_repo, db=db)
+    eventos = _parsear_eventos(lineas)
+
+    assert eventos[0] == {"type": "delta", "content": "Tienes acceso a 2 documentos:\n- a.pdf\n- b.pdf"}
+    final = eventos[-1]
+    assert final["type"] == "done"
+    assert final["cost_usd"] == 0.0
+    assert msg_repo.creados[0].content == "Tienes acceso a 2 documentos:\n- a.pdf\n- b.pdf"
+    # Ninguna fila de coste: no hubo llamada a OpenAI ni a Pinecone que facturar.
+    assert db.agregados == []
+    assert db.cerrada is True

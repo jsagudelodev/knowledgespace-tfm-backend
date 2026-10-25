@@ -24,6 +24,7 @@ from app.repositories.conversation_repository import ConversationRepository
 from app.repositories.message_repository import MessageRepository
 from app.routers.v1.security import get_current_user
 from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.alcance_global import es_pregunta_de_alcance_global, responder_alcance_global
 from app.services.cost_tracking_service import CostTrackingService
 from app.services.rag_factory import crear_rag_service
 from app.services.rag_service import RAGUnavailableError
@@ -150,6 +151,26 @@ async def chat_message(
     assistant, conversation, conversation_history = _preparar_conversacion(db, current_user, payload)
     msg_repo = MessageRepository(db)
 
+    # Preguntas de alcance global ("¿qué documentos tienes?") no pasan por el
+    # RAG: la recuperación por similitud nunca puede responderlas bien, por
+    # diseño. Ver `app/services/alcance_global.py` para el porqué completo.
+    # Sin llamada a OpenAI ni a Pinecone, así que no hay coste que registrar.
+    if es_pregunta_de_alcance_global(payload.message):
+        contenido = responder_alcance_global(db, current_user.company_id, assistant.id if assistant else None)
+        assistant_message = msg_repo.create_message(
+            conversation_id=conversation.id, role="assistant", content=contenido, sources=[], token_count=0,
+        )
+        return ChatResponse(
+            message_id=assistant_message.id,
+            conversation_id=conversation.id,
+            role="assistant",
+            content=assistant_message.content,
+            sources=[],
+            created_at=assistant_message.created_at,
+            assistant_id=assistant.id if assistant else None,
+            cost_usd=0.0,
+        )
+
     # El pipeline depende de dos servicios externos —OpenAI y Pinecone— que
     # pueden fallar por cuota, tiempo de espera o caída. Sin esta traducción, el
     # cliente recibía un 500 con la traza en lugar de un mensaje accionable.
@@ -251,6 +272,28 @@ def _generar_eventos_sse(
     db = SessionLocal()
     try:
         msg_repo = MessageRepository(db)
+
+        # Preguntas de alcance global ("¿qué documentos tienes?") no pasan
+        # por el RAG, en streaming tampoco — ver `app/services/alcance_global.py`.
+        # Se entrega como un único `delta` (no hay nada que trocear: no vino
+        # de un modelo generándola palabra a palabra) y el `done` sin coste.
+        if es_pregunta_de_alcance_global(message):
+            contenido = responder_alcance_global(db, company_id, assistant_id)
+            yield f"data: {json.dumps({'type': 'delta', 'content': contenido})}\n\n"
+            assistant_message = msg_repo.create_message(
+                conversation_id=conversation_id, role="assistant", content=contenido, sources=[], token_count=0,
+            )
+            payload_done = {
+                "type": "done",
+                "message_id": assistant_message.id,
+                "conversation_id": conversation_id,
+                "sources": [],
+                "assistant_id": assistant_id,
+                "cost_usd": 0.0,
+            }
+            yield f"data: {json.dumps(payload_done)}\n\n"
+            return
+
         inicio = time.perf_counter()
         try:
             for evento in rag.generate_response_stream(

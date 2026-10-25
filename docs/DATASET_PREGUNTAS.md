@@ -493,3 +493,36 @@ más difíciles, no porque el sistema empeorara.
    rechazó las respuestas correctas de la 25 y la 27. Se cambió a gpt-4.1 para
    los criterios, y los veredictos descartados quedan en `criterios_anteriores`
    del JSON de RAGAS.
+
+### Experimento: corregir la premisa desde el prompt (2026-10-25, descartado)
+
+Hipótesis: los fallos de `premisa_falsa` y la abstención excesiva se deben a que
+el prompt de sistema no dice qué hacer cuando el contexto **contradice** la
+pregunta. Se añadieron dos reglas al `DEFAULT_SYSTEM_PROMPT`: corregir la
+suposición en vez de aceptarla o abstenerse, y responder la parte disponible de
+una pregunta parcial indicando qué falta. Se midió con las 27 preguntas
+(`dataset_ejecutado_2026-10-25_…_prompt_v2.json`,
+`ragas_2026-10-25_…_prompt_v2.json`).
+
+| | Prompt original (23 oct) | Prompt con las dos reglas (25 oct) |
+|---|---|---|
+| `premisa_falsa` (criterio, juez gpt-4.1) | 0/3 | 1/3 |
+| `parcial` (criterio, juez gpt-4.1) | 2/3 | 2/3 |
+| Abstención correcta en `sin_respuesta` | 6/6 | 6/6 |
+| Relevancia media (RAGAS) | 0,698 | 0,583 |
+
+- La única mejora es la 22, y a medias: empieza con «No encontré información…»
+  y a continuación corrige la premisa, de modo que la respuesta se contradice.
+- La 23 sigue aceptando la premisa. Ahora cita primero el dato correcto (el
+  learning rate aumenta) y después concluye lo contrario.
+- La 24 y la 26 siguen abstenciéndose.
+- **Efecto secundario:** la regla de las parciales hizo que el modelo añadiera
+  «No encontré información sobre otros…» a respuestas que estaban completas
+  (preguntas 1, 5 y 8). En la 8, RAGAS bajó la relevancia de 0,94 a 0,00 al
+  leer la respuesta como evasiva.
+
+**Decisión:** se revirtió el prompt a su versión original. Ajustar el prompt no
+basta para este fallo: arregla poco y degrada respuestas que estaban bien. Las
+vías que quedan como trabajo futuro son un paso explícito de detección de
+contradicciones entre pregunta y contexto antes de generar, o una verificación
+posterior de la respuesta (LLM-as-judge), medidas con este mismo conjunto.

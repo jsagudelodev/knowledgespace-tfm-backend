@@ -123,7 +123,7 @@ def evaluar_anclas(fila: Dict[str, str], contextos: List[str]) -> Dict[str, Any]
 
 
 def ejecutar(empresa: int, asistente: int, configuracion: str = "base",
-             temperatura: float = None) -> Dict[str, Any]:
+             temperatura: float = None, etiqueta: str = None) -> Dict[str, Any]:
     with io.open(DATASET, encoding="utf-8", newline="") as f:
         filas = list(csv.DictReader(f))
 
@@ -133,6 +133,11 @@ def ejecutar(empresa: int, asistente: int, configuracion: str = "base",
     # significa lo mismo a 0 que a 0,7. Si no se indica, se usa la del servicio.
     if temperatura is not None:
         config += f"_temp{temperatura}"
+    # Distingue variantes que no son una configuración del pipeline, como una
+    # versión nueva del prompt de sistema. Viaja en `configuracion` al JSON y
+    # de ahí al nombre del fichero de RAGAS, igual que la temperatura.
+    if etiqueta:
+        config += f"_{etiqueta}"
     resultados = []
 
     print(f"Ejecutando {len(filas)} preguntas contra el RAG [{config}]...\n")
@@ -238,17 +243,22 @@ def main() -> int:
     ap.add_argument("--asistente", type=int, default=None)
     ap.add_argument("--configuracion", choices=sorted(CONFIGURACIONES), default="base",
                     help="qué clase de recuperación se mide")
+    ap.add_argument("--etiqueta", default=None,
+                    help="sufijo para distinguir una variante, p. ej. prompt_v2")
     ap.add_argument("--temperatura", type=float, default=None,
                     help="fuerza la temperatura del modelo generativo "
                          "(por defecto, la del servicio)")
     args = ap.parse_args()
 
-    datos = ejecutar(args.empresa, args.asistente, args.configuracion, args.temperatura)
+    datos = ejecutar(args.empresa, args.asistente, args.configuracion, args.temperatura,
+                     args.etiqueta)
     resumir(datos)
 
     sufijo = "" if args.configuracion == "base" else f"_{args.configuracion}"
     if args.temperatura is not None:
         sufijo += f"_temp{args.temperatura}"
+    if args.etiqueta:
+        sufijo += f"_{args.etiqueta}"
     salida = AQUI / "resultados" / f"dataset_ejecutado_{date.today().isoformat()}{sufijo}.json"
     salida.parent.mkdir(exist_ok=True)
     salida.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")

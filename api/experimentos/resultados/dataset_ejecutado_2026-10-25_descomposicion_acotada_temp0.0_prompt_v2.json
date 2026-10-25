@@ -1,0 +1,1194 @@
+{
+  "fecha": "2026-10-25",
+  "configuracion": "avanzado_descomposicion_acotada_temp0.0_prompt_v2",
+  "resultados": [
+    {
+      "id": 1,
+      "pregunta": "¿Qué tipos de IA generativa existen?",
+      "tipo": "multi",
+      "documento": "doc39,doc40",
+      "respuesta": "En los documentos de la empresa se mencionan varios tipos de IA generativa, incluyendo:\n\n1. **Modelos Generativos**: Diseñados para producir texto nuevo y complejo, como los modelos autoregresivos (ej. GPT), que generan texto token a token.\n\n2. **Redes Generativas Adversariales (GANs)**: Compuestas por dos redes que compiten entre sí, un generador que crea datos falsos y un discriminador que evalúa su autenticidad.\n\n3. **Variational Autoencoders (VAEs)**: Aunque no se detalla su funcionamiento en los documentos, se mencionan como un tipo de modelo generativo.\n\n4. **Modelos de Difusión Generativa**: Que crean imágenes a partir de ruido, aprendiendo a convertir ese ruido en una imagen coherente.\n\nNo encontré información sobre otros tipos de IA generativa en los documentos de la empresa.",
+      "referencia": "Los modelos autoregresivos predicen el siguiente token a partir de los anteriores, generando token a token en orden, y son la base de modelos como GPT. Los autoencoders variacionales (VAE) comprimen los datos en un espacio latente y usan ruido gaussiano para generar variaciones. Las redes generativas antagónicas (GAN) enfrentan un generador y un discriminador. Y la difusión generativa parte de una imagen aleatoria y aprende a convertir ese ruido en una imagen coherente.",
+      "contextos": [
+        "• \nModelos Generativos vs. Discriminativos: \no Generativos (ej. GPT): \nDiseñados para producir texto \nnuevo y complejo, aunque con \nun mayor coste \ncomputacional. o Discriminativos (ej. SVM, Naive \nBayes): Más eficientes para \ntareas de clasificación con \netiquetas conocidas, como la \ndetección de spam. • \nEntrenamiento y Ajuste: Se \ndiscutieron procesos de pre-\nentrenamiento y fine-tuning, así como \nla capacidad de los modelos para \naprender de pocos ejemplos mediante \ntécnicas como Few-Shot y One-Shot \nlearning. Conclusión  \nLa sesión concluye que la madurez actual de \nla IA generativa es el resultado de una \ntransición fundamental desde el conteo \nestadístico superficial hacia la comprensión \nde la similitud semántica vectorial. El profesor \nestableció que, si bien modelos como GPT \nhan democratizado el acceso al lenguaje \nnatural, su eficiencia depende de una correcta \ntokenización y del uso de arquitecturas de \nTransformer que gestionen el contexto global \nde manera paralela.",
+        " Tema 3: Tecnología Detrás de la IA Generativa\n\nContenidos\n• Modelos Autoregresivos y generación secuencial\n• Variational Autoencoders (VAEs)\n• Redes Generativas Adversariales\n• Arquitecturas emergentes\nwww. ebiseducation. com\n\nModelos autoregresivos y \ngeneración secuencial\n\n¿Qué signiﬁca que un modelo sea autoregresivo?\n¿Qué es un modelo autoregresivo?\n• Predice el siguiente token a partir de los \nanteriores\n• No genera una frase entera, sino token a token, \nen orden\n• Se entrena para aprender P(xₜ | x₁, x₂,. , xₜ₋₁)\n• Es la base de modelos como GPT\n4\nEl\ngato\nesta\ndormido\n\n¿Cómo piensa un modelo autoregresivo?\n5\n\nEl lenguaje es secuencial, pero.",
+        " Tema 3: Tecnología Detrás de la IA Generativa\n\nContenidos\n• Difusión generativa\n• Historia y evolución de los LLMs\n• Arquitectura del Transformer\n• Modelos multimodales\n• Estado del arte\nwww. ebiseducation. com\n\nDifusión generativa\n\n¿Qué signiﬁca “difusión generativa”?\nDifusión generativa: crear desde el ruido\n• Nuevo enfoque generativo → parte de una imagen \naleatoria\n• El modelo aprende a convertir ruido en una imagen \ncoherente\n• Funciona al revés de cómo normalmente vemos los \ndatos\n4\nImagen de https://developer. nvidia. com/blog/improving-diffusion-models-as-an-alternative-to-gans-part-1/\n\n¿Cómo funciona? Paso a paso\nDel caos al orden: el proceso de difusión\n🌀 Forward process: añade ruido a una imagen real en \nmuchos pasos\n🔄 Reverse process: un modelo (U-Net) aprende a \neliminar ese ruido\nRequiere miles de ejemplos y mucha potencia de \ncálculo\n5\nImagen de https://encord.",
+        "07 PRINCIPIOS DE LOS MODELOS GENERATIVOS – APLICACIONES EN \nGENERACIÓN DE IMAGEN Y AUDIO\n\nRedes Generativas Adversariales\n\n¿Qué es una GAN?\nGANs: el juego de dos redes\n• Introducidas por Ian Goodfellow en 2014\n• Dos redes entrenadas de forma opuesta:\n🧪 Generador → crea datos falsos\n🔍 Discriminador → decide si son reales o no\n• Se enfrentan en un bucle de mejora continua\n37\n\nFuncionamiento paso a paso\n¿Cómo entrenan una contra la otra?\n1. El generador recibe ruido aleatorio → crea una \nimagen\n2. El discriminador evalúa si es real o falsa\n3.",
+        "Ambos se actualizan según el resultado:\n•\nSi el discriminador acierta, el generador \nmejora\n•\nSi falla, el discriminador mejora\n38\n\nEjemplo visual de GAN paso a paso\nDel ruido a una imagen: ¿cómo genera \nuna GAN?\n• Input: vector aleatorio z (normalmente de \ndistribución N(0,1))\n• El generador transforma z en una imagen\n• ¡No copia! Aprende a crear algo “parecido” al \nconjunto de entrenamiento\n• Proceso inverso al de un clasiﬁcador\n39\n\n¿Qué pueden generar las GANs?\nResultados sorprendentes y realistas\n• Caras humanas sintéticas (StyleGAN)\n• Paisajes, arte, animales\n• Modiﬁcaciones de estilo (foto ↔ dibujo)\n• Deepfakes, transferencia de dominio…\n40\n\nProblemas comunes al entrenarlas\nNo todo es tan fácil…\n❌ Mode collapse: el generador aprende a engañar \ncon pocos ejemplos\n⚖ Entrenamiento inestable: si uno de los dos gana, \ntodo falla\n🧮 Costoso computacionalmente\n🧠 Diﬁcultad para evaluar calidad de salida \nobjetivamente\n41\n\nTipos de GANs\nVariantes populares de GANs\n• DCGAN: convolucional, i"
+      ],
+      "fuentes": [
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+      ],
+      "scores": [
+        0.638,
+        0.628,
+        0.609,
+        0.553,
+        0.524
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          2,
+          3
+        ],
+        "encontradas": 2,
+        "hit_1": false,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.333
+      },
+      "se_abstuvo": false,
+      "latencia_s": 8.317,
+      "tokens_entrada": 1487,
+      "tokens_salida": 185,
+      "notas": "La referencia recoge los cuatro tipos del corpus aunque las anclas solo cubren dos: si el sistema recupera menos, el context_recall debe bajar"
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Cómo se presentan los vectores en la IA?",
+      "tipo": "literal",
+      "documento": "doc43",
+      "respuesta": "En la IA, los vectores se presentan como contenedores de características multidimensionales que representan información de manera estructurada. Por ejemplo:\n\n1. **Imagen RGB**: Cada píxel en una imagen a color se representa como un vector tridimensional (R, G, B), donde cada componente indica la intensidad de los colores rojo, verde y azul.\n\n2. **Perfil de usuario**: Los sistemas de recomendación utilizan vectores multidimensionales para representar a los usuarios, incluyendo características como edad, intereses, historial de compras y patrones de uso.\n\n3. **Señal de audio**: Una grabación de audio se puede ver como un vector de alta dimensión, donde cada componente representa la amplitud en un instante de tiempo.\n\nAdemás, los embeddings modernos permiten codificar el significado semántico en coordenadas geométricas, facilitando la comprensión de relaciones entre conceptos, como en el ejemplo de operaciones vectoriales que reflejan relaciones de género.",
+      "referencia": "No solo como entidades matemáticas, sino como contenedores de características multidimensionales. Un embedding es una proyección de un objeto —texto, imagen o audio— en un espacio continuo donde la cercanía geométrica equivale a la similitud conceptual.",
+      "contextos": [
+        "Esta clase establece los cimientos matemáticos para entender los \nsistemas de embeddings más complejos. Ejemplos cotidianos de vectores\nImagen RGB (3-D)\nCada píxel en una imagen a color puede \nrepresentarse como un vector \ntridimensional (R,G,B), donde cada \ncomponente indica la intensidad de rojo, \nverde y azul. Este espacio vectorial permite \nmanipular y transformar imágenes mediante \noperaciones matemáticas. Perfil de usuario (n-D)\nLos sistemas de recomendación \nrepresentan usuarios como vectores \nmultidimensionales que incluyen edad, \nintereses, historial de compras y patrones \nde uso. Estos vectores permiten calcular \nsimilitudes entre usuarios para ofrecer \nrecomendaciones personalizadas. Señal de audio (alta dimensión)\nUna grabación de audio puede verse como \nun vector extremadamente largo donde \ncada componente representa la amplitud en \nun instante de tiempo. Un simple audio de 3 \nsegundos a 44. 1 kHz ya constituye un \nvector de 132,300 dimensiones.",
+        " Resumen de clase T6C1– MIDINV26 \n \nAbstract \nLa sesión fundacional del Tema 6, dirigida por el experto EBIS (Alberto), establece la transición \ncrítica desde el procesamiento de texto plano hacia la representación vectorial de la información. A través de un enfoque que combina el rigor matemático de los espacios métricos con \naplicaciones pragmáticas en IA Generativa, se explora cómo los embeddings permiten codificar el \nsignificado semántico en coordenadas geométricas. El núcleo de la sesión analiza la operatividad \nde los sistemas RAG (Retrieval-Augmented Generation) y la importancia de las métricas de \ndistancia (Euclidia, Manhattan, Coseno) como motores de decisión en la recuperación de \ncontexto y la búsqueda semántica moderna. Fundamentos de los Espacios \nVectoriales en la IA \nLa sesión inicia con la desmitificación de los \nvectores, presentándolos no solo como \nentidades matemáticas, sino como \ncontenedores de características \nmultidimensionales.",
+        "Actividades prácticas\nRealizaremos cálculos manuales y con NumPy, además de \nvisualizaciones en 2D y 3D para afianzar conceptos. Tareas\nExplicación de las actividades a practicar entre esta sesión y la \nsiguiente. Recap & Q&A\nResumen de conceptos clave y resolución de dudas. Motivación y objetivos\n\n¿Por qué hablar de espacios vectoriales?\nEvolución de representaciones\nHemos pasado de las \"bolsas de palabras\" tradicionales, con \nvectores dispersos y dimensionalidad extrema, a representaciones \ncontinuas mucho más eficientes y significativas. Significado en coordenadas\nLos embeddings modernos capturan relaciones semánticas en el \nespacio vectorial. Por ejemplo, la operación vectorial king – man + \nwoman ≈ queen refleja relaciones de género en el espacio \nsemántico. Base matemática esencial\nTodo este poder expresivo comienza con operaciones \nfundamentales: sumar, restar y medir vectores correctamente.",
+        " \nSegmentación de Información: Se \njustifica el uso de RAG para trabajar \ncon fragmentos (chunks) específicos \nde documentos, lo que reduce \ndrásticamente los costos de \ncomputación y mejora la ventana de \ncontexto del modelo.  \nMemoria de Conversación: Se \nrecomienda una gestión manual del \nhistorial (por ejemplo, mediante \nresúmenes de interacciones previas \ncon modelos menores o ventanas \nfijas de turnos) para mantener la \ncoherencia sin saturar la capacidad \ndel sistema. Métricas de Distancia y el \nEspacio Métrico \nPara que un sistema de IA \"encuentre\" \ninformación, debe ser capaz de medir \nqué tan lejos está un vector de otro. Se definen las propiedades de un \nespacio métrico (simetría, positividad, \ndesigualdad triangular) y se analizan \nlas herramientas de medición: \n \nDistancia Euclidia ($L_2$): \nFundamental en algoritmos de \naprendizaje automático por ser \ndiferenciable, facilitando el uso del \ndescenso del gradiente.",
+        "Conclusión \nEl dominio de los embeddings y las métricas \nde \nsimilitud \nconstituye \nel \npuente \nindispensable \nentre \nlos \ndatos \nno \nestructurados y la inteligencia artificial \nfuncional. Al entender la información como \nuna serie de coordenadas en un espacio \nmétrico, los ingenieros de IA pueden construir \nsistemas de búsqueda y recuperación que no \nsolo \nencuentran \npalabras, \nsino \nque \ncomprenden intenciones. La transición hacia \nla práctica reafirma que, aunque las librerías \nautomatizan \nel \ncálculo, \nla \nselección \n\n \n \nResumen de clase T6C1– MIDINV26 \n \nestratégica de la métrica y la gestión del \ncontexto (RAG) son las que determinan el \néxito de una solución de IA generativa a \nescala profesional."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf"
+      ],
+      "scores": [
+        0.593,
+        0.591,
+        0.554,
+        0.545,
+        0.539
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          2
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.5
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.306,
+      "tokens_entrada": 1439,
+      "tokens_salida": 195,
+      "notas": "Reformulada: el corpus menciona 'espacio vectorial' pero nunca lo define"
+    },
+    {
+      "id": 3,
+      "pregunta": "¿Qué es la similitud coseno?",
+      "tipo": "literal",
+      "documento": "doc43",
+      "respuesta": "La similitud del coseno mide el coseno del ángulo entre dos vectores no nulos. Se calcula como:\n\n\\[\n\\cos \\theta = \\frac{x \\cdot y}{||x|| \\cdot ||y||}\n\\]\n\nEsta métrica varía entre -1 (vectores opuestos), 0 (ortogonales) y 1 (paralelos), donde 1 indica máxima similitud direccional. Es ampliamente utilizada en buscadores semánticos modernos para determinar la relevancia entre consultas y documentos, permitiendo identificar contenido semánticamente similar incluso cuando no comparten exactamente las mismas palabras.",
+      "referencia": "Es la técnica predilecta para embeddings de texto, porque mide el ángulo entre vectores y resulta invariante a la magnitud o longitud de los documentos.",
+      "contextos": [
+        "Ángulo como medida de similitud\nLa similitud del coseno mide el coseno del ángulo entre dos vectores no nulos:\ncos 𝜃=\n𝑥⋅𝑦\n𝑥\n⋅\n𝑦\nEsta métrica varía entre -1 (vectores opuestos), 0 (ortogonales) y 1 (paralelos), \ndonde 1 indica máxima similitud direccional. Los buscadores semánticos modernos utilizan ampliamente la similitud del \ncoseno para determinar la relevancia entre consultas y documentos. Al \nproyectar tanto la consulta como los documentos en el mismo espacio \nvectorial, el sistema puede identificar contenido semánticamente similar \nincluso cuando no comparten exactamente las mismas palabras.",
+        "Dominancia del coseno\nLa similitud del coseno domina en aplicaciones de Procesamiento de \nLenguaje Natural (NLP) porque:\n•\nEs invariante a la longitud del texto\n•\nCaptura similitud semántica independientemente de la magnitud\n•\nFunciona bien en espacios dispersos y de alta dimensionalidad\nAnalogías vectoriales\nUna de las propiedades más fascinantes de los embeddings es su \ncapacidad para capturar relaciones semánticas como analogías. La \nfamosa ecuación:\nrey - hombre + mujer ≈ reina\nDemuestra cómo la aritmética vectorial puede reflejar relaciones \nconceptuales complejas del lenguaje natural. Fundamento matemático\nTodas estas aplicaciones avanzadas se basan precisamente en los \nconceptos de distancia y similitud que estamos estudiando hoy. Embeddings en acción\n\nActividades prácticas\n\nCalcular distancias de forma “manual”\nDefine funciones en Python que calculen las distancias Manhattan, Euclídea, Minkowski, Chebyshev y la similitud coseno.",
+        "Métricas de distancia: Similitud coseno\n\nMétrica\nSensibilidad a escala\nGeometría iso-distancia\nComplejidad \ncomputacional\nCaso de uso ideal\nEuclídea (L2)\nAlta\nCírculos/esferas\nMedia (raíz cuadrada)\nDatos físicos, clustering\nManhattan (L1)\nAlta\nRombos\nBaja (valores absolutos)\nDatos dispersos, robustez \na outliers\nChebyshev (L∞)\nAlta\nCuadrados/cubos\nMuy baja (solo máximo)\nPlanificación de \nmovimientos\nCoseno\nNinguna\nConos\nMedia (producto escalar \n+ normalización)\nTextos, embeddings \nsemánticos\nLa elección de la métrica adecuada puede tener un impacto significativo en el rendimiento de un modelo. La sensibilidad a la escala determina si \nnecesitamos normalizar previamente los datos, mientras que la forma geométrica de las iso-distancias influye en cómo se agrupan los puntos cercanos. En términos de implementación, algunas métricas son más eficientes computacionalmente.",
+        "Norma y normalización\nLa norma o longitud de un vector v se denota como ||𝑣|| y en el\nespacio euclídeo es:\n𝑣\n=\n𝑣1\n2 + 𝑣2\n2 + ⋯+ 𝑣𝑛2\nLa normalización consiste en obtener un vector unitario en la misma\ndirección:\nො𝑣=\n𝑣\n𝑣\nNormalizar es crucial antes de calcular la similitud del coseno para \neliminar el efecto de la magnitud. Producto escalar (dot)\nEl producto escalar entre dos vectores es:\n𝑢· 𝑣= 𝑢₁𝑣₁ + 𝑢₂𝑣₂ + … + 𝑢ₙ𝑣ₙ = ||𝑢|| ||𝑣|| cos𝜃\nDonde 𝜃es el ángulo entre los vectores 𝑢y 𝑣. Esta relación es \nfundamental para la similitud del coseno. Proyección vectorial\nLa proyección de 𝑢sobre 𝑣es:\n𝑝𝑟𝑜𝑦𝑣𝑢= 𝑢⋅𝑣\n𝑣\n2 · 𝑣\nNos indica cuánto de u va en la dirección de 𝑣, concepto clave en\nmuchos algoritmos de ML. Operaciones básicas con vectores\n\nMétricas de distancia y similitud\n\nEspacio métrico\nDefinición de espacio métrico\nSea 𝑉un conjunto no vacío. Un espacio métrico sobre 𝑉 es una tupla\n(𝑉, 𝑑), donde d es una métrica o distancia.",
+        "Los estudiantes podrán \nmanipular la posición del punto B mediante controles deslizantes, observando en tiempo real cómo cambian las distancias y la similitud del \ncoseno. Esta visualización nos ayudará a responder preguntas como: ¿En qué momento el coseno θ pasa de indicar similitud a disimilitud? ¿Cómo \nafecta la normalización a la interpretación de la similitud? ¿Qué sucede cuando los vectores se alejan del origen pero mantienen la misma \ndirección?\nActividad 2 · Visualización 2D/3D\n\nTareas para casa\n\nCrear funciones Python para \ncálculo de vectores similares\nImplementar una función que permita\nobtener los vectores más similares entre \nsí dados un conjunto de vectores y una\nmétrica. Desarrollar tests unitarios con \npytest\nCrear tests que verifiquen el \nfuncionamiento correcto de las \nfunciones implementadas. Los tests \ndeben cubrir casos especiales como \nvectores nulos, vectores de dimensión 1, \ny vectores ortogonales. Se valorará la \ncobertura exhaustiva de casos límite."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.787,
+        0.612,
+        0.543,
+        0.508,
+        0.499
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          0
+        ],
+        "encontradas": 0,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 3.389,
+      "tokens_entrada": 1608,
+      "tokens_salida": 130,
+      "notas": "Se descartó 'mide el ángulo entre vectores' por aparecer también en doc44"
+    },
+    {
+      "id": 4,
+      "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+      "tipo": "literal",
+      "documento": "doc44",
+      "respuesta": "La similitud del coseno es óptima en la semántica direccional porque captura el significado de los vectores a través de la dirección, independientemente de su magnitud. Esto significa que, en espacios de embeddings, vectores que tienen direcciones similares tienden a representar conceptos relacionados, lo que es crucial para aplicaciones de Procesamiento de Lenguaje Natural (NLP) donde la relación semántica es más importante que la longitud del texto. Además, la similitud del coseno es invariante a la longitud del texto y normaliza automáticamente los vectores, lo que la hace ideal para datos no normalizados.",
+      "referencia": "Es óptima para embeddings semánticos porque en ellos la dirección del vector captura el significado, con independencia de su magnitud, como ocurre en Word2Vec o BERT.",
+      "contextos": [
+        "Ángulo como medida de similitud\nLa similitud del coseno mide el coseno del ángulo entre dos vectores no nulos:\ncos 𝜃=\n𝑥⋅𝑦\n𝑥\n⋅\n𝑦\nEsta métrica varía entre -1 (vectores opuestos), 0 (ortogonales) y 1 (paralelos), \ndonde 1 indica máxima similitud direccional. Los buscadores semánticos modernos utilizan ampliamente la similitud del \ncoseno para determinar la relevancia entre consultas y documentos. Al \nproyectar tanto la consulta como los documentos en el mismo espacio \nvectorial, el sistema puede identificar contenido semánticamente similar \nincluso cuando no comparten exactamente las mismas palabras.",
+        "Dominancia del coseno\nLa similitud del coseno domina en aplicaciones de Procesamiento de \nLenguaje Natural (NLP) porque:\n•\nEs invariante a la longitud del texto\n•\nCaptura similitud semántica independientemente de la magnitud\n•\nFunciona bien en espacios dispersos y de alta dimensionalidad\nAnalogías vectoriales\nUna de las propiedades más fascinantes de los embeddings es su \ncapacidad para capturar relaciones semánticas como analogías. La \nfamosa ecuación:\nrey - hombre + mujer ≈ reina\nDemuestra cómo la aritmética vectorial puede reflejar relaciones \nconceptuales complejas del lenguaje natural. Fundamento matemático\nTodas estas aplicaciones avanzadas se basan precisamente en los \nconceptos de distancia y similitud que estamos estudiando hoy. Embeddings en acción\n\nActividades prácticas\n\nCalcular distancias de forma “manual”\nDefine funciones en Python que calculen las distancias Manhattan, Euclídea, Minkowski, Chebyshev y la similitud coseno.",
+        "Métricas de distancia: Similitud coseno\n\nMétrica\nSensibilidad a escala\nGeometría iso-distancia\nComplejidad \ncomputacional\nCaso de uso ideal\nEuclídea (L2)\nAlta\nCírculos/esferas\nMedia (raíz cuadrada)\nDatos físicos, clustering\nManhattan (L1)\nAlta\nRombos\nBaja (valores absolutos)\nDatos dispersos, robustez \na outliers\nChebyshev (L∞)\nAlta\nCuadrados/cubos\nMuy baja (solo máximo)\nPlanificación de \nmovimientos\nCoseno\nNinguna\nConos\nMedia (producto escalar \n+ normalización)\nTextos, embeddings \nsemánticos\nLa elección de la métrica adecuada puede tener un impacto significativo en el rendimiento de un modelo. La sensibilidad a la escala determina si \nnecesitamos normalizar previamente los datos, mientras que la forma geométrica de las iso-distancias influye en cómo se agrupan los puntos cercanos. En términos de implementación, algunas métricas son más eficientes computacionalmente.",
+        "En algoritmos como k-NN (k vecinos más cercanos), el valor óptimo de 𝑝puede determinarse \nmediante validación cruzada, ajustándolo según las características específicas del conjunto de \ndatos. Métricas de distancia: Minkowski (p-norm)\n\nPropiedades clave\nInvariante a escala: Si multiplicamos un vector por un escalar positivo, la similitud \ncoseno no cambia. Esto es crucial para comparar documentos de diferentes \nlongitudes. Normalización implícita: Al dividir por las normas, la similitud coseno normaliza \nautomáticamente los vectores, haciéndola ideal para datos no normalizados. Interpretación semántica: En espacios de embeddings, vectores con dirección \nsimilar tienden a representar conceptos relacionados, independientemente de su \nmagnitud.",
+        "Por ejemplo, la distancia Manhattan es particularmente \neficiente en hardware especializado debido a que solo requiere operaciones de suma y valor absoluto. Métricas de distancia: Comparativa\n\nDatos densos con magnitudes \nrelevantes\nLa distancia Euclídea (L2) es ideal para \ndatos como imágenes, señales o \ncoordenadas físicas donde la magnitud \nabsoluta tiene significado real y los datos \ntienen distribución aproximadamente \nnormal. Datos dispersos basados en \nconteos\nLa distancia Manhattan (L1) funciona mejor \ncon representaciones dispersas como \nvectores de conteo de palabras (Bag-of-\nWords) o datos categóricos codificados, \nsiendo menos sensible a valores atípicos. Semántica direccional\nLa similitud del coseno es óptima para \nembeddings semánticos donde la dirección \ndel vector captura el significado, \nindependientemente de su magnitud, como \nen Word2Vec o BERT. Más allá de consideraciones teóricas, la selección final de una métrica debe validarse empíricamente."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.713,
+        0.627,
+        0.548,
+        0.545,
+        0.528
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          5
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.2
+      },
+      "se_abstuvo": false,
+      "latencia_s": 3.065,
+      "tokens_entrada": 1388,
+      "tokens_salida": 129,
+      "notas": "Pregunta de tipo 'por qué': obliga a recuperar la justificación, no una definición"
+    },
+    {
+      "id": 5,
+      "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+      "tipo": "multi",
+      "documento": "doc38",
+      "respuesta": "Las diferencias entre las GAN (Generative Adversarial Networks) y los VAE (Variational Autoencoders) son las siguientes:\n\n1. **Generación de datos**:\n   - **VAE**: Genera datos a partir de una distribución de probabilidad en el espacio latente, utilizando ruido gaussiano para crear variaciones aleatorias pero coherentes de los datos originales.\n   - **GAN**: Genera datos a partir de un vector latente z, pero no se menciona en el contexto cómo utiliza el ruido en su proceso de generación.\n\n2. **Calidad de las imágenes**:\n   - **VAE**: Las imágenes generadas suelen no ser tan nítidas como las de las GAN.\n   - **GAN**: Tienden a producir imágenes de mayor calidad, aunque pueden presentar artefactos.\n\n3. **Proceso de entrenamiento**:\n   - **VAE**: Utiliza un enfoque de codificación y decodificación, donde el encoder reduce los datos a una representación latente y el decoder intenta reconstruir la entrada desde esa representación.\n   - **GAN**: Se basa en un juego entre dos redes (generador y discriminador), donde el generador intenta crear datos que el discriminador no pueda distinguir de los reales.\n\n4. **Velocidad y control**:\n   - **VAE**: Se considera rápido en términos de generación.\n   - **GAN**: También es rápido, pero puede tener problemas de colapso de modo.\n\nNo encontré información sobre otros aspectos comparativos en los documentos de la empresa.",
+      "referencia": "Los VAE comprimen los datos en un espacio latente para luego reconstruirlos, y usan ruido gaussiano en ese espacio para generar variaciones aleatorias pero coherentes. Las GAN funcionan con una dinámica de juego de suma cero entre dos redes: un generador que crea imágenes falsas y un discriminador que intenta detectarlas.",
+      "contextos": [
+        "Decodiﬁcación: Esa muestra se decodiﬁca para \nreconstruir la imagen original o generar una nueva. Conceptos de codiﬁcación y decodiﬁcación\n34\nRetropropagación:\nEl modelo ajusta sus pesos a través del proceso \nde retropropagación, basado en la pérdida de \nreconstrucción y regularización. La regularización asegura que las distribuciones \nen el espacio latente se mantengan suaves y \ncontinuas, permitiendo generar datos similares \npero no idénticos. Ejemplos de uso\nGeneración de imágenes\nLos VAEs pueden generar \nimágenes variando la \nrepresentación latente, aunque \nlas imágenes no suelen ser tan \nnítidas como las de GANs. Generación de audio:\nLos VAEs se utilizan para \ngenerar nuevos sonidos o \nmúsica, a menudo mezclando \ndiferentes estilos musicales \naprendidos. Interpolación en el espacio \nlatente:\nPermiten la creación de \ntransiciones suaves entre \nimágenes, útil en aplicaciones \nde diseño y animación.",
+        "• Tiene dos partes:\n•\nEncoder: reduce a una representación \nlatente\n•\nDecoder: intenta reconstruir la entrada \ndesde esa representación\n• No genera nuevos datos, solo reconstruye\n27\n\n¿Qué aporta un Variational Autoencoder?\nDe codiﬁcar a generar\n• En lugar de codiﬁcar a un punto único, genera una \ndistribución de probabilidad\n• El encoder no devuelve un vector, sino dos:\n•\nMedia (μ) y varianza (σ²)\n• El decoder toma una muestra de esa distribución \n→ genera una salida\n• Esto permite generar nuevas muestras similares a \nlos datos originales\n28\n\nReparametrización: el truco para poder entrenar\n¿Y cómo retropropagamos con ruido?\n• No se puede derivar a través de una muestra \naleatoria directamente\n• Solución: reparametrización\n•\nEn lugar de muestrear z ~ N(μ, σ²)\n•\nSe usa: z = μ + σ * ε con ε ~ N(0,1)\n• Esto hace todo el proceso diferenciable y \nentrenable\n29\n\nFunción de pérdida del VAE\nReconstrucción + regularización\n• La pérdida total tiene dos partes:\n•\nReconstrucción: qué tan bien se pa",
+        "Autoencoders Variacionales (VAE) y \nEspacio Latente \nSe exploró una de las arquitecturas clave para \nla comprensión y compresión de datos: \n• \nCodificación \ny \nDecodificación: \nEl \nprofesor \nexplicó \ncómo \nlos \nVAE \ncomprimen los datos de entrada en un \n\"espacio \nlatente\" \npara \nluego \nreconstruirlos. • \nGeneración \nmediante \nRuido: \nA \ndiferencia \nde \nlos \nautoencoders \nsimples, \nlos \nVAE \nutilizan \nruido \ngaussiano en el espacio latente para \ngenerar variaciones aleatorias pero \ncoherentes de los datos originales. • \nCaso \nPráctico: \nSe \ndemostró \nel \nfuncionamiento de un VAE utilizando el \ndataset EMNIST, logrando generar \nimágenes sintéticas de dígitos escritos \na \nmano \na \npartir \nde \nlas \nrepresentaciones comprimidas.",
+        "net/gsc_news/en/20220928-stable-diffusion-classifier-free-guidance/\n\n¿Cómo se compara con GANs y VAEs?\nDiferencias con otras arquitecturas generativas\n• No parte de un vector latente z como GAN/VAE, sino de ruido total\n• Mejores detalles, menos “artefactos”\n• Menos colapso de modo que las GANs\n• Más pasos → más lento → más controlable\n11\nModelo\nEntrada\nVelocidad\nCalidad\nEstilo\nVAE\nz latente\n⚡ Rápido\n🎯 Media\nSuave\nGAN\nz latente\n⚡ Rápido\n⚠ Artefactos\nFuerte\nDifusión\nRuido total\n🐢 Lento\n🏆 Alta\nPreciso\n\nLimitaciones y desafíos\n¿Todo son ventajas?\n• Requiere muchos pasos → lenta en tiempo real\n• Alto coste computacional\n• Poca capacidad para generar texto legible \ndentro de imágenes\n• Difícil controlar detalles muy concretos sin \nherramientas adicionales\n12\n\nHistoria y evolución de los LLMs\n\n¿Qué es un LLM?\n¿Qué son realmente?\n• Son modelos entrenados para procesar, \nentender y generar lenguaje natural\n• Predicen el siguiente token en una secuencia \ndada\n• Pueden responder preguntas, resumi",
+        "Completa las siguientes frases con la palabra que creas que viene después:\n•\nEl gato saltó sobre el ___\n•\nLa inteligencia artiﬁcial está transformando la ___\n•\nEn 2023, el modelo de IA más popular fue ___\n•\nEjercicio: Adivina el siguiente token\n22\n\nVariational Autoencoders (VAEs)\n\n¿Cómo podemos comprimir datos?\n¿Y si vemos una versión resumida?\n• Imagina que tenemos una imagen o una frase\n• Queremos aprender a resumirla en menos \ndatos… y luego reconstruirla\n• Esa idea se llama autoencoder (codiﬁcador + \ndecodiﬁcador)\n24\n\n¿Qué problema tienen los autoencoders clásicos?\nNo son buenos generando cosas nuevas\n• El resumen (z) es un punto ﬁjo → cada entrada \ngenera uno distinto, sin relación\n• No aprendemos una estructura del espacio → difícil \ncrear datos nuevos\n• ¿Solución? ¡Que z sea probabilístico!\n25\n\n¿Qué es un VAE?\nAutoencoder."
+      ],
+      "fuentes": [
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Resumen Clase 2 - Tema 3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+      ],
+      "scores": [
+        0.537,
+        0.493,
+        0.489,
+        0.481,
+        0.477
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          3,
+          0
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 5.354,
+      "tokens_entrada": 1610,
+      "tokens_salida": 322,
+      "notas": "multi débil: las anclas están a 404 caracteres, probablemente en fragmentos contiguos"
+    },
+    {
+      "id": 6,
+      "pregunta": "¿Qué es un LLM?",
+      "tipo": "literal",
+      "documento": "doc40",
+      "respuesta": "Un LLM (Large Language Model) es un modelo entrenado para procesar, entender y generar lenguaje natural. Su función principal es predecir el siguiente token en una secuencia dada, lo que les permite responder preguntas y resumir información.",
+      "referencia": "Son modelos entrenados para procesar, entender y generar lenguaje natural. Predicen el siguiente token en una secuencia dada, y con ello pueden responder preguntas, resumir textos, traducir o razonar.",
+      "contextos": [
+        "net/gsc_news/en/20220928-stable-diffusion-classifier-free-guidance/\n\n¿Cómo se compara con GANs y VAEs?\nDiferencias con otras arquitecturas generativas\n• No parte de un vector latente z como GAN/VAE, sino de ruido total\n• Mejores detalles, menos “artefactos”\n• Menos colapso de modo que las GANs\n• Más pasos → más lento → más controlable\n11\nModelo\nEntrada\nVelocidad\nCalidad\nEstilo\nVAE\nz latente\n⚡ Rápido\n🎯 Media\nSuave\nGAN\nz latente\n⚡ Rápido\n⚠ Artefactos\nFuerte\nDifusión\nRuido total\n🐢 Lento\n🏆 Alta\nPreciso\n\nLimitaciones y desafíos\n¿Todo son ventajas?\n• Requiere muchos pasos → lenta en tiempo real\n• Alto coste computacional\n• Poca capacidad para generar texto legible \ndentro de imágenes\n• Difícil controlar detalles muy concretos sin \nherramientas adicionales\n12\n\nHistoria y evolución de los LLMs\n\n¿Qué es un LLM?\n¿Qué son realmente?\n• Son modelos entrenados para procesar, \nentender y generar lenguaje natural\n• Predicen el siguiente token en una secuencia \ndada\n• Pueden responder preguntas, resumi",
+        "Arquitectura RAG y LLMs \nHubo un debate técnico sobre la \ncomplejidad de integrar modelos de \nlenguaje avanzados: \n \nDesafíos del RAG (Retrieval-\nAugmented Generation): Jorge y otros \nestudiantes expresaron la dificultad \nde esta arquitectura, que combina la \nrecuperación de documentos con la \ngeneración de texto.  \nIntegración de ML Ops: La clase \npreparó el terreno para que los \nmodelos entrenados no se queden en \nun notebook, sino que se conviertan \nen servicios consumibles por \naplicaciones web o móviles a través \nde la API. Seguridad y Producción \nLa sesión concluyó con una introducción a la \nprotección de los servicios expuestos: \n \nAutenticación: Comparación entre \nseguridad básica y el uso de Tokens \nJWT (JSON Web Tokens) para \nsesiones seguras.  \nManejo de Excepciones: Cómo \nconfigurar el servidor para que \ndevuelva errores controlados en lugar \nde exponer el código fuente ante un \nfallo.",
+        " \nEvolución del Modelo: Los embeddings \nmodernos permiten que relaciones \nconceptuales se conserven \ngeométricamente; por ejemplo, \nasegurar que el vector de \"perro\" esté \nmás cerca de \"canino\" que de \n\"automóvil\".  \nEficiencia Operativa: Se destaca que el \nobjetivo primordial es organizar la \ninformación de manera que la \nrecuperación sea contextual, \npermitiendo que los LLMs accedan a \ndatos relevantes sin necesidad de \nprocesar volúmenes masivos de texto \nirrelevante. Arquitectura RAG y Gestión de \nContexto \nUno de los puntos de mayor interés \npara el posgrado es la \nimplementación de sistemas RAG \n\n \n \nResumen de clase T6C1– MIDINV26 \n \n(Retrieval-Augmented Generation). La \ndiscusión técnica se centra en la \noptimización de recursos y la \nprecisión de los modelos.",
+        "14\n\nAntes del boom: n-grams y RNNs\nAntes de los LLMs: n-grams y redes secuenciales\n• n-grams: predicen basados en las N-1 palabras anteriores\n• Fórmula de probabilidad de un n-gram:\n• Problema: necesitan enormes tablas → mala generalización\n• RNNs: redes que procesan tokens uno tras otro\n• Capaces de modelar dependencias más largas… relativamente\n15\n\nLimitaciones de RNNs y LSTM como solución\n• Problema de RNNs: desvanecimiento/explosión \nde gradientes\n• LSTM: introduce “puertas” (input, forget, output) \npara controlar el ﬂujo de información\n16\nDe RNN a LSTM: problemas de memoria\n\nEl momento clave: Attention is All You Need (2017)\nNacimiento del Transformer\n• Idea clave: self-attention → cada palabra \npuede mirar a cualquier otra\n• Permite paralelizar entrenamientos y procesar \ncontexto largo\n• Fórmula de self-attention:\n(donde Q=queries, K=keys, V=values)\n17\n\nDe los Transformers a los LLMs modernos\nEvolución hacia modelos gigantes\n• Transformer abre la puerta a modelos \nentrenados con ",
+        "5\nTransformer multimodal \n“thinking”\nTexto, imagen, audio; edición y razonamiento profundo\nDe pago (Google \nDeepMind)\nGrok 4\nModelo multimodal con \nbúsqueda integrada\nRazonamiento activo y contexto largo\nDe pago (xAI / X Corp)\nQWEN 3\nModelo abierto denso + Mixture \nof Experts\nLenguaje y razonamiento; uso investigativo\nCódigo abierto (Alibaba \n/Qwen Team)\n\nArquitectura del Transformer\n\n¿Qué signiﬁca “arquitectura” en un modelo de lenguaje?\nArquitectura: cómo ﬂuye la \ninformación en un LLM\n• Arquitectura = cómo están conectadas las \ncapas y cómo procesan el input\n• Deﬁne qué tipo de tareas puede hacer mejor el \nmodelo\n• Tres grandes familias:\n•\nEncoder-only\n•\nDecoder-only\n•\nEncoder-Decoder\n26\n\nEncoder-only (ej: BERT)\nEncoder-only: leer y entender\n• Se centra en representar el input\n• No genera nuevo texto\n• Típico en tareas de:\n•\nClasiﬁcación de texto\n•\nAnálisis de sentimientos\n•\nBúsqueda semántica\n• Entrenamiento típico: Masked Language \nModeling (predicción de palabras ocultas)\n27\n\nCóm"
+      ],
+      "fuentes": [
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.434,
+        0.372,
+        0.333,
+        0.33,
+        0.307
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          1
+        ],
+        "encontradas": 1,
+        "hit_1": true,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 1.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 2.45,
+      "tokens_entrada": 1636,
+      "tokens_salida": 50,
+      "notas": ""
+    },
+    {
+      "id": 7,
+      "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+      "tipo": "literal",
+      "documento": "doc40",
+      "respuesta": "GPT-4o procesa texto, imagen y audio en tiempo real.",
+      "referencia": "Texto, imagen y audio, tanto de entrada como de salida, y en tiempo real.",
+      "contextos": [
+        "OpenAI decide \nretrasar su publicación completa \npor miedo a mal uso\n2019\nT5 y BART: Enfoque de \"texto a \ntexto\" generalizado; \ncodiﬁcadores-decodiﬁcadores \npotentes\n2020\nGPT-3: 175B parámetros. Populariza el few-shot learning y la \ngeneración de texto impresionante\n2020\nInstructGPT: Uso de RLHF \n(Refuerzo con Retroalimentación \nHumana) → mejora en seguir \ninstrucciones humanas\n2022\n\nGPT-4 y Claude: Mejora notable en \nrazonamiento, multimodalidad \ninicial en GPT-4\n2023\nGPT-5: Razonamiento simulado, \ncapacidades más autónomas\n2025\nGPT-5.",
+        "3-codex: Capacidades \nmejoradas\n2026\n\n¿Cómo evolucionaron las capacidades?\n¿Más grande siempre es mejor?\n• Mejoras no solo en tamaño:\n•\nEntendimiento profundo (instrucciones \ncomplejas)\n•\nRazonamiento de varios pasos\n•\nMultimodalidad (texto + imagen)\n•\nCapacidad de memoria larga (context \nwindows enormes)\n22\n\nComparativa de familias de modelos\n23\nModelo\nArquitectura\nEnfoque principal\nAcceso\nGPT-4o\nTransformer multimodal\nEntrada y salida de texto, imagen y audio en \ntiempo real\nGratuito y de pago \n(OpenAI)\nGPT-o3\nTransformer con \nrazonamiento simulado\nRazonamiento avanzado con acceso a \nherramientas autónomas\nGratuito y de pago \n(OpenAI)\nClaude 3. 7\nModelo híbrido de \nrazonamiento\nControl del nivel de razonamiento, ideal para \ntareas complejas y planiﬁcación\nGratuito y de pago \n(Anthropic)\nGemini 2.",
+        "GPT-o3\nNo especiﬁcado\nTexto, Imagen\nPago\nRazonamiento avanzado y uso autónomo de \nherramientas. Claude 3. 7 \nSonnet\n100+B (estimado)\nTexto, Imagen\nFreemium\nCapacidades multimodales y codiﬁcación \nagente. Gemini 2. 0 \nFlash\nNo especiﬁcado\nTexto, Imagen, Audio, \nVideo\nPrivado\nGeneración multimodal nativa y capacidades \nde agente. LLaMA 4\n17B activos / 400B \ntotales\nTexto, Imagen, Video\nOpen Source\nMultimodalidad nativa y arquitectura Mixture \nof Experts. Mixtral 8x7B\n47B (13B activos)\nTexto\nOpen Source\nArquitectura Mixture of Experts eﬁciente y de \ncódigo abierto. Comparativa de modelos actuales\n47\nModelo\nParámetros\nModalidad\nAcceso\nCaracterísticas destacadas\nGPT-5\nNo divulgado (≈ 1 T \nestimado)\nTexto, Imagen, Audio, \nVoz\nPago / \nFreemium \n(OpenAI)\nRazonamiento avanzado, agentes autónomos \ny contexto ampliado. Claude 4. 5 \nSonnet\n~200 B (estimado)\nTexto, Imagen\nFreemium \n(Anthropic)\nControl de razonamiento, fuerte en código y \nplaniﬁcación. Gemini 2.",
+        "5\n100+B (estimado)\nTexto, Imagen, Audio, \nVideo\nPago \n(Google \nDeepMind)\nMultimodalidad completa y razonamiento \nprofundo tipo “thinking”. Grok 4\nNo divulgado\nTexto, Imagen\nPago (xAI / \nX Corp)\nIntegración con búsqueda en tiempo real y \ncontexto extenso. Qwen 3\n7 B – 235 B según \nversión\nTexto, Imagen\nOpen Source \n(Alibaba / \nQwen Team)\nModelos abiertos con razonamiento \ncompetitivo y eﬁciencia MoE. Comparativa de modelos actuales\n48\nModelo\nParámetros\nModalidad\nAcceso\nCaracterísticas destacadas\nGPT-5. 2\n?\nTexto, Imagen\nAPI + ChatGPT\n“Flagship” para coding y tareas agénticas, con \ncontrol de reasoning effort y contexto largo. Claude Opus \n4. 6\n?\nTexto, Imagen\nAPI + Bedrock/Vertex\nMejora en agentes de larga duración, planiﬁcación y \ncódigo; hasta 1M tokens de contexto (beta). Gemini 3 Pro\n?\nMultimodal: \nTexto, Imagen, \nVideo, Audio. App de Gemini + Google AI \nPro/Ultra y APIs de \nGoogle.",
+        "0\nTransformer multimodal\nProcesamiento de texto, imagen y audio con \ncapacidades de razonamiento avanzadas\nPago (Google)\nLLaMA 4\nMixture of Experts (MoE)\nModelo multimodal con arquitectura eﬁciente y \ncontexto de hasta 10M tokens\nCódigo abierto con \nrestricciones (Meta)\nMixtral 8x7B\nSparse Mixture of Experts \n(SMoE)\nEﬁciencia extrema con arquitectura dispersa y \nrendimiento competitivo\nCódigo abierto \n(Mistral)\n\nComparativa de familias de modelos\n24\nModelo\nArquitectura\nEnfoque principal\nAcceso\nGPT-5\nTransformer multimodal con \nrazonamiento controlado\nTexto, imagen y voz; razonamiento avanzado y agentes\nDe pago y gratuito \nlimitado (OpenAI)\nClaude 4. 5 \nSonnet\nModelo híbrido de \nrazonamiento\nProgramación, planificación y tareas complejas\nGratuito y de pago \n(Anthropic)\nGemini 2."
+      ],
+      "fuentes": [
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.564,
+        0.558,
+        0.539,
+        0.512,
+        0.491
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          2
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.5
+      },
+      "se_abstuvo": false,
+      "latencia_s": 2.546,
+      "tokens_entrada": 1571,
+      "tokens_salida": 14,
+      "notas": "Reformulada desde una pregunta de sí/no, que no deja evaluar nada"
+    },
+    {
+      "id": 8,
+      "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+      "tipo": "literal",
+      "documento": "doc40",
+      "respuesta": "Las diferencias entre GPT-4o y Gemini 2.0 son las siguientes:\n\n1. **Arquitectura**:\n   - **GPT-4o**: Utiliza una arquitectura Transformer multimodal.\n   - **Gemini 2.0**: No se especifica su arquitectura en los documentos.\n\n2. **Modalidad**:\n   - **GPT-4o**: Permite entrada y salida de texto, imagen y audio en tiempo real.\n   - **Gemini 2.0**: También es multimodal, pero no se detallan las modalidades específicas en los documentos.\n\n3. **Acceso**:\n   - **GPT-4o**: Disponible en versiones gratuita y de pago (OpenAI).\n   - **Gemini 2.0**: Se menciona que es privado, pero no se especifica el modelo de acceso.\n\n4. **Características destacadas**:\n   - **GPT-4o**: Se enfoca en el procesamiento de texto, imagen y audio con capacidades de razonamiento avanzadas.\n   - **Gemini 2.0**: Se destaca por su generación multimodal nativa y capacidades de agente, aunque no se detallan más características en los documentos.\n\nNo encontré información sobre otras diferencias específicas entre ambos modelos en los documentos de la empresa.",
+      "referencia": "GPT-4o procesa texto, imagen y audio, con razonamiento rápido y conversación multimodal fluida. Gemini 2.0 Flash añade vídeo a esas modalidades y destaca por una ventana de contexto de hasta un millón de tokens y generación multimodal nativa.",
+      "contextos": [
+        "3-codex: Capacidades \nmejoradas\n2026\n\n¿Cómo evolucionaron las capacidades?\n¿Más grande siempre es mejor?\n• Mejoras no solo en tamaño:\n•\nEntendimiento profundo (instrucciones \ncomplejas)\n•\nRazonamiento de varios pasos\n•\nMultimodalidad (texto + imagen)\n•\nCapacidad de memoria larga (context \nwindows enormes)\n22\n\nComparativa de familias de modelos\n23\nModelo\nArquitectura\nEnfoque principal\nAcceso\nGPT-4o\nTransformer multimodal\nEntrada y salida de texto, imagen y audio en \ntiempo real\nGratuito y de pago \n(OpenAI)\nGPT-o3\nTransformer con \nrazonamiento simulado\nRazonamiento avanzado con acceso a \nherramientas autónomas\nGratuito y de pago \n(OpenAI)\nClaude 3. 7\nModelo híbrido de \nrazonamiento\nControl del nivel de razonamiento, ideal para \ntareas complejas y planiﬁcación\nGratuito y de pago \n(Anthropic)\nGemini 2.",
+        "GPT-o3\nNo especiﬁcado\nTexto, Imagen\nPago\nRazonamiento avanzado y uso autónomo de \nherramientas. Claude 3. 7 \nSonnet\n100+B (estimado)\nTexto, Imagen\nFreemium\nCapacidades multimodales y codiﬁcación \nagente. Gemini 2. 0 \nFlash\nNo especiﬁcado\nTexto, Imagen, Audio, \nVideo\nPrivado\nGeneración multimodal nativa y capacidades \nde agente. LLaMA 4\n17B activos / 400B \ntotales\nTexto, Imagen, Video\nOpen Source\nMultimodalidad nativa y arquitectura Mixture \nof Experts. Mixtral 8x7B\n47B (13B activos)\nTexto\nOpen Source\nArquitectura Mixture of Experts eﬁciente y de \ncódigo abierto. Comparativa de modelos actuales\n47\nModelo\nParámetros\nModalidad\nAcceso\nCaracterísticas destacadas\nGPT-5\nNo divulgado (≈ 1 T \nestimado)\nTexto, Imagen, Audio, \nVoz\nPago / \nFreemium \n(OpenAI)\nRazonamiento avanzado, agentes autónomos \ny contexto ampliado. Claude 4. 5 \nSonnet\n~200 B (estimado)\nTexto, Imagen\nFreemium \n(Anthropic)\nControl de razonamiento, fuerte en código y \nplaniﬁcación. Gemini 2.",
+        "5\n100+B (estimado)\nTexto, Imagen, Audio, \nVideo\nPago \n(Google \nDeepMind)\nMultimodalidad completa y razonamiento \nprofundo tipo “thinking”. Grok 4\nNo divulgado\nTexto, Imagen\nPago (xAI / \nX Corp)\nIntegración con búsqueda en tiempo real y \ncontexto extenso. Qwen 3\n7 B – 235 B según \nversión\nTexto, Imagen\nOpen Source \n(Alibaba / \nQwen Team)\nModelos abiertos con razonamiento \ncompetitivo y eﬁciencia MoE. Comparativa de modelos actuales\n48\nModelo\nParámetros\nModalidad\nAcceso\nCaracterísticas destacadas\nGPT-5. 2\n?\nTexto, Imagen\nAPI + ChatGPT\n“Flagship” para coding y tareas agénticas, con \ncontrol de reasoning effort y contexto largo. Claude Opus \n4. 6\n?\nTexto, Imagen\nAPI + Bedrock/Vertex\nMejora en agentes de larga duración, planiﬁcación y \ncódigo; hasta 1M tokens de contexto (beta). Gemini 3 Pro\n?\nMultimodal: \nTexto, Imagen, \nVideo, Audio. App de Gemini + Google AI \nPro/Ultra y APIs de \nGoogle.",
+        "0\nTransformer multimodal\nProcesamiento de texto, imagen y audio con \ncapacidades de razonamiento avanzadas\nPago (Google)\nLLaMA 4\nMixture of Experts (MoE)\nModelo multimodal con arquitectura eﬁciente y \ncontexto de hasta 10M tokens\nCódigo abierto con \nrestricciones (Meta)\nMixtral 8x7B\nSparse Mixture of Experts \n(SMoE)\nEﬁciencia extrema con arquitectura dispersa y \nrendimiento competitivo\nCódigo abierto \n(Mistral)\n\nComparativa de familias de modelos\n24\nModelo\nArquitectura\nEnfoque principal\nAcceso\nGPT-5\nTransformer multimodal con \nrazonamiento controlado\nTexto, imagen y voz; razonamiento avanzado y agentes\nDe pago y gratuito \nlimitado (OpenAI)\nClaude 4. 5 \nSonnet\nModelo híbrido de \nrazonamiento\nProgramación, planificación y tareas complejas\nGratuito y de pago \n(Anthropic)\nGemini 2.",
+        "OpenAI decide \nretrasar su publicación completa \npor miedo a mal uso\n2019\nT5 y BART: Enfoque de \"texto a \ntexto\" generalizado; \ncodiﬁcadores-decodiﬁcadores \npotentes\n2020\nGPT-3: 175B parámetros. Populariza el few-shot learning y la \ngeneración de texto impresionante\n2020\nInstructGPT: Uso de RLHF \n(Refuerzo con Retroalimentación \nHumana) → mejora en seguir \ninstrucciones humanas\n2022\n\nGPT-4 y Claude: Mejora notable en \nrazonamiento, multimodalidad \ninicial en GPT-4\n2023\nGPT-5: Razonamiento simulado, \ncapacidades más autónomas\n2025\nGPT-5."
+      ],
+      "fuentes": [
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.605,
+        0.59,
+        0.586,
+        0.524,
+        0.507
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          0
+        ],
+        "encontradas": 0,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.563,
+      "tokens_entrada": 1576,
+      "tokens_salida": 268,
+      "notas": "Parece multi y no lo es: ambos modelos están en la misma tabla comparativa"
+    },
+    {
+      "id": 9,
+      "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+      "tipo": "literal",
+      "documento": "doc36",
+      "respuesta": "Los hiperparámetros son todo aquello que podemos configurar antes de entrenar un modelo de Deep Learning. No se aprenden automáticamente y su ajuste correcto es clave para el éxito del modelo. Por otro lado, los parámetros son todos aquellos valores matemáticos que se ajustan durante el entrenamiento. Cada modelo tendrá distintos parámetros, incluso teniendo los mismos hiperparámetros, debido al factor aleatorio del proceso de entrenamiento.",
+      "referencia": "Los hiperparámetros son todo aquello que se puede configurar antes de entrenar y no se aprende automáticamente; su ajuste correcto es clave para el éxito. Los parámetros, en cambio, son los valores matemáticos que se ajustan durante el entrenamiento.",
+      "contextos": [
+        "4M!\nComplejidad del modelo\nUtilizando 18 capas, logro un 85% de accuracy para \nCIFAR; ¡un dataset de la complejidad de Imagenet \nrequeriría de alrededor de 50 capas para alcanzar un \n76% aproximadamente!\nBatch size\nNúmero de Epochs\nRecursos \ncomputacionales…\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nImageNet\nwww. ebiseducation. com\nMuchas horas… \n¡incluso días!\n\nBatch, epochs e hiperparámetros\n\nBatch, epochs e hiperparámetros\n¿Qué son los hiperparámetros? ¿Y los parámetros?\nLos hiperparámetros son todo aquello que podemos \nconfigurar antes de entrenar. No se aprenden \nautomáticamente. Su ajuste correcto es clave para el éxito. Los parámetros son todos aquellos valores matemáticos que \nse ajustan durante el entrenamiento. Cada modelo tendrá \ndistintos parámetros, incluso teniendo los mismos \nhiperparámetros, debido al factor aleatorio del proceso de \nentrenamiento. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es un batch en Deep Learning?\nwww.",
+        "ebiseducation. com\n\nBatch, epochs e hiperparámetros\nTamaño del batch (batch dize)\nVelocidad\nRecursos\nProblemas y \nbeneficios\n-\nRuido en el gradiente. -\nAprendizaje menos estable. -\nMenor riesgo de overfitting. -\nMenor ruido en el gradiente. -\nAprendizaje más estable. -\nMayor riesgo de overfitting. Batch, epochs e hiperparámetros\n¿Qué es un epoch en Deep Learning?\nwww. ebiseducation. com\nUna epoch es una pasada completa por todo el conjunto de \ndatos de entrenamiento. El modelo ve cada dato una vez por \nepoch. En general, son necesarios un gran número de epochs \npara que el modelo aprenda. Batch, epochs e hiperparámetros\nNúmero óptimo de epochs\nSi uso pocos…\nTendré problemas de underfitting. Si uso demasiados…\nTendré problemas de overfitting. Para encontrar el número óptimo…\nPrueba y error. Early stopping. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nLearning_rate = 0.",
+        "Esto es, d es una función\n𝑑: 𝑉𝑥𝑉 →ℝ\nque verifica los siguientes axiomas:\nSimetría\n𝑑𝑥, 𝑦= 𝑑𝑦, 𝑥,\n \n∀𝑥, 𝑦∈𝑉\nDesigualdad triangular\n𝑑𝑥, 𝑧≤𝑑𝑥, 𝑦+ 𝑑𝑦, 𝑧, 𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦, 𝑧∈𝑉\nPositividad\n𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦∈𝑉\n𝑑𝑥, 𝑦= 0 \n⟺ \n𝑥= 𝑦\n\nDistancia Manhattan (L1)\nSuma los valores absolutos de las diferencias en cada dimensión, como moverse en una cuadrícula \nurbana. 𝒅𝒙, 𝒚= ෍\n𝒊=𝟏\n𝒏\n|𝒙𝒊−𝒚𝒊|\nMétricas de distancia\nDistancia Euclídea (L2)\nBasada en el teorema de Pitágoras, mide la línea recta entre dos puntos. Es la distancia \"natural\" en el \nespacio físico. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝟐\n\nDistancia Minkowski (p-norm)\nGeneralización que incluye L1 (p=1) y L2 (p=2), permitiendo ajustar la sensibilidad a valores atípicos. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝒑\n𝟏\n𝒑\nMétricas de distancia\nSimilitud Coseno\nMide el ángulo entre vectores, enfocándose en dirección y no en magnitud. Ideal para textos y \nembeddings semánticos.",
+        "• Fine-tuneable: puedes entrenarlo con tus \npropias imágenes\n9\n\nParámetros clave al generar imágenes\n¿Cómo controlar el resultado?\n• prompt: descripción textual\n• guidance scale: cuánto caso hacer al texto \n(ej. 7–12)\n• num inference steps: cuántos pasos de \ndenoising (ej. 30–100)\n• seed: número aleatorio para ﬁjar el \nresultado\n10\nImagen de https://gigazine.",
+        "Métricas de distancia: Similitud coseno\n\nMétrica\nSensibilidad a escala\nGeometría iso-distancia\nComplejidad \ncomputacional\nCaso de uso ideal\nEuclídea (L2)\nAlta\nCírculos/esferas\nMedia (raíz cuadrada)\nDatos físicos, clustering\nManhattan (L1)\nAlta\nRombos\nBaja (valores absolutos)\nDatos dispersos, robustez \na outliers\nChebyshev (L∞)\nAlta\nCuadrados/cubos\nMuy baja (solo máximo)\nPlanificación de \nmovimientos\nCoseno\nNinguna\nConos\nMedia (producto escalar \n+ normalización)\nTextos, embeddings \nsemánticos\nLa elección de la métrica adecuada puede tener un impacto significativo en el rendimiento de un modelo. La sensibilidad a la escala determina si \nnecesitamos normalizar previamente los datos, mientras que la forma geométrica de las iso-distancias influye en cómo se agrupan los puntos cercanos. En términos de implementación, algunas métricas son más eficientes computacionalmente."
+      ],
+      "fuentes": [
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.462,
+        0.383,
+        0.386,
+        0.37,
+        0.37
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          1,
+          1
+        ],
+        "encontradas": 2,
+        "hit_1": true,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 1.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.877,
+      "tokens_entrada": 1731,
+      "tokens_salida": 83,
+      "notas": "Compuesta a propósito, pero ambos conceptos están en el mismo fragmento (163 caracteres): si acierta, el problema de las compuestas es la separación temática, no el número de preguntas"
+    },
+    {
+      "id": 10,
+      "pregunta": "¿Qué es el learning rate en deep learning?",
+      "tipo": "literal",
+      "documento": "doc36",
+      "respuesta": "El learning rate es el factor de aprendizaje del modelo en deep learning. Simplificando, es la velocidad a la que el modelo cambia internamente para aprender la tarea para la que se le está entrenando. Un learning rate adecuado permite que el modelo aprenda de manera efectiva.",
+      "referencia": "Es el factor de aprendizaje del modelo: lo rápido o despacio que cambia internamente para aprender la tarea. Con un valor bajo, como 0,01, los pesos cambian poco en cada iteración; con uno alto, como 0,5, cambian mucho.",
+      "contextos": [
+        "01\nPesos del modelo \ncambian poco por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nEl learning rate es el factor de aprendizaje del modelo. Es, de \nforma simplificada, lo rápido o despacio que cambia \ninternamente para aprender la tarea para la que se le está \nentrenando. Learning_rate = 0. 5\nPesos del modelo \ncambian mucho por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\nRelación entre el learning rate y el batch size\nEl aumento del batch size suele implicar un aumento de igual \nmagnitud del learning rate. El batch size más grande, hace que el gradiente sea menos \nruidoso, permitiéndote por lo tanto que se aumente la \nlongitud de los pasos que damos hacia la dirección buscada. “Si caminas con los ojos vendados (gradiente ruidoso), das \npasos pequeños para no caerte. Si ves bien (gradiente \nlimpio), puedes dar pasos de mayor longitud sin miedo a \ncaerte. www. ebiseducation.",
+        "ebiseducation. com\n\nBatch, epochs e hiperparámetros\nTamaño del batch (batch dize)\nVelocidad\nRecursos\nProblemas y \nbeneficios\n-\nRuido en el gradiente. -\nAprendizaje menos estable. -\nMenor riesgo de overfitting. -\nMenor ruido en el gradiente. -\nAprendizaje más estable. -\nMayor riesgo de overfitting. Batch, epochs e hiperparámetros\n¿Qué es un epoch en Deep Learning?\nwww. ebiseducation. com\nUna epoch es una pasada completa por todo el conjunto de \ndatos de entrenamiento. El modelo ve cada dato una vez por \nepoch. En general, son necesarios un gran número de epochs \npara que el modelo aprenda. Batch, epochs e hiperparámetros\nNúmero óptimo de epochs\nSi uso pocos…\nTendré problemas de underfitting. Si uso demasiados…\nTendré problemas de overfitting. Para encontrar el número óptimo…\nPrueba y error. Early stopping. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nLearning_rate = 0.",
+        " Tema 2: Fundamentos de la IA y el Machine Learning – Clase 3\n\nContenidos\n•\nTiempo requerido para el Deep Learning para \nentrenar e inferir. •\nBatch, epochs e hiperparámetros. •\nInfraestructura necesaria para el Deep Learning. •\nRequisitos de HW: GPUs. www. ebiseducation. com\n\nTiempo requerido por el Deep Learning para \nentrenar e inferir\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nCIFAR 10\nwww. ebiseducation. com\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nImageNet\nwww. ebiseducation. com\n???\n\nTiempo requerido por el Deep Learning para entrenar e inferir\n¿De qué depende?\nwww. ebiseducation. com\nTamaño del dataset\nMientras que CIFAR-10 tiene 50k \nregistros, ¡ImageNet tiene 1.",
+        "4M!\nComplejidad del modelo\nUtilizando 18 capas, logro un 85% de accuracy para \nCIFAR; ¡un dataset de la complejidad de Imagenet \nrequeriría de alrededor de 50 capas para alcanzar un \n76% aproximadamente!\nBatch size\nNúmero de Epochs\nRecursos \ncomputacionales…\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nImageNet\nwww. ebiseducation. com\nMuchas horas… \n¡incluso días!\n\nBatch, epochs e hiperparámetros\n\nBatch, epochs e hiperparámetros\n¿Qué son los hiperparámetros? ¿Y los parámetros?\nLos hiperparámetros son todo aquello que podemos \nconfigurar antes de entrenar. No se aprenden \nautomáticamente. Su ajuste correcto es clave para el éxito. Los parámetros son todos aquellos valores matemáticos que \nse ajustan durante el entrenamiento. Cada modelo tendrá \ndistintos parámetros, incluso teniendo los mismos \nhiperparámetros, debido al factor aleatorio del proceso de \nentrenamiento. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es un batch en Deep Learning?\nwww.",
+        "com\n\nBatch, epochs e hiperparámetros\nCheckpoints y recuperación\nwww. ebiseducation. com\nSon estados de guardado \ndel modelo durante el \nentrenamiento. Permiten recuperar el \nprogreso si algo falla, \nprobar en distintos puntos \ncambios en el \nentrenamiento, o pausar y \ncontinuar más adelante el \nproceso. Infraestructura necesaria para el DeepLearning\n\nInfraestructura necesaria para el DeepLearning\nIntroducción a la infraestructura del DeepLearning\nwww. ebiseducation. com\nSi bien es cierto que modelos \nsencillos se pueden entrenar en \nordenadores clásicos, es muy \nimportante entender que el poder del \nDeep Learning moderno, \nespecialmente la IA Generativa, viene \nacompañado de una necesidad \nintensa de cómputo. Infraestructura necesaria para el DeepLearning\nIntroducción a la infraestructura del DeepLearning\nwww. ebiseducation. com\n¿Qué se necesita?\nSSD\nRAM\nGPUs y/o CPUs\nSW especializado\n\nInfraestructura necesaria para el DeepLearning\nIntroducción a la infraestructura del DeepLearning\nwww"
+      ],
+      "fuentes": [
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf"
+      ],
+      "scores": [
+        0.704,
+        0.599,
+        0.459,
+        0.444,
+        0.44
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          1
+        ],
+        "encontradas": 1,
+        "hit_1": true,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 1.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 2.302,
+      "tokens_entrada": 1572,
+      "tokens_salida": 55,
+      "notas": ""
+    },
+    {
+      "id": 11,
+      "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+      "tipo": "multi",
+      "documento": "doc44",
+      "respuesta": "La distancia Euclídea (L2) y la distancia de Manhattan (L1) se diferencian en la forma en que calculan la distancia entre dos puntos:\n\n1. **Cálculo**:\n   - **Distancia Euclídea**: Se calcula como la raíz cuadrada de la suma de las diferencias al cuadrado entre las coordenadas de los puntos. Fórmula: \\( d_{x,y} = \\sqrt{\\sum_{i=1}^{n} (x_i - y_i)^2} \\).\n   - **Distancia de Manhattan**: Se calcula como la suma de las diferencias absolutas entre las coordenadas de los puntos. Fórmula: \\( d_{x,y} = \\sum_{i=1}^{n} |x_i - y_i| \\).\n\n2. **Geometría**:\n   - En el caso de la distancia Euclídea, las iso-distancias forman círculos en 2D, mientras que para la distancia de Manhattan, forman rombos.\n\n3. **Sensibilidad a valores atípicos**:\n   - La distancia Euclídea es más sensible a valores atípicos debido a que eleva al cuadrado las diferencias, mientras que la distancia de Manhattan es menos sensible a estos valores.\n\n4. **Aplicaciones**:\n   - La distancia Euclídea es ideal para datos densos con magnitudes relevantes, como imágenes o señales. Por otro lado, la distancia de Manhattan es más adecuada para datos dispersos, como representaciones de texto basadas en conteo de palabras.\n\nEstas diferencias hacen que cada métrica sea más adecuada en diferentes contextos y tipos de datos.",
+      "referencia": "La distancia de Manhattan resulta especialmente útil con datos dispersos, como representaciones de texto basadas en conteo de palabras, y es menos sensible a los valores atípicos porque no eleva al cuadrado las diferencias. Sus curvas de iso-distancia forman rombos en 2D, frente a los círculos de la Euclídea, y además se calcula de forma más eficiente.",
+      "contextos": [
+        "Métricas de distancia: Euclídea (L2)\n\nFórmula y ejemplo\n𝑑𝑥, 𝑦= ෍\n𝑖=1\n𝑛\n|𝑥𝑖−𝑦𝑖|\nPuntos\nDimensión 1\nDimensión 2\nDistancia L1\nA(2,3), B(5,7)\n|5-2| = 3\n|7-3| = 4\n3+4 = 7\nC(1,8), D(4,2)\n|4-1| = 3\n|2-8| = 6\n3+6 = 9\nObservamos que la distancia Manhattan siempre es mayor o igual que la Euclídea \n(en nuestro ejemplo anterior, 7 vs 5). Geometría urbana\nLlamada así por la disposición en cuadrícula de Manhattan, esta métrica calcula la \ndistancia como si nos moviéramos solo en direcciones paralelas a los ejes \ncoordenados. Las curvas de iso-distancia forman rombos en 2D, en contraste con los círculos de \nla distancia Euclídea. La distancia Manhattan resulta especialmente útil al trabajar con datos dispersos \n(sparse), como representaciones de textos basadas en conteo de palabras. Es \nmenos sensible a valores atípicos que la distancia Euclídea, ya que no eleva al \ncuadrado las diferencias, y puede calcularse más eficientemente en ciertos \ncontextos computacionales.",
+        "Métricas de distancia: Manhattan (L1)\n\nComparativa de valores p\np=1 (Manhattan)\nSuma de diferencias absolutas\np=2 (Euclídea)\nRaíz cuadrada de la suma de diferencias \nal cuadrado\np=3\nRaíz cúbica de la suma de diferencias al \ncubo\np→∞ (Chebyshev)\nMáximo de las diferencias absolutas\nAl aumentar p, la métrica da mayor peso a las diferencias grandes entre componentes. Generalización paramétrica\nLa distancia de Minkowski es una generalización que unifica las métricas L1 y L2 a través \ndel parámetro 𝑝:\n𝑑𝑥, 𝑦=\n𝑝\n෍\n𝑖=1\n𝑛\n𝑥𝑖−𝑦𝑖𝑝 \nCuando 𝑝= 1, obtenemos la distancia Manhattan; cuando 𝑝= 2, la distancia Euclídea. La distancia de Chebyshev (𝑝→∞) se calcula como max |𝑥ᵢ−𝑦ᵢ| y resulta útil en aplicaciones donde solo \nimporta la máxima diferencia en cualquier dimensión, como en planificación de movimientos donde el \ntiempo está determinado por el eje que más tarda.",
+        "𝒔𝒊𝒎𝒙, 𝒚=\n𝒙⋅𝒚\n𝒙\n𝒚\n\nFórmula y cálculo\nLa distancia Euclídea entre dos puntos se calcula como:\n𝑑𝑥, 𝑦=\n෍\n𝑖=1\n𝑛\n𝑥𝑖−𝑦𝑖2\nEjemplo: Entre los puntos (2,3) y (5,7)\n𝑑=\n5 −2 2 + 7 −3 2 =\n9 + 16 = 5\nPropiedades matemáticas\nInvariante a rotación y traslación: La distancia entre dos puntos no cambia si \nrotamos el sistema de coordenadas o si los trasladamos, preservando relaciones \nespaciales. Sensible a escala: La distancia se ve afectada por cambios en la escala de los \ndatos, lo que a menudo requiere normalización previa. Comportamiento geométrico: Las iso-distancias (puntos a igual distancia) \nforman círculos en 2D, esferas en 3D y n-esferas en espacios de mayor \ndimensión. La distancia Euclídea es fundamental en el algoritmo de clustering k-means, donde el \nobjetivo es minimizar la suma de los cuadrados de las distancias L2 entre cada punto \ny su centroide más cercano. Esta propiedad hace que k-means tienda a crear clusters \ncon forma esférica.",
+        "Por ejemplo, la distancia Manhattan es particularmente \neficiente en hardware especializado debido a que solo requiere operaciones de suma y valor absoluto. Métricas de distancia: Comparativa\n\nDatos densos con magnitudes \nrelevantes\nLa distancia Euclídea (L2) es ideal para \ndatos como imágenes, señales o \ncoordenadas físicas donde la magnitud \nabsoluta tiene significado real y los datos \ntienen distribución aproximadamente \nnormal. Datos dispersos basados en \nconteos\nLa distancia Manhattan (L1) funciona mejor \ncon representaciones dispersas como \nvectores de conteo de palabras (Bag-of-\nWords) o datos categóricos codificados, \nsiendo menos sensible a valores atípicos. Semántica direccional\nLa similitud del coseno es óptima para \nembeddings semánticos donde la dirección \ndel vector captura el significado, \nindependientemente de su magnitud, como \nen Word2Vec o BERT. Más allá de consideraciones teóricas, la selección final de una métrica debe validarse empíricamente.",
+        " \nDistancia de Manhattan ($L_1$): Suma \nde diferencias absolutas, útil en \nciertos contextos de datos dispersos.  \nSimilitud Coseno: Técnica predilecta \npara embeddings de texto, ya que \nmide el ángulo entre vectores, siendo \ninvariante a la magnitud (longitud) de \nlos documentos. Desafíos Técnicos: La \nMaldición de la \nDimensionalidad \nLa sesión profundiza en las \nlimitaciones prácticas de estos \nmodelos, específicamente el \nfenómeno conocido como la \nmaldición de la dimensionalidad.  \nImpacto en Algoritmos: A medida que \naumenta el número de dimensiones, \nlas distancias entre puntos tienden a \nconverger, lo que puede dificultar la \ndiscriminación de algoritmos como \nKNN (K-Nearest Neighbors).  \nOptimización: Se discute la \nimportancia de elegir la \ndimensionalidad adecuada para \nequilibrar la precisión semántica con \nla latencia del sistema, un factor \ncrítico en entornos de producción \nempresarial."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf"
+      ],
+      "scores": [
+        0.735,
+        0.632,
+        0.564,
+        0.554,
+        0.552
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          1,
+          0
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 7.17,
+      "tokens_entrada": 1786,
+      "tokens_salida": 342,
+      "notas": "Anclas a 2.690 caracteres, unos 3 fragmentos: la segunda es la tabla comparativa"
+    },
+    {
+      "id": 12,
+      "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+      "tipo": "multi",
+      "documento": "doc44",
+      "respuesta": "La distancia Euclídea (L2) se basa en el teorema de Pitágoras. Es ideal para datos como imágenes, señales o coordenadas físicas donde la magnitud absoluta tiene significado real y los datos tienen distribución aproximadamente normal.",
+      "referencia": "Se basa en el teorema de Pitágoras y mide la línea recta entre dos puntos, por lo que es la distancia natural en el espacio físico. Resulta ideal para datos como imágenes, señales o coordenadas físicas, donde la magnitud absoluta tiene significado real y los datos siguen una distribución aproximadamente normal.",
+      "contextos": [
+        "Métricas de distancia: Euclídea (L2)\n\nFórmula y ejemplo\n𝑑𝑥, 𝑦= ෍\n𝑖=1\n𝑛\n|𝑥𝑖−𝑦𝑖|\nPuntos\nDimensión 1\nDimensión 2\nDistancia L1\nA(2,3), B(5,7)\n|5-2| = 3\n|7-3| = 4\n3+4 = 7\nC(1,8), D(4,2)\n|4-1| = 3\n|2-8| = 6\n3+6 = 9\nObservamos que la distancia Manhattan siempre es mayor o igual que la Euclídea \n(en nuestro ejemplo anterior, 7 vs 5). Geometría urbana\nLlamada así por la disposición en cuadrícula de Manhattan, esta métrica calcula la \ndistancia como si nos moviéramos solo en direcciones paralelas a los ejes \ncoordenados. Las curvas de iso-distancia forman rombos en 2D, en contraste con los círculos de \nla distancia Euclídea. La distancia Manhattan resulta especialmente útil al trabajar con datos dispersos \n(sparse), como representaciones de textos basadas en conteo de palabras. Es \nmenos sensible a valores atípicos que la distancia Euclídea, ya que no eleva al \ncuadrado las diferencias, y puede calcularse más eficientemente en ciertos \ncontextos computacionales.",
+        "Por ejemplo, la distancia Manhattan es particularmente \neficiente en hardware especializado debido a que solo requiere operaciones de suma y valor absoluto. Métricas de distancia: Comparativa\n\nDatos densos con magnitudes \nrelevantes\nLa distancia Euclídea (L2) es ideal para \ndatos como imágenes, señales o \ncoordenadas físicas donde la magnitud \nabsoluta tiene significado real y los datos \ntienen distribución aproximadamente \nnormal. Datos dispersos basados en \nconteos\nLa distancia Manhattan (L1) funciona mejor \ncon representaciones dispersas como \nvectores de conteo de palabras (Bag-of-\nWords) o datos categóricos codificados, \nsiendo menos sensible a valores atípicos. Semántica direccional\nLa similitud del coseno es óptima para \nembeddings semánticos donde la dirección \ndel vector captura el significado, \nindependientemente de su magnitud, como \nen Word2Vec o BERT. Más allá de consideraciones teóricas, la selección final de una métrica debe validarse empíricamente.",
+        "𝒔𝒊𝒎𝒙, 𝒚=\n𝒙⋅𝒚\n𝒙\n𝒚\n\nFórmula y cálculo\nLa distancia Euclídea entre dos puntos se calcula como:\n𝑑𝑥, 𝑦=\n෍\n𝑖=1\n𝑛\n𝑥𝑖−𝑦𝑖2\nEjemplo: Entre los puntos (2,3) y (5,7)\n𝑑=\n5 −2 2 + 7 −3 2 =\n9 + 16 = 5\nPropiedades matemáticas\nInvariante a rotación y traslación: La distancia entre dos puntos no cambia si \nrotamos el sistema de coordenadas o si los trasladamos, preservando relaciones \nespaciales. Sensible a escala: La distancia se ve afectada por cambios en la escala de los \ndatos, lo que a menudo requiere normalización previa. Comportamiento geométrico: Las iso-distancias (puntos a igual distancia) \nforman círculos en 2D, esferas en 3D y n-esferas en espacios de mayor \ndimensión. La distancia Euclídea es fundamental en el algoritmo de clustering k-means, donde el \nobjetivo es minimizar la suma de los cuadrados de las distancias L2 entre cada punto \ny su centroide más cercano. Esta propiedad hace que k-means tienda a crear clusters \ncon forma esférica.",
+        "Métricas de distancia: Similitud coseno\n\nMétrica\nSensibilidad a escala\nGeometría iso-distancia\nComplejidad \ncomputacional\nCaso de uso ideal\nEuclídea (L2)\nAlta\nCírculos/esferas\nMedia (raíz cuadrada)\nDatos físicos, clustering\nManhattan (L1)\nAlta\nRombos\nBaja (valores absolutos)\nDatos dispersos, robustez \na outliers\nChebyshev (L∞)\nAlta\nCuadrados/cubos\nMuy baja (solo máximo)\nPlanificación de \nmovimientos\nCoseno\nNinguna\nConos\nMedia (producto escalar \n+ normalización)\nTextos, embeddings \nsemánticos\nLa elección de la métrica adecuada puede tener un impacto significativo en el rendimiento de un modelo. La sensibilidad a la escala determina si \nnecesitamos normalizar previamente los datos, mientras que la forma geométrica de las iso-distancias influye en cómo se agrupan los puntos cercanos. En términos de implementación, algunas métricas son más eficientes computacionalmente.",
+        "Esto es, d es una función\n𝑑: 𝑉𝑥𝑉 →ℝ\nque verifica los siguientes axiomas:\nSimetría\n𝑑𝑥, 𝑦= 𝑑𝑦, 𝑥,\n \n∀𝑥, 𝑦∈𝑉\nDesigualdad triangular\n𝑑𝑥, 𝑧≤𝑑𝑥, 𝑦+ 𝑑𝑦, 𝑧, 𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦, 𝑧∈𝑉\nPositividad\n𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦∈𝑉\n𝑑𝑥, 𝑦= 0 \n⟺ \n𝑥= 𝑦\n\nDistancia Manhattan (L1)\nSuma los valores absolutos de las diferencias en cada dimensión, como moverse en una cuadrícula \nurbana. 𝒅𝒙, 𝒚= ෍\n𝒊=𝟏\n𝒏\n|𝒙𝒊−𝒚𝒊|\nMétricas de distancia\nDistancia Euclídea (L2)\nBasada en el teorema de Pitágoras, mide la línea recta entre dos puntos. Es la distancia \"natural\" en el \nespacio físico. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝟐\n\nDistancia Minkowski (p-norm)\nGeneralización que incluye L1 (p=1) y L2 (p=2), permitiendo ajustar la sensibilidad a valores atípicos. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝒑\n𝟏\n𝒑\nMétricas de distancia\nSimilitud Coseno\nMide el ángulo entre vectores, enfocándose en dirección y no en magnitud. Ideal para textos y \nembeddings semánticos."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.67,
+        0.616,
+        0.636,
+        0.59,
+        0.549
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          5,
+          2
+        ],
+        "encontradas": 2,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.2
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.371,
+      "tokens_entrada": 2018,
+      "tokens_salida": 50,
+      "notas": "La multi mejor construida: anclas a 5.684 caracteres, unos 7 fragmentos"
+    },
+    {
+      "id": 13,
+      "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [
+        "Arquitectura RAG y LLMs \nHubo un debate técnico sobre la \ncomplejidad de integrar modelos de \nlenguaje avanzados: \n \nDesafíos del RAG (Retrieval-\nAugmented Generation): Jorge y otros \nestudiantes expresaron la dificultad \nde esta arquitectura, que combina la \nrecuperación de documentos con la \ngeneración de texto.  \nIntegración de ML Ops: La clase \npreparó el terreno para que los \nmodelos entrenados no se queden en \nun notebook, sino que se conviertan \nen servicios consumibles por \naplicaciones web o móviles a través \nde la API. Seguridad y Producción \nLa sesión concluyó con una introducción a la \nprotección de los servicios expuestos: \n \nAutenticación: Comparación entre \nseguridad básica y el uso de Tokens \nJWT (JSON Web Tokens) para \nsesiones seguras.  \nManejo de Excepciones: Cómo \nconfigurar el servidor para que \ndevuelva errores controlados en lugar \nde exponer el código fuente ante un \nfallo.",
+        " \nSegmentación de Información: Se \njustifica el uso de RAG para trabajar \ncon fragmentos (chunks) específicos \nde documentos, lo que reduce \ndrásticamente los costos de \ncomputación y mejora la ventana de \ncontexto del modelo.  \nMemoria de Conversación: Se \nrecomienda una gestión manual del \nhistorial (por ejemplo, mediante \nresúmenes de interacciones previas \ncon modelos menores o ventanas \nfijas de turnos) para mantener la \ncoherencia sin saturar la capacidad \ndel sistema. Métricas de Distancia y el \nEspacio Métrico \nPara que un sistema de IA \"encuentre\" \ninformación, debe ser capaz de medir \nqué tan lejos está un vector de otro. Se definen las propiedades de un \nespacio métrico (simetría, positividad, \ndesigualdad triangular) y se analizan \nlas herramientas de medición: \n \nDistancia Euclidia ($L_2$): \nFundamental en algoritmos de \naprendizaje automático por ser \ndiferenciable, facilitando el uso del \ndescenso del gradiente.",
+        " \nEvolución del Modelo: Los embeddings \nmodernos permiten que relaciones \nconceptuales se conserven \ngeométricamente; por ejemplo, \nasegurar que el vector de \"perro\" esté \nmás cerca de \"canino\" que de \n\"automóvil\".  \nEficiencia Operativa: Se destaca que el \nobjetivo primordial es organizar la \ninformación de manera que la \nrecuperación sea contextual, \npermitiendo que los LLMs accedan a \ndatos relevantes sin necesidad de \nprocesar volúmenes masivos de texto \nirrelevante. Arquitectura RAG y Gestión de \nContexto \nUno de los puntos de mayor interés \npara el posgrado es la \nimplementación de sistemas RAG \n\n \n \nResumen de clase T6C1– MIDINV26 \n \n(Retrieval-Augmented Generation). La \ndiscusión técnica se centra en la \noptimización de recursos y la \nprecisión de los modelos.",
+        "Arquitecturas emergentes\n\nAutoregresivos y Transformers: los más populares\n51\nTransformers: la arquitectura \ndominante (por ahora)\n• Modelos como GPT, BERT o LLaMA usan \narquitectura autoregresiva basada en attention\n• Muy potentes, pero exigentes en memoria y cómputo\n• Su éxito ha sido clave para el boom de la IA \ngenerativa actual\n• Veremos cómo funcionan con detalle en el próximo \ntema\n\nAlternativas emergentes a los Transformers\n52\n¿Hay vida más allá de los Transformers?\n🧠 Mamba: modelo secuencial eﬁciente sin atención\n🔄 RWKV: mezcla lo mejor del RNN y Transformer\n🧩 MoE (Mixture of Experts): solo se activan partes del modelo → más eﬁciente\n⚡ FlashAttention, RetNet: mejoras dentro de los Transformers\n\nAlternativas emergentes a los Transformers\n53\nArquitectura\nVentaja clave\nTipo de generación\nMamba\nSecuencial y eﬁciente\nAutoregresiva\nRWKV\nFusiona RNN + Transformer\nAutoregresiva\nMoE\nActiva solo partes del modelo\nAutoregresiva\nFlashAttention\nAtención más rápida\nAutoregresiva\nRetNet\nTran",
+        " Resumen de clase T6C1– MIDINV26 \n \nAbstract \nLa sesión fundacional del Tema 6, dirigida por el experto EBIS (Alberto), establece la transición \ncrítica desde el procesamiento de texto plano hacia la representación vectorial de la información. A través de un enfoque que combina el rigor matemático de los espacios métricos con \naplicaciones pragmáticas en IA Generativa, se explora cómo los embeddings permiten codificar el \nsignificado semántico en coordenadas geométricas. El núcleo de la sesión analiza la operatividad \nde los sistemas RAG (Retrieval-Augmented Generation) y la importancia de las métricas de \ndistancia (Euclidia, Manhattan, Coseno) como motores de decisión en la recuperación de \ncontexto y la búsqueda semántica moderna. Fundamentos de los Espacios \nVectoriales en la IA \nLa sesión inicia con la desmitificación de los \nvectores, presentándolos no solo como \nentidades matemáticas, sino como \ncontenedores de características \nmultidimensionales."
+      ],
+      "fuentes": [
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Resumen Tema 6 Clase 1.pdf"
+      ],
+      "scores": [
+        0.534,
+        0.515,
+        0.508,
+        0.421,
+        0.408
+      ],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.664,
+      "tokens_entrada": 1547,
+      "tokens_salida": 14,
+      "notas": "Tangencial: el corpus explica RAG pero nunca el reordenado"
+    },
+    {
+      "id": 14,
+      "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [
+        "net/gsc_news/en/20220928-stable-diffusion-classifier-free-guidance/\n\n¿Cómo se compara con GANs y VAEs?\nDiferencias con otras arquitecturas generativas\n• No parte de un vector latente z como GAN/VAE, sino de ruido total\n• Mejores detalles, menos “artefactos”\n• Menos colapso de modo que las GANs\n• Más pasos → más lento → más controlable\n11\nModelo\nEntrada\nVelocidad\nCalidad\nEstilo\nVAE\nz latente\n⚡ Rápido\n🎯 Media\nSuave\nGAN\nz latente\n⚡ Rápido\n⚠ Artefactos\nFuerte\nDifusión\nRuido total\n🐢 Lento\n🏆 Alta\nPreciso\n\nLimitaciones y desafíos\n¿Todo son ventajas?\n• Requiere muchos pasos → lenta en tiempo real\n• Alto coste computacional\n• Poca capacidad para generar texto legible \ndentro de imágenes\n• Difícil controlar detalles muy concretos sin \nherramientas adicionales\n12\n\nHistoria y evolución de los LLMs\n\n¿Qué es un LLM?\n¿Qué son realmente?\n• Son modelos entrenados para procesar, \nentender y generar lenguaje natural\n• Predicen el siguiente token en una secuencia \ndada\n• Pueden responder preguntas, resumi",
+        "01\nPesos del modelo \ncambian poco por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nEl learning rate es el factor de aprendizaje del modelo. Es, de \nforma simplificada, lo rápido o despacio que cambia \ninternamente para aprender la tarea para la que se le está \nentrenando. Learning_rate = 0. 5\nPesos del modelo \ncambian mucho por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\nRelación entre el learning rate y el batch size\nEl aumento del batch size suele implicar un aumento de igual \nmagnitud del learning rate. El batch size más grande, hace que el gradiente sea menos \nruidoso, permitiéndote por lo tanto que se aumente la \nlongitud de los pasos que damos hacia la dirección buscada. “Si caminas con los ojos vendados (gradiente ruidoso), das \npasos pequeños para no caerte. Si ves bien (gradiente \nlimpio), puedes dar pasos de mayor longitud sin miedo a \ncaerte. www. ebiseducation.",
+        "14\n\nAntes del boom: n-grams y RNNs\nAntes de los LLMs: n-grams y redes secuenciales\n• n-grams: predicen basados en las N-1 palabras anteriores\n• Fórmula de probabilidad de un n-gram:\n• Problema: necesitan enormes tablas → mala generalización\n• RNNs: redes que procesan tokens uno tras otro\n• Capaces de modelar dependencias más largas… relativamente\n15\n\nLimitaciones de RNNs y LSTM como solución\n• Problema de RNNs: desvanecimiento/explosión \nde gradientes\n• LSTM: introduce “puertas” (input, forget, output) \npara controlar el ﬂujo de información\n16\nDe RNN a LSTM: problemas de memoria\n\nEl momento clave: Attention is All You Need (2017)\nNacimiento del Transformer\n• Idea clave: self-attention → cada palabra \npuede mirar a cualquier otra\n• Permite paralelizar entrenamientos y procesar \ncontexto largo\n• Fórmula de self-attention:\n(donde Q=queries, K=keys, V=values)\n17\n\nDe los Transformers a los LLMs modernos\nEvolución hacia modelos gigantes\n• Transformer abre la puerta a modelos \nentrenados con ",
+        "ebiseducation. com\n\nBatch, epochs e hiperparámetros\nTamaño del batch (batch dize)\nVelocidad\nRecursos\nProblemas y \nbeneficios\n-\nRuido en el gradiente. -\nAprendizaje menos estable. -\nMenor riesgo de overfitting. -\nMenor ruido en el gradiente. -\nAprendizaje más estable. -\nMayor riesgo de overfitting. Batch, epochs e hiperparámetros\n¿Qué es un epoch en Deep Learning?\nwww. ebiseducation. com\nUna epoch es una pasada completa por todo el conjunto de \ndatos de entrenamiento. El modelo ve cada dato una vez por \nepoch. En general, son necesarios un gran número de epochs \npara que el modelo aprenda. Batch, epochs e hiperparámetros\nNúmero óptimo de epochs\nSi uso pocos…\nTendré problemas de underfitting. Si uso demasiados…\nTendré problemas de overfitting. Para encontrar el número óptimo…\nPrueba y error. Early stopping. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nLearning_rate = 0.",
+        "Métricas de distancia: Manhattan (L1)\n\nComparativa de valores p\np=1 (Manhattan)\nSuma de diferencias absolutas\np=2 (Euclídea)\nRaíz cuadrada de la suma de diferencias \nal cuadrado\np=3\nRaíz cúbica de la suma de diferencias al \ncubo\np→∞ (Chebyshev)\nMáximo de las diferencias absolutas\nAl aumentar p, la métrica da mayor peso a las diferencias grandes entre componentes. Generalización paramétrica\nLa distancia de Minkowski es una generalización que unifica las métricas L1 y L2 a través \ndel parámetro 𝑝:\n𝑑𝑥, 𝑦=\n𝑝\n෍\n𝑖=1\n𝑛\n𝑥𝑖−𝑦𝑖𝑝 \nCuando 𝑝= 1, obtenemos la distancia Manhattan; cuando 𝑝= 2, la distancia Euclídea. La distancia de Chebyshev (𝑝→∞) se calcula como max |𝑥ᵢ−𝑦ᵢ| y resulta útil en aplicaciones donde solo \nimporta la máxima diferencia en cualquier dimensión, como en planificación de movimientos donde el \ntiempo está determinado por el eje que más tarda."
+      ],
+      "fuentes": [
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.381,
+        0.355,
+        0.326,
+        0.322,
+        0.321
+      ],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.68,
+      "tokens_entrada": 1747,
+      "tokens_salida": 14,
+      "notas": "Tangencial: cubre hiperparámetros de entrenamiento, no de inferencia"
+    },
+    {
+      "id": 15,
+      "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [
+        "Arquitectura RAG y LLMs \nHubo un debate técnico sobre la \ncomplejidad de integrar modelos de \nlenguaje avanzados: \n \nDesafíos del RAG (Retrieval-\nAugmented Generation): Jorge y otros \nestudiantes expresaron la dificultad \nde esta arquitectura, que combina la \nrecuperación de documentos con la \ngeneración de texto.  \nIntegración de ML Ops: La clase \npreparó el terreno para que los \nmodelos entrenados no se queden en \nun notebook, sino que se conviertan \nen servicios consumibles por \naplicaciones web o móviles a través \nde la API. Seguridad y Producción \nLa sesión concluyó con una introducción a la \nprotección de los servicios expuestos: \n \nAutenticación: Comparación entre \nseguridad básica y el uso de Tokens \nJWT (JSON Web Tokens) para \nsesiones seguras.  \nManejo de Excepciones: Cómo \nconfigurar el servidor para que \ndevuelva errores controlados en lugar \nde exponer el código fuente ante un \nfallo.",
+        " \nEvolución del Modelo: Los embeddings \nmodernos permiten que relaciones \nconceptuales se conserven \ngeométricamente; por ejemplo, \nasegurar que el vector de \"perro\" esté \nmás cerca de \"canino\" que de \n\"automóvil\".  \nEficiencia Operativa: Se destaca que el \nobjetivo primordial es organizar la \ninformación de manera que la \nrecuperación sea contextual, \npermitiendo que los LLMs accedan a \ndatos relevantes sin necesidad de \nprocesar volúmenes masivos de texto \nirrelevante. Arquitectura RAG y Gestión de \nContexto \nUno de los puntos de mayor interés \npara el posgrado es la \nimplementación de sistemas RAG \n\n \n \nResumen de clase T6C1– MIDINV26 \n \n(Retrieval-Augmented Generation). La \ndiscusión técnica se centra en la \noptimización de recursos y la \nprecisión de los modelos.",
+        " \nSegmentación de Información: Se \njustifica el uso de RAG para trabajar \ncon fragmentos (chunks) específicos \nde documentos, lo que reduce \ndrásticamente los costos de \ncomputación y mejora la ventana de \ncontexto del modelo.  \nMemoria de Conversación: Se \nrecomienda una gestión manual del \nhistorial (por ejemplo, mediante \nresúmenes de interacciones previas \ncon modelos menores o ventanas \nfijas de turnos) para mantener la \ncoherencia sin saturar la capacidad \ndel sistema. Métricas de Distancia y el \nEspacio Métrico \nPara que un sistema de IA \"encuentre\" \ninformación, debe ser capaz de medir \nqué tan lejos está un vector de otro. Se definen las propiedades de un \nespacio métrico (simetría, positividad, \ndesigualdad triangular) y se analizan \nlas herramientas de medición: \n \nDistancia Euclidia ($L_2$): \nFundamental en algoritmos de \naprendizaje automático por ser \ndiferenciable, facilitando el uso del \ndescenso del gradiente.",
+        " Resumen de clase T4C5– MIDIN26 \n \n \nAbstract \nLa sesión da inicio con el enfoque en la transición de modelos teóricos de Machine Learning a \nservicios operativos a través de APIs (Application Programming Interfaces). El profesor explicó la \narquitectura de comunicación HTTP, detallando el uso de verbos (GET, POST, etc. ) y códigos de \nestado para la integración de sistemas. La parte práctica se centró en el desarrollo de un servidor \nligero con FastAPI, el manejo de entornos virtuales y la documentación automática. Además, se \ndiscutieron las dificultades de las arquitecturas RAG y se realizaron pruebas de consumo de \nservicios mediante Postman, sentando las bases para desplegar modelos de IA en producción. Fundamentos de APIs e Integración \nSe definió la API como el \"traductor\" esencial \npara que diferentes sistemas de software se \ncomuniquen entre sí: \n \nProtocolo HTTP: Revisión de los \nmétodos estándar para interactuar \ncon recursos: \no GET: Recuperar información.",
+        "net/gsc_news/en/20220928-stable-diffusion-classifier-free-guidance/\n\n¿Cómo se compara con GANs y VAEs?\nDiferencias con otras arquitecturas generativas\n• No parte de un vector latente z como GAN/VAE, sino de ruido total\n• Mejores detalles, menos “artefactos”\n• Menos colapso de modo que las GANs\n• Más pasos → más lento → más controlable\n11\nModelo\nEntrada\nVelocidad\nCalidad\nEstilo\nVAE\nz latente\n⚡ Rápido\n🎯 Media\nSuave\nGAN\nz latente\n⚡ Rápido\n⚠ Artefactos\nFuerte\nDifusión\nRuido total\n🐢 Lento\n🏆 Alta\nPreciso\n\nLimitaciones y desafíos\n¿Todo son ventajas?\n• Requiere muchos pasos → lenta en tiempo real\n• Alto coste computacional\n• Poca capacidad para generar texto legible \ndentro de imágenes\n• Difícil controlar detalles muy concretos sin \nherramientas adicionales\n12\n\nHistoria y evolución de los LLMs\n\n¿Qué es un LLM?\n¿Qué son realmente?\n• Son modelos entrenados para procesar, \nentender y generar lenguaje natural\n• Predicen el siguiente token en una secuencia \ndada\n• Pueden responder preguntas, resumi"
+      ],
+      "fuentes": [
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.381,
+        0.378,
+        0.373,
+        0.371,
+        0.37
+      ],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.911,
+      "tokens_entrada": 1554,
+      "tokens_salida": 14,
+      "notas": "Tangencial: menciona fine-tuning en doc37, nunca LoRA ni adaptadores"
+    },
+    {
+      "id": 16,
+      "pregunta": "¿Qué es el sistema aduanero?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [],
+      "fuentes": [],
+      "scores": [],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.803,
+      "tokens_entrada": 232,
+      "tokens_salida": 14,
+      "notas": "Ajena (control): ningún documento trata comercio exterior"
+    },
+    {
+      "id": 17,
+      "pregunta": "¿Qué hora es?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [
+        "Recordad que los conceptos aprendidos hoy son fundamentales para entender sistemas más complejos como los embeddings de texto e \nimagen que estudiaremos en próximas sesiones. La capacidad de medir correctamente la similitud entre vectores es la piedra angular de \nnumerosas aplicaciones en aprendizaje automático y procesamiento del lenguaje natural. Resumen de puntos clave\n\n¿Alguna pregunta?\nQ&A\n\nNo dudéis en contactarme si tenéis dudas adicionales o necesitáis aclaraciones sobre cualquier aspecto del curso. Podéis encontrarme a través de:\nCorreo electrónico\nalbertoragmat@gmail. com\nLinkedIn\nAlberto Ruiz-Arteaga González\nTutorías\nJueves cada dos semanas de 18:00 a 19:00 en\nel metacampus. ¡Gracias y hasta la próxima!\n\nwww. ebiseducation. com\nUSA."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.303
+      ],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.788,
+      "tokens_entrada": 423,
+      "tokens_salida": 14,
+      "notas": "Ajena (control): no respondible desde documentos ni desde el entrenamiento. Prueba más limpia de abstención que la 18"
+    },
+    {
+      "id": 18,
+      "pregunta": "¿Cuál es la capital de Francia?",
+      "tipo": "sin_respuesta",
+      "documento": "",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "No encontré información sobre este tema en los documentos de la empresa.",
+      "contextos": [],
+      "fuentes": [],
+      "scores": [],
+      "anclas": {
+        "aplica": false
+      },
+      "se_abstuvo": true,
+      "latencia_s": 1.717,
+      "tokens_entrada": 232,
+      "tokens_salida": 14,
+      "notas": "Ajena (control): comprueba si filtra conocimiento de entrenamiento. Medida en junio y octubre de 2026, 0,139 top-1"
+    },
+    {
+      "id": 19,
+      "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+      "tipo": "parafrasis",
+      "documento": "doc43",
+      "respuesta": "La técnica de medición preferentemente utilizada con representaciones numéricas de textos, por ser inmune a las variaciones en la extensión de los documentos, es la similitud del coseno.",
+      "referencia": "Es la técnica predilecta para embeddings de texto, porque mide el ángulo entre vectores y resulta invariante a la magnitud o longitud de los documentos.",
+      "contextos": [
+        "Por ejemplo, la distancia Manhattan es particularmente \neficiente en hardware especializado debido a que solo requiere operaciones de suma y valor absoluto. Métricas de distancia: Comparativa\n\nDatos densos con magnitudes \nrelevantes\nLa distancia Euclídea (L2) es ideal para \ndatos como imágenes, señales o \ncoordenadas físicas donde la magnitud \nabsoluta tiene significado real y los datos \ntienen distribución aproximadamente \nnormal. Datos dispersos basados en \nconteos\nLa distancia Manhattan (L1) funciona mejor \ncon representaciones dispersas como \nvectores de conteo de palabras (Bag-of-\nWords) o datos categóricos codificados, \nsiendo menos sensible a valores atípicos. Semántica direccional\nLa similitud del coseno es óptima para \nembeddings semánticos donde la dirección \ndel vector captura el significado, \nindependientemente de su magnitud, como \nen Word2Vec o BERT. Más allá de consideraciones teóricas, la selección final de una métrica debe validarse empíricamente.",
+        "Esto es, d es una función\n𝑑: 𝑉𝑥𝑉 →ℝ\nque verifica los siguientes axiomas:\nSimetría\n𝑑𝑥, 𝑦= 𝑑𝑦, 𝑥,\n \n∀𝑥, 𝑦∈𝑉\nDesigualdad triangular\n𝑑𝑥, 𝑧≤𝑑𝑥, 𝑦+ 𝑑𝑦, 𝑧, 𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦, 𝑧∈𝑉\nPositividad\n𝑑𝑥, 𝑦≥0,\n∀𝑥, 𝑦∈𝑉\n𝑑𝑥, 𝑦= 0 \n⟺ \n𝑥= 𝑦\n\nDistancia Manhattan (L1)\nSuma los valores absolutos de las diferencias en cada dimensión, como moverse en una cuadrícula \nurbana. 𝒅𝒙, 𝒚= ෍\n𝒊=𝟏\n𝒏\n|𝒙𝒊−𝒚𝒊|\nMétricas de distancia\nDistancia Euclídea (L2)\nBasada en el teorema de Pitágoras, mide la línea recta entre dos puntos. Es la distancia \"natural\" en el \nespacio físico. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝟐\n\nDistancia Minkowski (p-norm)\nGeneralización que incluye L1 (p=1) y L2 (p=2), permitiendo ajustar la sensibilidad a valores atípicos. 𝒅𝒙, 𝒚=\n෍\n𝒊=𝟏\n𝒏\n𝒙𝒊−𝒚𝒊𝒑\n𝟏\n𝒑\nMétricas de distancia\nSimilitud Coseno\nMide el ángulo entre vectores, enfocándose en dirección y no en magnitud. Ideal para textos y \nembeddings semánticos.",
+        "En algoritmos como k-NN (k vecinos más cercanos), el valor óptimo de 𝑝puede determinarse \nmediante validación cruzada, ajustándolo según las características específicas del conjunto de \ndatos. Métricas de distancia: Minkowski (p-norm)\n\nPropiedades clave\nInvariante a escala: Si multiplicamos un vector por un escalar positivo, la similitud \ncoseno no cambia. Esto es crucial para comparar documentos de diferentes \nlongitudes. Normalización implícita: Al dividir por las normas, la similitud coseno normaliza \nautomáticamente los vectores, haciéndola ideal para datos no normalizados. Interpretación semántica: En espacios de embeddings, vectores con dirección \nsimilar tienden a representar conceptos relacionados, independientemente de su \nmagnitud.",
+        "Norma y normalización\nLa norma o longitud de un vector v se denota como ||𝑣|| y en el\nespacio euclídeo es:\n𝑣\n=\n𝑣1\n2 + 𝑣2\n2 + ⋯+ 𝑣𝑛2\nLa normalización consiste en obtener un vector unitario en la misma\ndirección:\nො𝑣=\n𝑣\n𝑣\nNormalizar es crucial antes de calcular la similitud del coseno para \neliminar el efecto de la magnitud. Producto escalar (dot)\nEl producto escalar entre dos vectores es:\n𝑢· 𝑣= 𝑢₁𝑣₁ + 𝑢₂𝑣₂ + … + 𝑢ₙ𝑣ₙ = ||𝑢|| ||𝑣|| cos𝜃\nDonde 𝜃es el ángulo entre los vectores 𝑢y 𝑣. Esta relación es \nfundamental para la similitud del coseno. Proyección vectorial\nLa proyección de 𝑢sobre 𝑣es:\n𝑝𝑟𝑜𝑦𝑣𝑢= 𝑢⋅𝑣\n𝑣\n2 · 𝑣\nNos indica cuánto de u va en la dirección de 𝑣, concepto clave en\nmuchos algoritmos de ML. Operaciones básicas con vectores\n\nMétricas de distancia y similitud\n\nEspacio métrico\nDefinición de espacio métrico\nSea 𝑉un conjunto no vacío. Un espacio métrico sobre 𝑉 es una tupla\n(𝑉, 𝑑), donde d es una métrica o distancia.",
+        " \nDistancia de Manhattan ($L_1$): Suma \nde diferencias absolutas, útil en \nciertos contextos de datos dispersos.  \nSimilitud Coseno: Técnica predilecta \npara embeddings de texto, ya que \nmide el ángulo entre vectores, siendo \ninvariante a la magnitud (longitud) de \nlos documentos. Desafíos Técnicos: La \nMaldición de la \nDimensionalidad \nLa sesión profundiza en las \nlimitaciones prácticas de estos \nmodelos, específicamente el \nfenómeno conocido como la \nmaldición de la dimensionalidad.  \nImpacto en Algoritmos: A medida que \naumenta el número de dimensiones, \nlas distancias entre puntos tienden a \nconverger, lo que puede dificultar la \ndiscriminación de algoritmos como \nKNN (K-Nearest Neighbors).  \nOptimización: Se discute la \nimportancia de elegir la \ndimensionalidad adecuada para \nequilibrar la precisión semántica con \nla latencia del sistema, un factor \ncrítico en entornos de producción \nempresarial."
+      ],
+      "fuentes": [
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf",
+        "Resumen Tema 6 Clase 1.pdf"
+      ],
+      "scores": [
+        0.577,
+        0.549,
+        0.536,
+        0.527,
+        0.526
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          5
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.2
+      },
+      "se_abstuvo": false,
+      "latencia_s": 1.996,
+      "tokens_entrada": 1942,
+      "tokens_salida": 39,
+      "notas": "Paráfrasis de la 3. Evita similitud, coseno, ángulo, magnitud y embeddings; conserva «vectores»"
+    },
+    {
+      "id": 20,
+      "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+      "tipo": "parafrasis",
+      "documento": "doc40",
+      "respuesta": "El tipo de sistema de inteligencia artificial que entiende y escribe textos como los de una persona, adivinando la palabra que viene después, es un modelo generativo, como los basados en arquitecturas de Transformer (por ejemplo, GPT). Estos modelos están diseñados para producir texto nuevo y complejo, lo que les permite contestar dudas y hacer resúmenes. Además, su eficiencia depende de una correcta tokenización y del uso de arquitecturas que gestionen el contexto global de manera paralela.",
+      "referencia": "Es un modelo de lenguaje grande (LLM): un modelo entrenado para procesar, entender y generar lenguaje natural. Predice el siguiente token en una secuencia dada, y con ello puede responder preguntas, resumir textos, traducir o razonar.",
+      "contextos": [
+        "Posee \ndos \nvariantes: CBOW (predice la palabra \nsegún \nel \ncontexto) \ny \nSkip-gram \n(predice el contexto según la palabra). • \nGloVe y FastText: Se presentaron \ncomo mejoras técnicas; GloVe se \nespecializa en relaciones semánticas \nglobales, \nmientras \nque \nFastText \nmaneja \nmejor \nidiomas \nmorfológicamente \ncomplejos \ny \nerrores tipográficos al trabajar con \nsubpalabras. • \nVisualización Semántica: Mediante el \nuso de T-SNE, el profesor demostró \ncómo reducir 100 dimensiones a 2 \npara observar la cercanía matemática \nentre conceptos relacionados como \n\"rey-reina\" o \"hombre-mujer\". Resumen de clase T3C1 – MIDINV26 \n \n \nArquitecturas Modernas y \nTransformers  \nEl bloque central de la sesión analizó el salto \ntecnológico que permitió el auge de la IA \ngenerativa actual: \n• \nTransformers: El paper Attention Is All \nYou Need (2017) marcó un hito al \nintroducir el mecanismo de atención, \nsuperando a las redes recurrentes al \npermitir el procesamiento paralelo \nmasivo en GPUs.",
+        "+3 \n• \nModelos Probabilísticos: La evolución \nhacia modelos estadísticos permitió \npredecir palabras mediante el conteo \nde probabilidades, utilizando técnicas \ncomo n-gramas y Cadenas de Markov, \naunque con limitaciones severas en \ncontextos de largo plazo. +2 \n• \nAlgoritmos de Conteo: Se revisaron \nenfoques como Bag of Words y TF-\nIDF, este último utilizado para ajustar \nla relevancia de las palabras según su \nrareza en el corpus global. • \nTokenización: El profesor aclaró que \nlos tokens no siempre equivalen a \npalabras completas y que cada LLM \n(Large Language Model) implementa \nsu propio algoritmo de tokenización \ninterno. Representaciones Vectoriales: Word \nEmbeddings \n Se exploró cómo la IA transforma el lenguaje \nen estructuras matemáticas para procesar \nsignificados: \n• \nWord2Vec: \nIntroducido \nen \n2013, \npermite \nrepresentar \npalabras \nen \nespacios \nvectoriales.",
+        " \nSegmentación de Información: Se \njustifica el uso de RAG para trabajar \ncon fragmentos (chunks) específicos \nde documentos, lo que reduce \ndrásticamente los costos de \ncomputación y mejora la ventana de \ncontexto del modelo.  \nMemoria de Conversación: Se \nrecomienda una gestión manual del \nhistorial (por ejemplo, mediante \nresúmenes de interacciones previas \ncon modelos menores o ventanas \nfijas de turnos) para mantener la \ncoherencia sin saturar la capacidad \ndel sistema. Métricas de Distancia y el \nEspacio Métrico \nPara que un sistema de IA \"encuentre\" \ninformación, debe ser capaz de medir \nqué tan lejos está un vector de otro. Se definen las propiedades de un \nespacio métrico (simetría, positividad, \ndesigualdad triangular) y se analizan \nlas herramientas de medición: \n \nDistancia Euclidia ($L_2$): \nFundamental en algoritmos de \naprendizaje automático por ser \ndiferenciable, facilitando el uso del \ndescenso del gradiente.",
+        "• \nModelos Generativos vs. Discriminativos: \no Generativos (ej. GPT): \nDiseñados para producir texto \nnuevo y complejo, aunque con \nun mayor coste \ncomputacional. o Discriminativos (ej. SVM, Naive \nBayes): Más eficientes para \ntareas de clasificación con \netiquetas conocidas, como la \ndetección de spam. • \nEntrenamiento y Ajuste: Se \ndiscutieron procesos de pre-\nentrenamiento y fine-tuning, así como \nla capacidad de los modelos para \naprender de pocos ejemplos mediante \ntécnicas como Few-Shot y One-Shot \nlearning. Conclusión  \nLa sesión concluye que la madurez actual de \nla IA generativa es el resultado de una \ntransición fundamental desde el conteo \nestadístico superficial hacia la comprensión \nde la similitud semántica vectorial. El profesor \nestableció que, si bien modelos como GPT \nhan democratizado el acceso al lenguaje \nnatural, su eficiencia depende de una correcta \ntokenización y del uso de arquitecturas de \nTransformer que gestionen el contexto global \nde manera paralela.",
+        "Soporte nativo \nde voz y generación de imágenes integrada. Gemini 2. 0 \nFlash\nTexto, Imagen, \nAudio, Video\nVentana de contexto de hasta 1 millón de tokens y generación \nmultimodal nativa. Claude 3. 7 \nSonnet\nTexto, Imagen\nModelo de razonamiento híbrido con modo de pensamiento extendido y \ncapacidades avanzadas en codificación. Flamingo \n(DeepMind)\nImagen + Texto\nPionero en aprendizaje multimodal con pocos ejemplos (few-shot), \nintegrando texto e imágenes. Ejemplo práctico: pregunta sobre una imagen\n¿Un ejemplo real? Preguntar a un \nmodelo sobre una imagen\n• Input:\n•\nImagen: foto de un paisaje de montaña\n•\nPregunta: \"¿Cuál parece ser la estación \ndel año en esta imagen?\"\n• Output:\n•\n\"Probablemente otoño, debido al color \nanaranjado de las hojas."
+      ],
+      "fuentes": [
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Resumen Tema 6 Clase 1.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.565,
+        0.404,
+        0.48,
+        0.542,
+        0.395
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          0
+        ],
+        "encontradas": 0,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 5.873,
+      "tokens_entrada": 1568,
+      "tokens_salida": 100,
+      "notas": "Paráfrasis inversa de la 6: describe el concepto y pide su nombre. Evita LLM, lenguaje natural, token y secuencia"
+    },
+    {
+      "id": 21,
+      "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+      "tipo": "parafrasis",
+      "documento": "doc40",
+      "respuesta": "El sistema desarrollado por OpenAI que procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real es el modelo GPT-5. Este modelo está disponible mediante opciones de acceso libre y de suscripción.",
+      "referencia": "GPT-4o, de OpenAI: un Transformer multimodal que acepta y produce texto, imagen y audio en tiempo real, con versión gratuita y de pago.",
+      "contextos": [
+        "Arquitecturas emergentes\n\nAutoregresivos y Transformers: los más populares\n51\nTransformers: la arquitectura \ndominante (por ahora)\n• Modelos como GPT, BERT o LLaMA usan \narquitectura autoregresiva basada en attention\n• Muy potentes, pero exigentes en memoria y cómputo\n• Su éxito ha sido clave para el boom de la IA \ngenerativa actual\n• Veremos cómo funcionan con detalle en el próximo \ntema\n\nAlternativas emergentes a los Transformers\n52\n¿Hay vida más allá de los Transformers?\n🧠 Mamba: modelo secuencial eﬁciente sin atención\n🔄 RWKV: mezcla lo mejor del RNN y Transformer\n🧩 MoE (Mixture of Experts): solo se activan partes del modelo → más eﬁciente\n⚡ FlashAttention, RetNet: mejoras dentro de los Transformers\n\nAlternativas emergentes a los Transformers\n53\nArquitectura\nVentaja clave\nTipo de generación\nMamba\nSecuencial y eﬁciente\nAutoregresiva\nRWKV\nFusiona RNN + Transformer\nAutoregresiva\nMoE\nActiva solo partes del modelo\nAutoregresiva\nFlashAttention\nAtención más rápida\nAutoregresiva\nRetNet\nTran",
+        "Soporte nativo \nde voz y generación de imágenes integrada. Gemini 2. 0 \nFlash\nTexto, Imagen, \nAudio, Video\nVentana de contexto de hasta 1 millón de tokens y generación \nmultimodal nativa. Claude 3. 7 \nSonnet\nTexto, Imagen\nModelo de razonamiento híbrido con modo de pensamiento extendido y \ncapacidades avanzadas en codificación. Flamingo \n(DeepMind)\nImagen + Texto\nPionero en aprendizaje multimodal con pocos ejemplos (few-shot), \nintegrando texto e imágenes. Ejemplo práctico: pregunta sobre una imagen\n¿Un ejemplo real? Preguntar a un \nmodelo sobre una imagen\n• Input:\n•\nImagen: foto de un paisaje de montaña\n•\nPregunta: \"¿Cuál parece ser la estación \ndel año en esta imagen?\"\n• Output:\n•\n\"Probablemente otoño, debido al color \nanaranjado de las hojas.",
+        "GPT-o3\nNo especiﬁcado\nTexto, Imagen\nPago\nRazonamiento avanzado y uso autónomo de \nherramientas. Claude 3. 7 \nSonnet\n100+B (estimado)\nTexto, Imagen\nFreemium\nCapacidades multimodales y codiﬁcación \nagente. Gemini 2. 0 \nFlash\nNo especiﬁcado\nTexto, Imagen, Audio, \nVideo\nPrivado\nGeneración multimodal nativa y capacidades \nde agente. LLaMA 4\n17B activos / 400B \ntotales\nTexto, Imagen, Video\nOpen Source\nMultimodalidad nativa y arquitectura Mixture \nof Experts. Mixtral 8x7B\n47B (13B activos)\nTexto\nOpen Source\nArquitectura Mixture of Experts eﬁciente y de \ncódigo abierto. Comparativa de modelos actuales\n47\nModelo\nParámetros\nModalidad\nAcceso\nCaracterísticas destacadas\nGPT-5\nNo divulgado (≈ 1 T \nestimado)\nTexto, Imagen, Audio, \nVoz\nPago / \nFreemium \n(OpenAI)\nRazonamiento avanzado, agentes autónomos \ny contexto ampliado. Claude 4. 5 \nSonnet\n~200 B (estimado)\nTexto, Imagen\nFreemium \n(Anthropic)\nControl de razonamiento, fuerte en código y \nplaniﬁcación. Gemini 2.",
+        " Tema 3: Tecnología Detrás de la IA Generativa\n\nContenidos\n• Difusión generativa\n• Historia y evolución de los LLMs\n• Arquitectura del Transformer\n• Modelos multimodales\n• Estado del arte\nwww. ebiseducation. com\n\nDifusión generativa\n\n¿Qué signiﬁca “difusión generativa”?\nDifusión generativa: crear desde el ruido\n• Nuevo enfoque generativo → parte de una imagen \naleatoria\n• El modelo aprende a convertir ruido en una imagen \ncoherente\n• Funciona al revés de cómo normalmente vemos los \ndatos\n4\nImagen de https://developer. nvidia. com/blog/improving-diffusion-models-as-an-alternative-to-gans-part-1/\n\n¿Cómo funciona? Paso a paso\nDel caos al orden: el proceso de difusión\n🌀 Forward process: añade ruido a una imagen real en \nmuchos pasos\n🔄 Reverse process: un modelo (U-Net) aprende a \neliminar ese ruido\nRequiere miles de ejemplos y mucha potencia de \ncálculo\n5\nImagen de https://encord.",
+        "Posee \ndos \nvariantes: CBOW (predice la palabra \nsegún \nel \ncontexto) \ny \nSkip-gram \n(predice el contexto según la palabra). • \nGloVe y FastText: Se presentaron \ncomo mejoras técnicas; GloVe se \nespecializa en relaciones semánticas \nglobales, \nmientras \nque \nFastText \nmaneja \nmejor \nidiomas \nmorfológicamente \ncomplejos \ny \nerrores tipográficos al trabajar con \nsubpalabras. • \nVisualización Semántica: Mediante el \nuso de T-SNE, el profesor demostró \ncómo reducir 100 dimensiones a 2 \npara observar la cercanía matemática \nentre conceptos relacionados como \n\"rey-reina\" o \"hombre-mujer\". Resumen de clase T3C1 – MIDINV26 \n \n \nArquitecturas Modernas y \nTransformers  \nEl bloque central de la sesión analizó el salto \ntecnológico que permitió el auge de la IA \ngenerativa actual: \n• \nTransformers: El paper Attention Is All \nYou Need (2017) marcó un hito al \nintroducir el mecanismo de atención, \nsuperando a las redes recurrentes al \npermitir el procesamiento paralelo \nmasivo en GPUs."
+      ],
+      "fuentes": [
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf"
+      ],
+      "scores": [
+        0.617,
+        0.6,
+        0.364,
+        0.563,
+        0.558
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          0
+        ],
+        "encontradas": 0,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 5.45,
+      "tokens_entrada": 1702,
+      "tokens_salida": 44,
+      "notas": "Paráfrasis inversa de la 7. «En tiempo real» se conserva porque es lo único que distingue a GPT-4o de GPT-o3 y del otro modelo multimodal de OpenAI en la misma tabla"
+    },
+    {
+      "id": 22,
+      "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+      "tipo": "premisa_falsa",
+      "documento": "doc38",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa. Sin embargo, se menciona que las GANs no son adecuadas para la generación de texto debido a su naturaleza de procesamiento de imágenes y su alto coste computacional en el entrenamiento.",
+      "referencia": "Las GAN no son adecuadas para generar texto: el corpus lo atribuye a su naturaleza de procesamiento de imágenes y a su alto coste computacional en el entrenamiento. Su arquitectura dual —un generador que crea contenido falso y un discriminador que intenta distinguir lo real de lo falso— es excelente, en cambio, para aumentar la resolución de imágenes y crear efectos visuales en cine.",
+      "contextos": [
+        "07 PRINCIPIOS DE LOS MODELOS GENERATIVOS – APLICACIONES EN \nGENERACIÓN DE IMAGEN Y AUDIO\n\nRedes Generativas Adversariales\n\n¿Qué es una GAN?\nGANs: el juego de dos redes\n• Introducidas por Ian Goodfellow en 2014\n• Dos redes entrenadas de forma opuesta:\n🧪 Generador → crea datos falsos\n🔍 Discriminador → decide si son reales o no\n• Se enfrentan en un bucle de mejora continua\n37\n\nFuncionamiento paso a paso\n¿Cómo entrenan una contra la otra?\n1. El generador recibe ruido aleatorio → crea una \nimagen\n2. El discriminador evalúa si es real o falsa\n3.",
+        "Ambos se actualizan según el resultado:\n•\nSi el discriminador acierta, el generador \nmejora\n•\nSi falla, el discriminador mejora\n38\n\nEjemplo visual de GAN paso a paso\nDel ruido a una imagen: ¿cómo genera \nuna GAN?\n• Input: vector aleatorio z (normalmente de \ndistribución N(0,1))\n• El generador transforma z en una imagen\n• ¡No copia! Aprende a crear algo “parecido” al \nconjunto de entrenamiento\n• Proceso inverso al de un clasiﬁcador\n39\n\n¿Qué pueden generar las GANs?\nResultados sorprendentes y realistas\n• Caras humanas sintéticas (StyleGAN)\n• Paisajes, arte, animales\n• Modiﬁcaciones de estilo (foto ↔ dibujo)\n• Deepfakes, transferencia de dominio…\n40\n\nProblemas comunes al entrenarlas\nNo todo es tan fácil…\n❌ Mode collapse: el generador aprende a engañar \ncon pocos ejemplos\n⚖ Entrenamiento inestable: si uno de los dos gana, \ntodo falla\n🧮 Costoso computacionalmente\n🧠 Diﬁcultad para evaluar calidad de salida \nobjetivamente\n41\n\nTipos de GANs\nVariantes populares de GANs\n• DCGAN: convolucional, i",
+        "Resumen de clase T3C2 – MIDINV26 \n \n \nRedes Generativas Antagónicas \n(GAN) \nEl profesor detalló la dinámica de \"juego de \nsuma cero\" que permite a estas redes crear \ncontenido visual hiperrealista: \n• \nArquitectura Dual: Se compone de un \nGenerador (que crea imágenes falsas) \ny un Discriminador (que intenta \ndetectar cuáles son reales y cuáles \nno). • \nEntrenamiento Complejo: El éxito \nreside en que el generador aprende a \n\"engañar\" al discriminador, elevando \nconstantemente la calidad del \nresultado. • \nAplicaciones y Límites: Aunque son \nexcelentes para aumentar resolución \ny crear efectos visuales en cine, el \nprofesor aclaró que no son \nadecuadas para la generación de \ntexto debido a su naturaleza de \nprocesamiento de imágenes y su alto \ncoste computacional en el \nentrenamiento.",
+        "• \nModelos Generativos vs. Discriminativos: \no Generativos (ej. GPT): \nDiseñados para producir texto \nnuevo y complejo, aunque con \nun mayor coste \ncomputacional. o Discriminativos (ej. SVM, Naive \nBayes): Más eficientes para \ntareas de clasificación con \netiquetas conocidas, como la \ndetección de spam. • \nEntrenamiento y Ajuste: Se \ndiscutieron procesos de pre-\nentrenamiento y fine-tuning, así como \nla capacidad de los modelos para \naprender de pocos ejemplos mediante \ntécnicas como Few-Shot y One-Shot \nlearning. Conclusión  \nLa sesión concluye que la madurez actual de \nla IA generativa es el resultado de una \ntransición fundamental desde el conteo \nestadístico superficial hacia la comprensión \nde la similitud semántica vectorial. El profesor \nestableció que, si bien modelos como GPT \nhan democratizado el acceso al lenguaje \nnatural, su eficiencia depende de una correcta \ntokenización y del uso de arquitecturas de \nTransformer que gestionen el contexto global \nde manera paralela.",
+        " Tema 3: Tecnología Detrás de la IA Generativa\n\nContenidos\n• Modelos Autoregresivos y generación secuencial\n• Variational Autoencoders (VAEs)\n• Redes Generativas Adversariales\n• Arquitecturas emergentes\nwww. ebiseducation. com\n\nModelos autoregresivos y \ngeneración secuencial\n\n¿Qué signiﬁca que un modelo sea autoregresivo?\n¿Qué es un modelo autoregresivo?\n• Predice el siguiente token a partir de los \nanteriores\n• No genera una frase entera, sino token a token, \nen orden\n• Se entrena para aprender P(xₜ | x₁, x₂,. , xₜ₋₁)\n• Es la base de modelos como GPT\n4\nEl\ngato\nesta\ndormido\n\n¿Cómo piensa un modelo autoregresivo?\n5\n\nEl lenguaje es secuencial, pero."
+      ],
+      "fuentes": [
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Resumen Clase 2 - Tema 3.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+      ],
+      "scores": [
+        0.687,
+        0.678,
+        0.666,
+        0.658,
+        0.623
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          3
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.333
+      },
+      "se_abstuvo": true,
+      "latencia_s": 2.122,
+      "tokens_entrada": 1472,
+      "tokens_salida": 51,
+      "notas": "Doble premisa falsa: que las GAN generan bien texto y que superan a otros modelos. Correcto: corregir la premisa con las dos razones del corpus"
+    },
+    {
+      "id": 23,
+      "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+      "tipo": "premisa_falsa",
+      "documento": "doc36",
+      "respuesta": "El aumento del batch size suele implicar un aumento de igual magnitud del learning rate. Esto se debe a que un batch size más grande hace que el gradiente sea menos ruidoso, permitiendo que se aumente la longitud de los pasos hacia la dirección buscada. Sin embargo, si el learning rate es demasiado alto en relación con el tamaño del batch, puede provocar inestabilidad en el entrenamiento. Por lo tanto, es necesario reducir el learning rate al aumentar el batch size para mantener un aprendizaje estable y evitar que el modelo oscile o diverja durante el entrenamiento. \n\nNo encontré información específica sobre la relación entre la reducción del learning rate y la inestabilidad en el entrenamiento en los documentos de la empresa.",
+      "referencia": "En realidad es al revés: el aumento del batch size suele implicar un aumento de igual magnitud del learning rate. Un lote más grande hace que el gradiente sea menos ruidoso, lo que permite aumentar la longitud de los pasos hacia la dirección buscada. Como dice la analogía del curso, si caminas con los ojos vendados (gradiente ruidoso) das pasos pequeños para no caerte, pero si ves bien (gradiente limpio) puedes dar pasos más largos sin miedo.",
+      "contextos": [
+        "01\nPesos del modelo \ncambian poco por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nEl learning rate es el factor de aprendizaje del modelo. Es, de \nforma simplificada, lo rápido o despacio que cambia \ninternamente para aprender la tarea para la que se le está \nentrenando. Learning_rate = 0. 5\nPesos del modelo \ncambian mucho por \ncada iteración y \nepoch. Batch, epochs e hiperparámetros\nRelación entre el learning rate y el batch size\nEl aumento del batch size suele implicar un aumento de igual \nmagnitud del learning rate. El batch size más grande, hace que el gradiente sea menos \nruidoso, permitiéndote por lo tanto que se aumente la \nlongitud de los pasos que damos hacia la dirección buscada. “Si caminas con los ojos vendados (gradiente ruidoso), das \npasos pequeños para no caerte. Si ves bien (gradiente \nlimpio), puedes dar pasos de mayor longitud sin miedo a \ncaerte. www. ebiseducation.",
+        "ebiseducation. com\n\nBatch, epochs e hiperparámetros\nTamaño del batch (batch dize)\nVelocidad\nRecursos\nProblemas y \nbeneficios\n-\nRuido en el gradiente. -\nAprendizaje menos estable. -\nMenor riesgo de overfitting. -\nMenor ruido en el gradiente. -\nAprendizaje más estable. -\nMayor riesgo de overfitting. Batch, epochs e hiperparámetros\n¿Qué es un epoch en Deep Learning?\nwww. ebiseducation. com\nUna epoch es una pasada completa por todo el conjunto de \ndatos de entrenamiento. El modelo ve cada dato una vez por \nepoch. En general, son necesarios un gran número de epochs \npara que el modelo aprenda. Batch, epochs e hiperparámetros\nNúmero óptimo de epochs\nSi uso pocos…\nTendré problemas de underfitting. Si uso demasiados…\nTendré problemas de overfitting. Para encontrar el número óptimo…\nPrueba y error. Early stopping. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es el learning rate en Deep Learning?\nwww. ebiseducation. com\nLearning_rate = 0.",
+        "4M!\nComplejidad del modelo\nUtilizando 18 capas, logro un 85% de accuracy para \nCIFAR; ¡un dataset de la complejidad de Imagenet \nrequeriría de alrededor de 50 capas para alcanzar un \n76% aproximadamente!\nBatch size\nNúmero de Epochs\nRecursos \ncomputacionales…\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nImageNet\nwww. ebiseducation. com\nMuchas horas… \n¡incluso días!\n\nBatch, epochs e hiperparámetros\n\nBatch, epochs e hiperparámetros\n¿Qué son los hiperparámetros? ¿Y los parámetros?\nLos hiperparámetros son todo aquello que podemos \nconfigurar antes de entrenar. No se aprenden \nautomáticamente. Su ajuste correcto es clave para el éxito. Los parámetros son todos aquellos valores matemáticos que \nse ajustan durante el entrenamiento. Cada modelo tendrá \ndistintos parámetros, incluso teniendo los mismos \nhiperparámetros, debido al factor aleatorio del proceso de \nentrenamiento. www. ebiseducation. com\n\nBatch, epochs e hiperparámetros\n¿Qué es un batch en Deep Learning?\nwww.",
+        " Tema 2: Fundamentos de la IA y el Machine Learning – Clase 3\n\nContenidos\n•\nTiempo requerido para el Deep Learning para \nentrenar e inferir. •\nBatch, epochs e hiperparámetros. •\nInfraestructura necesaria para el Deep Learning. •\nRequisitos de HW: GPUs. www. ebiseducation. com\n\nTiempo requerido por el Deep Learning para \nentrenar e inferir\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nCIFAR 10\nwww. ebiseducation. com\n\nTiempo requerido por el Deep Learning para entrenar e inferir\nImageNet\nwww. ebiseducation. com\n???\n\nTiempo requerido por el Deep Learning para entrenar e inferir\n¿De qué depende?\nwww. ebiseducation. com\nTamaño del dataset\nMientras que CIFAR-10 tiene 50k \nregistros, ¡ImageNet tiene 1.",
+        "com/@ayushawasthi2409/understanding-the-basics-of-stable-diffusion-generative-ai-c860fc303031\n\nForward process: añadir ruido matemáticamente\nDe imagen a ruido\n• Cada paso añade una pequeña cantidad de \nruido gaussiano\n• Se puede calcular directamente el estado de la \nimagen en cualquier paso t:\n7\n\nReverse process: predecir el ruido\nDenoising paso a paso\n• El modelo aprende a predecir el ruido añadido \nen cada paso:\n• Desde el estado actual     , se resta el ruido \npredicho para obtener \n• Repetido muchas veces → se reconstruye una \nimagen limpia desde el ruido puro\n8\n\nStable Diffusion: el gran salto open source\nCuando la difusión se volvió popular\n• Entrenado por Stability AI + LAION\n• Modelo open source que cabe en una GPU \ndoméstica\n• Base de muchas apps: DreamStudio, \nPlaygroundAI, Leonardo, etc."
+      ],
+      "fuentes": [
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "1 - Diapositivas_Tema2_Clase3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.627,
+        0.555,
+        0.447,
+        0.414,
+        0.409
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          1
+        ],
+        "encontradas": 1,
+        "hit_1": true,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 1.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 3.19,
+      "tokens_entrada": 1561,
+      "tokens_salida": 147,
+      "notas": "Invierte una relación (batch size ↑ → learning rate ↑). La premisa se refuerza con una justificación creíble («evitar inestabilidad»)"
+    },
+    {
+      "id": 24,
+      "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+      "tipo": "premisa_falsa",
+      "documento": "doc41",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "En realidad, para enviar datos y ejecutar la inferencia de un modelo no se usa GET, sino POST. GET sirve para recuperar información, mientras que POST se usa para enviar datos, ya sea para crear recursos o para ejecutar inferencias de modelos.",
+      "contextos": [
+        " Resumen de clase T4C5– MIDIN26 \n \n \nAbstract \nLa sesión da inicio con el enfoque en la transición de modelos teóricos de Machine Learning a \nservicios operativos a través de APIs (Application Programming Interfaces). El profesor explicó la \narquitectura de comunicación HTTP, detallando el uso de verbos (GET, POST, etc. ) y códigos de \nestado para la integración de sistemas. La parte práctica se centró en el desarrollo de un servidor \nligero con FastAPI, el manejo de entornos virtuales y la documentación automática. Además, se \ndiscutieron las dificultades de las arquitecturas RAG y se realizaron pruebas de consumo de \nservicios mediante Postman, sentando las bases para desplegar modelos de IA en producción. Fundamentos de APIs e Integración \nSe definió la API como el \"traductor\" esencial \npara que diferentes sistemas de software se \ncomuniquen entre sí: \n \nProtocolo HTTP: Revisión de los \nmétodos estándar para interactuar \ncon recursos: \no GET: Recuperar información.",
+        " \nSiguientes Pasos: Se asignó un \nejercicio autoexplicado para que los \nestudiantes construyan APIs más \ncomplejas que incluyan lógica de \nprocesamiento de datos. Conclusión \nLa clase concluye que saber entrenar un \nmodelo es solo la mitad del trabajo; la otra \nmitad es saber exponerlo de forma eficiente y \nsegura. El profesor estableció que FastAPI y \nPostman son el combo esencial para \ncualquier ingeniero de IA que busque integrar \nsus \ndesarrollos \nen \necosistemas \nempresariales reales. Finalmente, se destacó \nque la estandarización mediante el protocolo \nHTTP es lo que permite que una IA \ndesarrollada en Python pueda ser utilizada \npor cualquier aplicación en el mundo.",
+        "o POST: Enviar datos para crear \nrecursos o ejecutar inferencias \nde modelos. o PUT/DELETE: \nActualizar \no \neliminar registros.  \nCódigos de Estado: Explicación de las \nrespuestas del servidor (200 para \néxito, 404 para no encontrado, 500 \npara errores internos).  \nDocumentación: Importancia de que \nuna API sea legible tanto para \nhumanos \ncomo \npara \nmáquinas \n(Swagger/OpenAPI). Desarrollo con FastAPI \nEl profesor introdujo FastAPI como la \nherramienta moderna de referencia para \ndesarrolladores de Python e IA: \n \nCaracterísticas: Framework asíncrono, \nligero y con validación automática de \ndatos.  \nManejo de JSON: FastAPI automatiza \nla conversión de diccionarios de \nPython a formato JSON, facilitando la \nentrega de predicciones de modelos \nde ML.  \nServidor Uvicorn: Instrucciones para \nejecutar el código usando uvicorn \ncomo servidor de desarrollo en el \npuerto 8000 o 8001.",
+        "• \nModelos Generativos vs. Discriminativos: \no Generativos (ej. GPT): \nDiseñados para producir texto \nnuevo y complejo, aunque con \nun mayor coste \ncomputacional. o Discriminativos (ej. SVM, Naive \nBayes): Más eficientes para \ntareas de clasificación con \netiquetas conocidas, como la \ndetección de spam. • \nEntrenamiento y Ajuste: Se \ndiscutieron procesos de pre-\nentrenamiento y fine-tuning, así como \nla capacidad de los modelos para \naprender de pocos ejemplos mediante \ntécnicas como Few-Shot y One-Shot \nlearning. Conclusión  \nLa sesión concluye que la madurez actual de \nla IA generativa es el resultado de una \ntransición fundamental desde el conteo \nestadístico superficial hacia la comprensión \nde la similitud semántica vectorial. El profesor \nestableció que, si bien modelos como GPT \nhan democratizado el acceso al lenguaje \nnatural, su eficiencia depende de una correcta \ntokenización y del uso de arquitecturas de \nTransformer que gestionen el contexto global \nde manera paralela.",
+        "Por ejemplo, la distancia Manhattan es particularmente \neficiente en hardware especializado debido a que solo requiere operaciones de suma y valor absoluto. Métricas de distancia: Comparativa\n\nDatos densos con magnitudes \nrelevantes\nLa distancia Euclídea (L2) es ideal para \ndatos como imágenes, señales o \ncoordenadas físicas donde la magnitud \nabsoluta tiene significado real y los datos \ntienen distribución aproximadamente \nnormal. Datos dispersos basados en \nconteos\nLa distancia Manhattan (L1) funciona mejor \ncon representaciones dispersas como \nvectores de conteo de palabras (Bag-of-\nWords) o datos categóricos codificados, \nsiendo menos sensible a valores atípicos. Semántica direccional\nLa similitud del coseno es óptima para \nembeddings semánticos donde la dirección \ndel vector captura el significado, \nindependientemente de su magnitud, como \nen Word2Vec o BERT. Más allá de consideraciones teóricas, la selección final de una métrica debe validarse empíricamente."
+      ],
+      "fuentes": [
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Diapositivas Tema 6 - Sesión 1.pdf"
+      ],
+      "scores": [
+        0.388,
+        0.489,
+        0.387,
+        0.478,
+        0.349
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          3
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 0.333
+      },
+      "se_abstuvo": true,
+      "latencia_s": 4.041,
+      "tokens_entrada": 1473,
+      "tokens_salida": 14,
+      "notas": "Primera pregunta sobre doc41 (APIs y FastAPI). Confunde el método HTTP de consulta con el de envío"
+    },
+    {
+      "id": 25,
+      "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+      "tipo": "parcial",
+      "documento": "doc41",
+      "respuesta": "Las características principales de FastAPI como herramienta para desarrolladores de Python e IA son:\n\n- Es un framework asíncrono y ligero.\n- Ofrece validación automática de datos.\n- Automatiza el manejo de JSON, facilitando la conversión de diccionarios de Python a formato JSON para la entrega de predicciones de modelos de Machine Learning.\n- Permite el desarrollo de APIs que son legibles tanto para humanos como para máquinas, utilizando documentación como Swagger/OpenAPI.\n\nNo encontré información sobre quién fue el creador de FastAPI en los documentos de la empresa.",
+      "referencia": "FastAPI es una herramienta moderna de referencia para desarrolladores de Python e IA: un framework asíncrono, ligero y con validación automática de datos, que además automatiza la conversión de diccionarios de Python a JSON, lo que facilita entregar las predicciones de modelos de ML. Quién fue su creador no aparece en la documentación disponible.",
+      "contextos": [
+        "o POST: Enviar datos para crear \nrecursos o ejecutar inferencias \nde modelos. o PUT/DELETE: \nActualizar \no \neliminar registros.  \nCódigos de Estado: Explicación de las \nrespuestas del servidor (200 para \néxito, 404 para no encontrado, 500 \npara errores internos).  \nDocumentación: Importancia de que \nuna API sea legible tanto para \nhumanos \ncomo \npara \nmáquinas \n(Swagger/OpenAPI). Desarrollo con FastAPI \nEl profesor introdujo FastAPI como la \nherramienta moderna de referencia para \ndesarrolladores de Python e IA: \n \nCaracterísticas: Framework asíncrono, \nligero y con validación automática de \ndatos.  \nManejo de JSON: FastAPI automatiza \nla conversión de diccionarios de \nPython a formato JSON, facilitando la \nentrega de predicciones de modelos \nde ML.  \nServidor Uvicorn: Instrucciones para \nejecutar el código usando uvicorn \ncomo servidor de desarrollo en el \npuerto 8000 o 8001.",
+        " \nSiguientes Pasos: Se asignó un \nejercicio autoexplicado para que los \nestudiantes construyan APIs más \ncomplejas que incluyan lógica de \nprocesamiento de datos. Conclusión \nLa clase concluye que saber entrenar un \nmodelo es solo la mitad del trabajo; la otra \nmitad es saber exponerlo de forma eficiente y \nsegura. El profesor estableció que FastAPI y \nPostman son el combo esencial para \ncualquier ingeniero de IA que busque integrar \nsus \ndesarrollos \nen \necosistemas \nempresariales reales. Finalmente, se destacó \nque la estandarización mediante el protocolo \nHTTP es lo que permite que una IA \ndesarrollada en Python pueda ser utilizada \npor cualquier aplicación en el mundo.",
+        " Resumen de clase T4C5– MIDIN26 \n \n \nAbstract \nLa sesión da inicio con el enfoque en la transición de modelos teóricos de Machine Learning a \nservicios operativos a través de APIs (Application Programming Interfaces). El profesor explicó la \narquitectura de comunicación HTTP, detallando el uso de verbos (GET, POST, etc. ) y códigos de \nestado para la integración de sistemas. La parte práctica se centró en el desarrollo de un servidor \nligero con FastAPI, el manejo de entornos virtuales y la documentación automática. Además, se \ndiscutieron las dificultades de las arquitecturas RAG y se realizaron pruebas de consumo de \nservicios mediante Postman, sentando las bases para desplegar modelos de IA en producción. Fundamentos de APIs e Integración \nSe definió la API como el \"traductor\" esencial \npara que diferentes sistemas de software se \ncomuniquen entre sí: \n \nProtocolo HTTP: Revisión de los \nmétodos estándar para interactuar \ncon recursos: \no GET: Recuperar información.",
+        "Posee \ndos \nvariantes: CBOW (predice la palabra \nsegún \nel \ncontexto) \ny \nSkip-gram \n(predice el contexto según la palabra). • \nGloVe y FastText: Se presentaron \ncomo mejoras técnicas; GloVe se \nespecializa en relaciones semánticas \nglobales, \nmientras \nque \nFastText \nmaneja \nmejor \nidiomas \nmorfológicamente \ncomplejos \ny \nerrores tipográficos al trabajar con \nsubpalabras. • \nVisualización Semántica: Mediante el \nuso de T-SNE, el profesor demostró \ncómo reducir 100 dimensiones a 2 \npara observar la cercanía matemática \nentre conceptos relacionados como \n\"rey-reina\" o \"hombre-mujer\". Resumen de clase T3C1 – MIDINV26 \n \n \nArquitecturas Modernas y \nTransformers  \nEl bloque central de la sesión analizó el salto \ntecnológico que permitió el auge de la IA \ngenerativa actual: \n• \nTransformers: El paper Attention Is All \nYou Need (2017) marcó un hito al \nintroducir el mecanismo de atención, \nsuperando a las redes recurrentes al \npermitir el procesamiento paralelo \nmasivo en GPUs.",
+        "Foco en razonamiento profundo, tool use y \nrendimiento fuerte en tareas de desarrollo \n(“agentic/vibe coding”). Grok 4\n?\nTexto, imagen, \nvideo, \ncapacidad de \nbúsqueda\nAcceso por suscripción \n(SuperGrok/Premium+) y \nAPI; existe opción “free” \ncon límites según plan. Muy orientado a tiempo real + agentes, integración \nde búsqueda y ﬂujos de trabajo con herramientas. Qwen3 \n(open-weight)\n0. 6B–32B \n(densos) y MoE \n235B (22B activos)\nPrincipalmente \nTexto\nOpen-weight (Apache 2. 0), \ndisponible para \ndescarga/hosting propio. Muy competitivo en razonamiento + agentes, con \nvariantes MoE eﬁcientes (muchos parámetros \ntotales, pocos activos por token). ¿Qué tendencias dominan en 2024?\nTendencias actuales en modelos \ngenerativos\n🧠 Razonamiento complejo (Claude 4. 5, GPT-5)\n󰝊 Ultra-velocidad y eﬁciencia (Gemini 2."
+      ],
+      "fuentes": [
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf"
+      ],
+      "scores": [
+        0.644,
+        0.639,
+        0.496,
+        0.395,
+        0.371
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          1
+        ],
+        "encontradas": 1,
+        "hit_1": true,
+        "hit_3": true,
+        "hit_5": true,
+        "hallada": true,
+        "fragmentos_vistos": 5,
+        "rr": 1.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.477,
+      "tokens_entrada": 1523,
+      "tokens_salida": 116,
+      "notas": "La segunda parte está verificada como ausente: FastAPI solo aparece en doc41, sin autor ni año. El modelo conoce al creador por su entrenamiento: si lo nombra, ha usado conocimiento externo"
+    },
+    {
+      "id": 26,
+      "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+      "tipo": "parcial",
+      "documento": "doc39",
+      "respuesta": "No encontré información sobre este tema en los documentos de la empresa.",
+      "referencia": "StyleGAN se distingue porque separa el contenido y el estilo, lo que le permite generar caras realistas. Las otras variantes populares se orientan a otras tareas: DCGAN es convolucional e ideal para imágenes simples; CycleGAN traduce estilos sin necesidad de pares de ejemplos (foto ↔ pintura, caballo ↔ cebra), y Pix2Pix sí requiere pares (boceto ↔ foto). Qué empresa desarrolló StyleGAN no aparece en la documentación disponible.",
+      "contextos": [
+        "Ambos se actualizan según el resultado:\n•\nSi el discriminador acierta, el generador \nmejora\n•\nSi falla, el discriminador mejora\n38\n\nEjemplo visual de GAN paso a paso\nDel ruido a una imagen: ¿cómo genera \nuna GAN?\n• Input: vector aleatorio z (normalmente de \ndistribución N(0,1))\n• El generador transforma z en una imagen\n• ¡No copia! Aprende a crear algo “parecido” al \nconjunto de entrenamiento\n• Proceso inverso al de un clasiﬁcador\n39\n\n¿Qué pueden generar las GANs?\nResultados sorprendentes y realistas\n• Caras humanas sintéticas (StyleGAN)\n• Paisajes, arte, animales\n• Modiﬁcaciones de estilo (foto ↔ dibujo)\n• Deepfakes, transferencia de dominio…\n40\n\nProblemas comunes al entrenarlas\nNo todo es tan fácil…\n❌ Mode collapse: el generador aprende a engañar \ncon pocos ejemplos\n⚖ Entrenamiento inestable: si uno de los dos gana, \ntodo falla\n🧮 Costoso computacionalmente\n🧠 Diﬁcultad para evaluar calidad de salida \nobjetivamente\n41\n\nTipos de GANs\nVariantes populares de GANs\n• DCGAN: convolucional, i",
+        "07 PRINCIPIOS DE LOS MODELOS GENERATIVOS – APLICACIONES EN \nGENERACIÓN DE IMAGEN Y AUDIO\n\nRedes Generativas Adversariales\n\n¿Qué es una GAN?\nGANs: el juego de dos redes\n• Introducidas por Ian Goodfellow en 2014\n• Dos redes entrenadas de forma opuesta:\n🧪 Generador → crea datos falsos\n🔍 Discriminador → decide si son reales o no\n• Se enfrentan en un bucle de mejora continua\n37\n\nFuncionamiento paso a paso\n¿Cómo entrenan una contra la otra?\n1. El generador recibe ruido aleatorio → crea una \nimagen\n2. El discriminador evalúa si es real o falsa\n3.",
+        "net/gsc_news/en/20220928-stable-diffusion-classifier-free-guidance/\n\n¿Cómo se compara con GANs y VAEs?\nDiferencias con otras arquitecturas generativas\n• No parte de un vector latente z como GAN/VAE, sino de ruido total\n• Mejores detalles, menos “artefactos”\n• Menos colapso de modo que las GANs\n• Más pasos → más lento → más controlable\n11\nModelo\nEntrada\nVelocidad\nCalidad\nEstilo\nVAE\nz latente\n⚡ Rápido\n🎯 Media\nSuave\nGAN\nz latente\n⚡ Rápido\n⚠ Artefactos\nFuerte\nDifusión\nRuido total\n🐢 Lento\n🏆 Alta\nPreciso\n\nLimitaciones y desafíos\n¿Todo son ventajas?\n• Requiere muchos pasos → lenta en tiempo real\n• Alto coste computacional\n• Poca capacidad para generar texto legible \ndentro de imágenes\n• Difícil controlar detalles muy concretos sin \nherramientas adicionales\n12\n\nHistoria y evolución de los LLMs\n\n¿Qué es un LLM?\n¿Qué son realmente?\n• Son modelos entrenados para procesar, \nentender y generar lenguaje natural\n• Predicen el siguiente token en una secuencia \ndada\n• Pueden responder preguntas, resumi",
+        "Componentes\n48\nGenerador\n\nEjemplos de uso\n49\nCreación de imágenes \nrealistas: \nLas GANs se utilizan para \ngenerar imágenes de rostros \nhumanos, paisajes y objetos que \nno existen en la realidad. Aumento de resolución:\nMejora la calidad de \nimágenes de baja resolución, \ncomo las técnicas de \nsuperresolución. Cine y Animación: \nSe utilizan para crear efectos \nvisuales o personajes \ngenerados automáticamente.",
+        "El generador crea datos falsos (como imágenes), \nmientras que el discriminador intenta distinguir \nentre los datos falsos y los reales. A través de este proceso competitivo, el generador \nmejora sus habilidades hasta que el discriminador \nya no puede distinguir los datos falsos de los \nreales. Componentes\n45\nDiscriminador\nEl discriminador es el segundo componente principal de las GANs. Actúa como un \"crítico\" que intenta distinguir entre las imágenes o \ndatos reales y los generados por el generador. Proceso:\n1. El discriminador recibe dos tipos de entradas: imágenes reales \n(extraídas del conjunto de entrenamiento) e imágenes falsas \n(creadas por el generador). 2. Su tarea es clasiﬁcar si cada imagen que recibe es \"real\" o \"falsa\". Durante el entrenamiento, el discriminador se mejora continuamente al \nrecibir imágenes reales y falsas. Cuando identiﬁca correctamente una \nimagen falsa, se ajusta para ser aún más preciso. Si se equivoca, \ntambién ajusta sus parámetros."
+      ],
+      "fuentes": [
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf"
+      ],
+      "scores": [
+        0.658,
+        0.511,
+        0.518,
+        0.508,
+        0.515
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 1,
+        "posiciones": [
+          0
+        ],
+        "encontradas": 0,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": true,
+      "latencia_s": 3.645,
+      "tokens_entrada": 1451,
+      "tokens_salida": 14,
+      "notas": "La empresa (NVIDIA) no se asocia a StyleGAN en el corpus, pero «NVIDIA» aparece en doc36 hablando de GPUs: si el sistema la nombra, usó conocimiento externo o mezcló fragmentos sin relación"
+    },
+    {
+      "id": 27,
+      "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+      "tipo": "parcial",
+      "documento": "doc37,doc40",
+      "respuesta": "El paper «Attention Is All You Need» de 2017 marcó un hito al introducir el mecanismo de atención, superando a las redes recurrentes al permitir el procesamiento paralelo masivo en GPUs. Sin embargo, no encontré información sobre los autores o la institución que lo publicaron en los documentos de la empresa.",
+      "referencia": "El paper «Attention Is All You Need» (2017) marcó el nacimiento del Transformer al introducir el mecanismo de atención (self-attention), con el que cada palabra puede mirar a cualquier otra. Superó a las redes recurrentes porque permite paralelizar el entrenamiento, con procesamiento paralelo masivo en GPUs, y procesar contextos largos. Los autores o la institución que lo publicaron no aparecen en la documentación disponible.",
+      "contextos": [
+        "Posee \ndos \nvariantes: CBOW (predice la palabra \nsegún \nel \ncontexto) \ny \nSkip-gram \n(predice el contexto según la palabra). • \nGloVe y FastText: Se presentaron \ncomo mejoras técnicas; GloVe se \nespecializa en relaciones semánticas \nglobales, \nmientras \nque \nFastText \nmaneja \nmejor \nidiomas \nmorfológicamente \ncomplejos \ny \nerrores tipográficos al trabajar con \nsubpalabras. • \nVisualización Semántica: Mediante el \nuso de T-SNE, el profesor demostró \ncómo reducir 100 dimensiones a 2 \npara observar la cercanía matemática \nentre conceptos relacionados como \n\"rey-reina\" o \"hombre-mujer\". Resumen de clase T3C1 – MIDINV26 \n \n \nArquitecturas Modernas y \nTransformers  \nEl bloque central de la sesión analizó el salto \ntecnológico que permitió el auge de la IA \ngenerativa actual: \n• \nTransformers: El paper Attention Is All \nYou Need (2017) marcó un hito al \nintroducir el mecanismo de atención, \nsuperando a las redes recurrentes al \npermitir el procesamiento paralelo \nmasivo en GPUs.",
+        "OpenAI decide \nretrasar su publicación completa \npor miedo a mal uso\n2019\nT5 y BART: Enfoque de \"texto a \ntexto\" generalizado; \ncodiﬁcadores-decodiﬁcadores \npotentes\n2020\nGPT-3: 175B parámetros. Populariza el few-shot learning y la \ngeneración de texto impresionante\n2020\nInstructGPT: Uso de RLHF \n(Refuerzo con Retroalimentación \nHumana) → mejora en seguir \ninstrucciones humanas\n2022\n\nGPT-4 y Claude: Mejora notable en \nrazonamiento, multimodalidad \ninicial en GPT-4\n2023\nGPT-5: Razonamiento simulado, \ncapacidades más autónomas\n2025\nGPT-5.",
+        " Resumen de clase T3C1 – MIDINV26 \n \n \nAbstract \nLa sesión se dedicó al estudio técnico de los fundamentos del Procesamiento del Lenguaje \nNatural (NLP) y la evolución hacia la IA Generativa. El profesor trazó una línea temporal desde el \ntest de Turing en 1950 hasta arquitecturas disruptivas como GPT-3 y BERT. Se analizaron \nconceptos críticos como la tokenización, los word embeddings y la transición de modelos \nestadísticos a redes neuronales complejas. Finalmente, se abordó la arquitectura de \nTransformers y la distinción operativa entre modelos generativos y discriminativos, subrayando \nel impacto del mecanismo de atención en el manejo de secuencias largas. Evolución \nHistórica \ny \nModelos \nEstadísticos  \nEl profesor detalló la transición de sistemas \nrígidos hacia modelos capaces de capturar el \ncontexto semántico: \n• \nSistemas de Reglas: En los años 90, el \nNLP dependía de reglas fijas poco \nescalables definidas por lingüistas.",
+        " \nEntornos Virtuales: Se enfatizó el uso \nde entornos aislados para evitar \nconflictos de librerías entre proyectos. Pruebas y Validación con \nPostman \nPara asegurar que los servicios \nfuncionan correctamente, se utilizó \nPostman como entorno de pruebas: \n \nColecciones y Variables: Organización \nde las peticiones en carpetas y uso de \nvariables de entorno para cambiar \nrápidamente entre entornos local y de \nproducción. Resumen de clase T4C5– MIDIN26 \n \n \n \nSimulación de Peticiones: Creación de \nendpoints simples (como /saludo) \npara validar la conexión inicial.  \nDebugging: Resolución de errores de \npuerto ocupado y problemas de \nimportación, donde alumnos como \nAmaya y Jorge recibieron asistencia \ntécnica directa.",
+        "Modelos Autorregresivos y Redes \nRecurrentes (RNN/LSTM/GRU) \nEl profesor analizó cómo las máquinas \nprocesan \nsecuencias \nordenadas \nde \ninformación para predecir el futuro: \n• \nNaturaleza Autorregresiva: Se definió \neste concepto como la capacidad de \nun modelo (base de GPT) para predecir \nel \nsiguiente \ntoken \nbasándose \nexclusivamente en la secuencia de \ntokens anteriores. • \nManejo del Contexto: Se explicaron las \nlimitaciones de las RNN básicas y \ncómo las LSTM y GRU introducen \n\"puertas\" (de olvido, entrada y salida) \npara decidir qué información retener o \ndescartar en secuencias largas. • \nDemostración Práctica: El profesor \nmostró la implementación de un \nmodelo mini-LSTM usando Python y \nPyTorch, ilustrando el proceso de \ngeneración de texto token por token. • \nTokenización: Se utilizó el tokenizador \nde BERT para demostrar cómo el texto \nse fragmenta en unidades numéricas \nque la red puede procesar."
+      ],
+      "fuentes": [
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "Resumen de Clase 1 - Tema 3.pdf",
+        "Resumen Tema 4 Clase 5.pdf",
+        "Resumen Clase 2 - Tema 3.pdf"
+      ],
+      "scores": [
+        0.422,
+        0.319,
+        0.378,
+        0.304,
+        0.376
+      ],
+      "anclas": {
+        "aplica": true,
+        "anclas": 2,
+        "posiciones": [
+          1,
+          0
+        ],
+        "encontradas": 1,
+        "hit_1": false,
+        "hit_3": false,
+        "hit_5": false,
+        "hallada": false,
+        "fragmentos_vistos": 5,
+        "rr": 0.0
+      },
+      "se_abstuvo": false,
+      "latencia_s": 4.407,
+      "tokens_entrada": 1494,
+      "tokens_salida": 66,
+      "notas": "La parte presente está en dos documentos. La institución (Google) no se asocia al paper en el corpus, pero «Google» aparece hablando de Gemini y de las TPU: si la nombra, mezcló fragmentos o usó conocimiento externo"
+    }
+  ]
+}

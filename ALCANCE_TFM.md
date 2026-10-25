@@ -20,6 +20,13 @@ evolucionando por separado.
   `company_id` del usuario autenticado en cada recurso. El JWT solo lleva el
   email (`sub`); la empresa se lee del usuario en la base de datos en cada
   petición, de modo que el cliente no puede elegirla — ver `docs/MODELO_DATOS.md`.
+  **Única excepción, explícita y acotada** (2026-10-25): un `superadmin` puede
+  pedir el contexto de OTRA empresa con el header `X-Company-Context`
+  (`get_company_context` en `routers/v1/security.py`), para administrar sus
+  datos sin necesitar una cuenta en ella. El servidor decide, no el cliente —
+  el header se ignora salvo que el rol del token sea `superadmin`, verificado
+  con tests que sabotean justo esa comprobación. Hoy solo lo respetan
+  Documentos y Asistentes.
 - **Mitigación de alucinaciones, con dos niveles de evidencia**:
   - En producción: umbral de relevancia medido sobre el corpus
     (`RAGService.RELEVANCE_THRESHOLD`, justificado en `docs/RAG_PIPELINE.md`
@@ -94,7 +101,7 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 21 archivos y 144 tests unitarios sobre lógica pura
+- Cobertura de tests: 26 archivos y 176 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge

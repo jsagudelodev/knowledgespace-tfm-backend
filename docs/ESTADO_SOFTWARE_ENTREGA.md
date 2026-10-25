@@ -151,16 +151,23 @@ la entrega:
 |---|---|---|
 | ~~Excepciones genéricas sin tipar~~ — **resuelto el 20-10** | Calidad de código | `app/core/exceptions.py` (nuevo), 4 servicios actualizados |
 | ~~Verificación multi-tenant duplicada~~ — **resuelto el 20-10** | Mantenibilidad | `BaseRepository.get_of_company`, 17 sitios en 5 routers |
-| Cero tests en el frontend | Buenas prácticas | Todo `knowledgespace-tfm-frontend/src` |
+| ~~Cero tests en el frontend~~ — **resuelto el 23/24-10** | Buenas prácticas | 8 archivos `.spec.ts`, 34 tests (guards, interceptores, `AuthService`, `ChatService`, `ChunksDrawerComponent`) |
 | ~~Sin *linting* en el backend~~ — **resuelto el 21-10** | Buenas prácticas | `api/ruff.toml`, `api/requirements-dev.txt` |
-| Sin *linting* en el frontend, sin CI en ningún repo | Buenas prácticas | Ambos repos |
+| ~~Sin *linting* en el frontend~~ — **resuelto el 23-10** | Buenas prácticas | `@angular-eslint`, `ng lint` |
+| Sin CI en ningún repo | Buenas prácticas | Ambos repos |
 | ~~Sin Alembic~~ — **resuelto el 21-10** | Mantenibilidad | `api/alembic/`, `MODELO_DATOS.md` §3.7 |
 | Deuda de esquema encontrada al adoptar Alembic (columnas `nullable`, tipos) | Mantenibilidad, no bloqueante | `MODELO_DATOS.md` §3.7 |
 | Método de ancla sin variantes equivalentes (`\|`) | Evaluación, no producto | `experimentos/ejecutar_dataset.py` |
-| Alucinación de alcance global sin corregir | Producto, caso conocido | Sin código — requiere detectar preguntas de alcance global y responder con metadatos del corpus |
+| ~~Alucinación de alcance global~~ — **resuelto el 25-10** | Producto | `app/services/alcance_global.py` — detector por patrones + respuesta desde metadatos reales de `documents`, sin pasar por el RAG ni por el LLM |
 | Corpus `.txt` de evaluación con extracción incompleta | Evaluación, no producto | `experimentos/dataset_evaluacion.csv` (caso P8) |
 
 Para cada uno conviene tener lista la razón de por qué quedó así (tiempo y
 alcance de un TFM individual), igual que ya está respondida la de Alembic y
 la del JWT sin revocación — admitido con criterio es más defendible que
 perfecto sin evidencia.
+
+**Nota (2026-10-25):** la tabla de arriba se actualizó para marcar como
+resueltos los tests/linting de frontend y la alucinación de alcance global
+—verificado contra el código y contra el backend real en cada caso—, pero el
+resto del documento sigue con la fecha de verificación original del 19-20 de
+octubre. No se re-auditó todo de nuevo, solo estos puntos puntuales.
