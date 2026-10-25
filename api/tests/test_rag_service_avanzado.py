@@ -99,7 +99,7 @@ def test_si_el_modelo_falla_se_usa_la_consulta_original(monkeypatch):
 
 def test_una_descomposicion_vacia_se_descarta():
     svc = _servicio(_ClienteQueResponde("   \n  \n "))
-    assert svc._descomponer("una pregunta") == ["una pregunta"]
+    assert svc._descomponer("una pregunta y otra") == ["una pregunta y otra"]
 
 
 def test_una_descomposicion_excesiva_se_descarta():
@@ -107,18 +107,57 @@ def test_una_descomposicion_excesiva_se_descarta():
     en vez de separar temas, y cada una anade contexto que se paga."""
     demasiadas = "\n".join(f"pregunta {i}" for i in range(MAX_SUBPREGUNTAS + 1))
     svc = _servicio(_ClienteQueResponde(demasiadas))
-    assert svc._descomponer("una pregunta") == ["una pregunta"]
+    assert svc._descomponer("una pregunta y otra") == ["una pregunta y otra"]
 
 
 def test_el_limite_exacto_de_subpreguntas_se_acepta():
     justas = "\n".join(f"pregunta {i}" for i in range(MAX_SUBPREGUNTAS))
     svc = _servicio(_ClienteQueResponde(justas))
-    assert len(svc._descomponer("una pregunta")) == MAX_SUBPREGUNTAS
+    assert len(svc._descomponer("una pregunta y otra")) == MAX_SUBPREGUNTAS
 
 
 def test_las_lineas_en_blanco_no_cuentan_como_subpreguntas():
     svc = _servicio(_ClienteQueResponde("que es un VAE\n\n  \nque es una GAN\n"))
-    assert svc._descomponer("x") == ["que es un VAE", "que es una GAN"]
+    assert svc._descomponer("x y z") == ["que es un VAE", "que es una GAN"]
+
+
+# ── Filtro previo: no llamar al modelo cuando no hace falta ─────────────────
+
+def test_sin_senal_de_pregunta_compuesta_no_se_llama_al_modelo():
+    """Es el ahorro: si no hay ninguna seña de que el mensaje una varias
+    preguntas, ni se intenta la llamada al modelo."""
+    cliente = _ClienteQueResponde("esto nunca deberia leerse")
+    svc = _servicio(cliente)
+
+    assert svc._descomponer("que es un agente de IA") == ["que es un agente de IA"]
+    assert cliente.llamadas == 0
+    assert svc.llamadas_auxiliares == []
+
+
+def test_una_y_suelta_si_dispara_la_llamada_al_modelo():
+    cliente = _ClienteQueResponde("que es un VAE\nque es una GAN")
+    svc = _servicio(cliente)
+
+    svc._descomponer("que es un VAE y que es una GAN")
+    assert cliente.llamadas == 1
+
+
+def test_dos_signos_de_interrogacion_disparan_la_llamada_al_modelo():
+    cliente = _ClienteQueResponde("que son los hiperparametros\nque son los parametros")
+    svc = _servicio(cliente)
+
+    svc._descomponer("que son los hiperparametros? y los parametros?")
+    assert cliente.llamadas == 1
+
+
+def test_una_y_dentro_de_una_palabra_no_cuenta_como_senal():
+    """'y' tiene que ser una palabra suelta (conjuncion), no debe dispararse
+    por aparecer dentro de otra palabra como 'hoy' o 'proyecto'."""
+    cliente = _ClienteQueResponde("no deberia leerse")
+    svc = _servicio(cliente)
+
+    assert svc._descomponer("que proyecto es este hoy") == ["que proyecto es este hoy"]
+    assert cliente.llamadas == 0
 
 
 # ── Con una sola subpregunta, el comportamiento es el de la base ────────────
@@ -197,7 +236,7 @@ def test_la_descomposicion_queda_registrada_como_coste():
 def test_una_descomposicion_fallida_no_registra_coste():
     """Si la llamada no llego a completarse no hay nada que facturar."""
     svc = _servicio(_ClienteQueFalla())
-    svc._descomponer("x")
+    svc._descomponer("x y z")
     assert svc.llamadas_auxiliares == []
 
 
@@ -210,5 +249,5 @@ def test_se_busca_una_vez_por_subpregunta(monkeypatch):
     )
     _parchear_super(monkeypatch, svc)
 
-    svc._recuperar("todo junto", "ns")
+    svc._recuperar("primera y segunda y tercera", "ns")
     assert svc.llamadas_base == ["primera", "segunda", "tercera"]

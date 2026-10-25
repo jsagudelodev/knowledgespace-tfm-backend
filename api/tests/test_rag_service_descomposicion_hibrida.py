@@ -95,7 +95,7 @@ def test_bm25_usa_el_texto_de_cada_subpregunta_no_la_consulta_completa():
     fragmento que solo comparte esa palabra se colaria en AMBAS fusiones. Con
     el texto de cada subpregunta, ese fragmento no deberia aparecer en
     ninguna: ni "tema_gatos" ni "tema_perros" la mencionan."""
-    consulta_completa = "palabra_solo_en_la_union tema_gatos tema_perros"
+    consulta_completa = "palabra_solo_en_la_union tema_gatos y tema_perros"
     densos = {
         "tema_gatos": [_doc("g1", 0.6)],
         "tema_perros": [_doc("p1", 0.6)],
@@ -119,7 +119,7 @@ def test_si_ninguna_subpregunta_tiene_densos_relevantes_se_abstiene():
     densos = {"primera": [_doc("a", 0.05)], "segunda": [_doc("b", 0.02)]}
     svc = _servicio("primera\nsegunda", densos, [_fragmento("a"), _fragmento("b")])
 
-    docs, tokens = svc._recuperar("x", "ns")
+    docs, tokens = svc._recuperar("x y z", "ns")
 
     assert docs == []
 
@@ -129,7 +129,7 @@ def test_si_una_subpregunta_tiene_evidencia_y_otra_no_se_responde_con_la_que_hay
     svc = _servicio("con_evidencia\nsin_evidencia", densos,
                     [_fragmento("a"), _fragmento("b")])
 
-    docs, _ = svc._recuperar("x", "ns")
+    docs, _ = svc._recuperar("x y z", "ns")
 
     assert "a" in {d.id for d in docs}
     assert "b" not in {d.id for d in docs}
@@ -146,5 +146,5 @@ def test_respeta_el_top_k_final():
              [_fragmento(f"p2_{i}") for i in range(TOP_K)]
     svc = _servicio("p1\np2", densos, corpus)
 
-    docs, _ = svc._recuperar("x", "ns")
+    docs, _ = svc._recuperar("x y z", "ns")
     assert len(docs) <= TOP_K

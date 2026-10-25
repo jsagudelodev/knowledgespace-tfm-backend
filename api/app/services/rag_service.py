@@ -188,8 +188,7 @@ class RAGService:
 
         return raw_docs, embedding_tokens
 
-    @observabilidad.observar("rag.consulta")
-    def generate_response(
+    def _preparar_generacion(
         self,
         query: str,
         company_id: int,
@@ -199,6 +198,13 @@ class RAGService:
         model_override: Optional[str] = None,
         temperature_override: Optional[float] = None,
     ) -> Dict[str, Any]:
+        """Recuperación + construcción del prompt, compartidas por la
+        generación normal y la de streaming (`generate_response_stream`).
+
+        Deliberadamente NO incluye la llamada final al modelo generativo: esa
+        es la única parte que difiere entre ambas —con o sin `stream=True`— y
+        cada una la hace a su manera.
+        """
         # Cada asistente es un espacio de conocimiento aislado: si se pide un
         # assistant_id, la búsqueda se queda en su namespace exclusivamente.
         # Sin esto, un asistente sin match filtraba contenido de otros espacios
@@ -265,6 +271,35 @@ class RAGService:
             temperature_override if temperature_override is not None else DEFAULT_TEMPERATURE
         )
 
+        return {
+            "messages": messages,
+            "effective_model": effective_model,
+            "effective_temperature": effective_temperature,
+            "relevant_docs": relevant_docs,
+            "embedding_tokens": embedding_tokens,
+        }
+
+    @observabilidad.observar("rag.consulta")
+    def generate_response(
+        self,
+        query: str,
+        company_id: int,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        assistant_id: Optional[int] = None,
+        system_prompt_override: Optional[str] = None,
+        model_override: Optional[str] = None,
+        temperature_override: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        preparado = self._preparar_generacion(
+            query, company_id, conversation_history, assistant_id,
+            system_prompt_override, model_override, temperature_override,
+        )
+        messages = preparado["messages"]
+        effective_model = preparado["effective_model"]
+        effective_temperature = preparado["effective_temperature"]
+        relevant_docs = preparado["relevant_docs"]
+        embedding_tokens = preparado["embedding_tokens"]
+
         try:
             response = self.client.chat.completions.create(
                 model=effective_model,
@@ -284,34 +319,7 @@ class RAGService:
 
         return {
             "content": response.choices[0].message.content,
-            "sources": [
-                {
-                    "document_id": d.metadata.get("document_id"),
-                    "document_name": d.metadata.get("document_name", "Documento desconocido"),
-                    # **El fragmento entero, no un extracto.** Estuvo recortado
-                    # a 300 caracteres y eso hacía ilegible la comprobación:
-                    # ante "¿qué son los hiperparámetros?", el fragmento que
-                    # contenía la definición la tenía a partir del carácter
-                    # 470, de modo que quien abría la fuente veía un texto
-                    # sobre capas y accuracy y concluía que el sistema se
-                    # había inventado la respuesta.
-                    #
-                    # Poder verificar la cita es justamente lo que distingue a
-                    # este sistema de un modelo conversacional: recortar el
-                    # fragmento anulaba esa garantía. El índice guarda 1.000
-                    # caracteres por fragmento, así que esto no trae nada que
-                    # no estuviera ya en memoria.
-                    "text": d.metadata.get("text") or "",
-                    "score": round(getattr(d, "score", 0), 3),
-                    # Qué fragmento concreto del documento es, no solo de qué
-                    # documento procede. Sin esto, dos respuestas apoyadas en
-                    # partes distintas del mismo PDF son indistinguibles, y no
-                    # se puede ir a comprobar la cita en el original.
-                    "chunk_index": d.metadata.get("chunk_index"),
-                    "chunk_id": getattr(d, "id", None),
-                }
-                for d in relevant_docs
-            ],
+            "sources": self._build_sources(relevant_docs),
             # El texto ÍNTEGRO de cada fragmento relevante, no el extracto de
             # 300 caracteres que `sources` lleva para mostrarlo en pantalla.
             # Lo consume la evaluación: para juzgar si una respuesta se apoya en
@@ -331,6 +339,128 @@ class RAGService:
             # más arriba.
             "llamadas_auxiliares": self.llamadas_auxiliares,
         }
+
+    def generate_response_stream(
+        self,
+        query: str,
+        company_id: int,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        assistant_id: Optional[int] = None,
+        system_prompt_override: Optional[str] = None,
+        model_override: Optional[str] = None,
+        temperature_override: Optional[float] = None,
+    ):
+        """Igual que `generate_response`, pero entrega la respuesta token a
+        token según llega de OpenAI, en vez de esperar a tenerla completa.
+
+        Generador que produce eventos `{"type": "delta", "content": str}` a
+        medida que el modelo escribe, y termina con un único evento
+        `{"type": "done", ...}` con la misma forma que devuelve
+        `generate_response` (content completo, sources, tokens, costes) —
+        quien llama (el router) persiste el mensaje y registra el coste igual
+        en los dos casos, cambia solo cómo se entrega al cliente.
+
+        No sustituye a `generate_response`: viven lado a lado porque la
+        latencia total medida para la memoria usa la ruta síncrona, y
+        cambiarla habría invalidado esas cifras sin necesidad. El streaming
+        no reduce esa latencia total, reduce la ESPERA PERCIBIDA hasta que
+        aparece el primer token.
+        """
+        preparado = self._preparar_generacion(
+            query, company_id, conversation_history, assistant_id,
+            system_prompt_override, model_override, temperature_override,
+        )
+        messages = preparado["messages"]
+        effective_model = preparado["effective_model"]
+        effective_temperature = preparado["effective_temperature"]
+        relevant_docs = preparado["relevant_docs"]
+        embedding_tokens = preparado["embedding_tokens"]
+
+        try:
+            stream = self.client.chat.completions.create(
+                model=effective_model,
+                messages=messages,
+                temperature=effective_temperature,
+                max_tokens=MAX_RESPONSE_TOKENS,
+                stream=True,
+                # Sin esto el chunk final no trae `usage`: con streaming, el
+                # conteo de tokens no viene gratis en cada trozo como en la
+                # respuesta normal, hay que pedirlo explícitamente.
+                stream_options={"include_usage": True},
+            )
+
+            contenido = []
+            input_tokens = output_tokens = 0
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    texto = chunk.choices[0].delta.content
+                    contenido.append(texto)
+                    yield {"type": "delta", "content": texto}
+                # Llega en el ultimo chunk, el que no trae ningun choice con
+                # delta -por eso es un `if` aparte y no un `elif`.
+                if chunk.usage:
+                    input_tokens = chunk.usage.prompt_tokens
+                    output_tokens = chunk.usage.completion_tokens
+        except Exception as e:
+            logger.error("[RAG] Falló la generación en streaming con %s: %s", effective_model, e, exc_info=True)
+            raise RAGUnavailableError("generación de la respuesta", e) from e
+
+        texto_completo = "".join(contenido)
+        logger.info(
+            "[RAG] (stream) modelo=%s | temperatura=%.2f | tokens entrada=%d salida=%d",
+            effective_model, effective_temperature, input_tokens, output_tokens,
+        )
+
+        yield {
+            "type": "done",
+            "content": texto_completo,
+            "sources": self._build_sources(relevant_docs),
+            "token_count": input_tokens + output_tokens,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "model": effective_model,
+            "embedding_model": self.embedding_service.modelo,
+            "embedding_tokens": embedding_tokens,
+            "llamadas_auxiliares": self.llamadas_auxiliares,
+        }
+
+    @staticmethod
+    def _build_sources(relevant_docs: List[Any]) -> List[Dict[str, Any]]:
+        """Fuentes citables para mostrar en pantalla, a partir de los
+        fragmentos que superaron el umbral de relevancia.
+
+        Compartido por `generate_response` y `generate_response_stream`: el
+        criterio de qué fragmento es citable no depende de cómo se entrega la
+        respuesta.
+        """
+        return [
+            {
+                "document_id": d.metadata.get("document_id"),
+                "document_name": d.metadata.get("document_name", "Documento desconocido"),
+                # **El fragmento entero, no un extracto.** Estuvo recortado
+                # a 300 caracteres y eso hacía ilegible la comprobación:
+                # ante "¿qué son los hiperparámetros?", el fragmento que
+                # contenía la definición la tenía a partir del carácter
+                # 470, de modo que quien abría la fuente veía un texto
+                # sobre capas y accuracy y concluía que el sistema se
+                # había inventado la respuesta.
+                #
+                # Poder verificar la cita es justamente lo que distingue a
+                # este sistema de un modelo conversacional: recortar el
+                # fragmento anulaba esa garantía. El índice guarda 1.000
+                # caracteres por fragmento, así que esto no trae nada que
+                # no estuviera ya en memoria.
+                "text": d.metadata.get("text") or "",
+                "score": round(getattr(d, "score", 0), 3),
+                # Qué fragmento concreto del documento es, no solo de qué
+                # documento procede. Sin esto, dos respuestas apoyadas en
+                # partes distintas del mismo PDF son indistinguibles, y no
+                # se puede ir a comprobar la cita en el original.
+                "chunk_index": d.metadata.get("chunk_index"),
+                "chunk_id": getattr(d, "id", None),
+            }
+            for d in relevant_docs
+        ]
 
     def _anotar_llamada(
         self, operacion: str, respuesta: Any, duracion_ms: Optional[int] = None
