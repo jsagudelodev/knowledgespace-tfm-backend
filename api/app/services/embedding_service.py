@@ -1,5 +1,5 @@
 """Generación de embeddings con OpenAI — el puente entre texto y vectores.
-Usado tanto al indexar documentos como al consultar. Ver `docs/RAG_PIPELINE.md`."""
+Usado tanto al indexar documentos como al consultar. Ver `docs/TFM/RAG_PIPELINE.md`."""
 from typing import List, Tuple
 
 from app.core import observabilidad

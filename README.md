@@ -158,5 +158,5 @@ compatible con contenedores (Cloud Run, Render, Railway, etc.).
 | Documento               | Descripción                                  |
 |-------------------------|----------------------------------------------|
 | `docs/PENDIENTES.md`    | Tareas técnicas pendientes del backend       |
-| `docs/MODELO_DATOS.md`  | Modelo de datos: entidades y relaciones      |
+| `docs/TFM/MODELO_DATOS.md`  | Modelo de datos: entidades y relaciones      |
 | `api/.env.example`      | Variables de entorno requeridas con ejemplos |

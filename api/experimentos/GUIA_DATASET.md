@@ -51,7 +51,7 @@ el control de alucinaciones.
 
 ## 2. Los tipos de pregunta
 
-No es burocracia: cada tipo mide algo distinto. La explicación detallada de cada tipo y de cada métrica está en `docs/DATASET_PREGUNTAS.md`, sección «Tipos de pregunta y cómo se mide cada uno». Los tres primeros forman el
+No es burocracia: cada tipo mide algo distinto. La explicación detallada de cada tipo y de cada métrica está en `docs/TFM/DATASET_PREGUNTAS.md`, sección «Tipos de pregunta y cómo se mide cada uno». Los tres primeros forman el
 dataset original (preguntas 1–18); los demás se añadieron a partir del
 2026-10-22 para cubrir comportamientos que esos tres no medían.
 

@@ -16,7 +16,7 @@ entre los modelos y la base (nombres de índice distintos, varias columnas
 dato). Se descartó esa migración a propósito: mezclar "empezar a usar
 Alembic" con "corregir desviaciones de años de uso manual" en el mismo paso
 es correr el riesgo de alterar producción sin haber revisado cada cambio por
-separado. Esas diferencias quedan documentadas en `docs/MODELO_DATOS.md`
+separado. Esas diferencias quedan documentadas en `docs/TFM/MODELO_DATOS.md`
 como deuda conocida, pendientes de reconciliar una a una, cada una en su
 propia migración revisada antes de aplicarse.
 """

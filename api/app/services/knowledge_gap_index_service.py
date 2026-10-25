@@ -1,7 +1,7 @@
 """Operaciones sobre el índice para el módulo "Preguntas sin respuesta":
 buscar documentos candidatos, indexar alias y respuestas escritas a mano, y
 reejecutar una pregunta para verificar que tras resolverla ya se recupera.
-Ver `docs/RAG_PIPELINE.md` §8."""
+Ver `docs/TFM/RAG_PIPELINE.md` §8."""
 from typing import List, Optional
 
 from app.services.embedding_service import EmbeddingService

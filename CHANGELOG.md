@@ -28,7 +28,7 @@ de pruebas manuales contra el chat real, con Langfuse de testigo.
   —`budget_limits`, `quota_alerts`— contienen datos obsoletos de junio de
   2026: `current_monthly_spend` marca 0,00 USD mientras `cost_tracking`
   registra consumo real. Documentado en `ALCANCE_TFM.md` y
-  `docs/MODELO_DATOS.md`.
+  `docs/TFM/MODELO_DATOS.md`.
 
 ### Pruebas manuales del chat, con verificación cruzada
 
@@ -51,7 +51,7 @@ contra el texto exacto de los fragmentos recuperados:
   una misma consulta, los tres componentes —generación, *embedding*,
   descomposición— coinciden al último decimal entre los dos sistemas
   ($0,000212 en ambos), confirmado además visualmente por el usuario contra
-  las filas de la tabla. Documentado en `docs/OBSERVABILIDAD.md`.
+  las filas de la tabla. Documentado en `docs/TFM/OBSERVABILIDAD.md`.
 
 ### Observabilidad
 
@@ -75,7 +75,7 @@ contra el texto exacto de los fragmentos recuperados:
 
 ### Documentación
 
-- `docs/OBSERVABILIDAD.md` (`6f8ee25`): verificación cruzada de coste,
+- `docs/TFM/OBSERVABILIDAD.md` (`6f8ee25`): verificación cruzada de coste,
   explicación del mecanismo de parcheo de Langfuse 4, estado de la ingesta
   actualizado.
 - `COMO_ARRANCAR.md` y `rag_factory.py` (`910905c`): cómo elegir

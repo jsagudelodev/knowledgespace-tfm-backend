@@ -5,7 +5,7 @@ documentos del corpus**, no generadas por un modelo: es lo que evita que
 hereden la redacción de los fragmentos e inflen artificialmente los resultados
 de recuperación.
 
-Metodología y formato en [`../api/experimentos/GUIA_DATASET.md`](../api/experimentos/GUIA_DATASET.md).
+Metodología y formato en [`../api/experimentos/GUIA_DATASET.md`](../../api/experimentos/GUIA_DATASET.md).
 Corpus en `Test-Documentos/corpus-indexado/` (8 documentos, 87 fragmentos).
 
 **Estado:** ✅ **27 preguntas** en `api/experimentos/dataset_evaluacion.csv`.

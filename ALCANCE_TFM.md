@@ -14,12 +14,12 @@ evolucionando por separado.
   cuatro conviven a propósito: la línea base es el término de comparación de
   todas las mediciones del capítulo 5, y sustituirla por la variante elegida
   habría hecho desaparecer el punto de referencia. Ver
-  `docs/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué se
+  `docs/trabajo/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué se
   descartaron otras (RAG híbrido, agéntico, GraphRAG).
 - **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por el
   `company_id` del usuario autenticado en cada recurso. El JWT solo lleva el
   email (`sub`); la empresa se lee del usuario en la base de datos en cada
-  petición, de modo que el cliente no puede elegirla — ver `docs/MODELO_DATOS.md`.
+  petición, de modo que el cliente no puede elegirla — ver `docs/TFM/MODELO_DATOS.md`.
   **Única excepción, explícita y acotada** (2026-10-25): un `superadmin` puede
   pedir el contexto de OTRA empresa con el header `X-Company-Context`
   (`get_company_context` en `routers/v1/security.py`), para administrar sus
@@ -29,7 +29,7 @@ evolucionando por separado.
   Documentos y Asistentes.
 - **Mitigación de alucinaciones, con dos niveles de evidencia**:
   - En producción: umbral de relevancia medido sobre el corpus
-    (`RAGService.RELEVANCE_THRESHOLD`, justificado en `docs/RAG_PIPELINE.md`
+    (`RAGService.RELEVANCE_THRESHOLD`, justificado en `docs/TFM/RAG_PIPELINE.md`
     §6 y revalidado tras el cambio de chunking) y un prompt restrictivo que
     prohíbe responder fuera del contexto recuperado. **No hay validación
     posterior sobre la respuesta generada dentro del camino de producción.**
@@ -84,7 +84,7 @@ widget público embebible):
   de presupuesto operaba en el producto comercial. `budget_limits` fija un tope
   de 2,00 USD mensuales con `current_monthly_spend` en 0,00, cifra que **no
   refleja el gasto real**: ese vive en `cost_tracking`, que sí se mantiene al
-  día. El detalle está en `docs/MODELO_DATOS.md` §3.5.
+  día. El detalle está en `docs/TFM/MODELO_DATOS.md` §3.5.
 
   Lo que sí se entrega es el **registro** del consumo, que es lo que exige el
   requisito RNF-4: cada llamada al proveedor anota tokens, modelo, importe y
@@ -95,7 +95,7 @@ widget público embebible):
 
 - `docs/tutorials/README.md` — tutoriales interactivos ejecutables, con
   sección "Para la defensa" y sugerencia de demo en vivo.
-- `docs/DEFENSA_TECNICA_AMPLIADA.md` — petición exacta al LLM, seguridad,
+- `docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md` — petición exacta al LLM, seguridad,
   multi-tenancy en Postgres, decisiones de stack, y la pregunta de
   contribución académica.
 

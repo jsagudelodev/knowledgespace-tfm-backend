@@ -1,6 +1,6 @@
 -- Migración manual de la tabla widgets — corrección de diseño: un widget es
 -- el despliegue público de UN asistente, no una entidad standalone con su
--- propia copia de modelo/prompt. Ver docs/MODELO_DATOS.md §2.9 para el
+-- propia copia de modelo/prompt. Ver docs/TFM/MODELO_DATOS.md §2.9 para el
 -- razonamiento completo.
 --
 -- Este proyecto no usa Alembic (ver CLAUDE.md), y el `create_all` del endpoint

@@ -109,4 +109,4 @@ solo dice qué le hace cada uno al texto.
 **3. Revalidación del umbral de relevancia.** El `0.30` de
 `RAGService.RELEVANCE_THRESHOLD` se midió **antes** de que existiera la división
 por oraciones. Como el chunking cambia la distribución de similitudes, hay que
-repetir la medición de `docs/RAG_PIPELINE.md` §6 y confirmar o corregir el valor.
+repetir la medición de `docs/TFM/RAG_PIPELINE.md` §6 y confirmar o corregir el valor.

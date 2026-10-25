@@ -77,7 +77,7 @@ KnowledgeSpace/
 │           ├── embedding_service.py        # OpenAI embeddings
 │           ├── pinecone_service.py         # vector store (namespaces por empresa/asistente)
 │           ├── rag_service.py              # retrieval + generación del chat
-│           └── knowledge_gap_index_service.py  # candidatos/alias/respuesta/verificación de Preguntas sin respuesta — ver docs/RAG_PIPELINE.md §8
+│           └── knowledge_gap_index_service.py  # candidatos/alias/respuesta/verificación de Preguntas sin respuesta — ver docs/TFM/RAG_PIPELINE.md §8
 ├── docs/                       # Documentación técnica
 └── CLAUDE.md
 ```

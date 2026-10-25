@@ -183,5 +183,5 @@ frontend desde un contenedor Node, como alternativa a Vercel.
 Con la configuración por defecto (mínimo de 0 instancias), Cloud Run escala a
 cero cuando no hay tráfico, así que en una demostración el costo de alojamiento
 es muy bajo. El costo variable es el de OpenAI por consulta, que el propio
-sistema registra en `cost_tracking` (ver `docs/OBSERVABILIDAD.md` y el apartado
+sistema registra en `cost_tracking` (ver `docs/TFM/OBSERVABILIDAD.md` y el apartado
 3.3 de la memoria).

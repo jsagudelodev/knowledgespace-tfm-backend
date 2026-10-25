@@ -23,7 +23,7 @@ trocea por oraciones, se indexa en Pinecone aislado por empresa y asistente
 `test_pinecone_namespace.py`), y el chat responde citando las fuentes con su
 puntuación de relevancia, absteniéndose cuando no hay evidencia suficiente.
 
-Verificado contra `docs/FUNCIONALIDADES.md`: las 14 funcionalidades marcadas
+Verificado contra `docs/trabajo/FUNCIONALIDADES.md`: las 14 funcionalidades marcadas
 como completadas tienen código real detrás (rutas de código citadas y
 comprobadas), y las 2 marcadas como fuera de alcance (reranking como
 funcionalidad de producto, *fine-tuning*) están justificadas, no omitidas. El

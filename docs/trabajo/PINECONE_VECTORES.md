@@ -218,7 +218,7 @@ PineconeService().eliminar_por_documento(
 
 Usa el filtro de metadata `{document_id: 42}` para eliminar todos los chunks del documento de una sola llamada, sin necesidad de conocer los IDs individuales.
 
-También se llama, con el mismo efecto idempotente, antes de cada reindexado (ver `docs/RAG_PIPELINE.md`). **Si el namespace todavía no existe** —el primer documento que se indexa para un asistente nuevo— Pinecone responde 404 en vez de no borrar nada; `eliminar_por_documento` lo trata como éxito, no como error (bug real encontrado el 2026-10-24: sin esto, subir el primer documento de cualquier asistente fallaba siempre con `"Namespace not found"`).
+También se llama, con el mismo efecto idempotente, antes de cada reindexado (ver `docs/TFM/RAG_PIPELINE.md`). **Si el namespace todavía no existe** —el primer documento que se indexa para un asistente nuevo— Pinecone responde 404 en vez de no borrar nada; `eliminar_por_documento` lo trata como éxito, no como error (bug real encontrado el 2026-10-24: sin esto, subir el primer documento de cualquier asistente fallaba siempre con `"Namespace not found"`).
 
 ### `eliminar_vectores` — eliminar por IDs explícitos
 

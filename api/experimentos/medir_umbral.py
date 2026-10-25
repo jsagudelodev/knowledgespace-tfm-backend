@@ -54,7 +54,7 @@ from app.services.rag_service import RELEVANCE_THRESHOLD  # noqa: E402
 TOP_K = 5
 
 # Las consultas replican las familias de la medicion original (ver
-# docs/RAG_PIPELINE.md seccion 6), adaptadas al corpus que hay indexado hoy:
+# docs/TFM/RAG_PIPELINE.md seccion 6), adaptadas al corpus que hay indexado hoy:
 # modelos autoregresivos, VAEs, GANs, difusion, LLMs y geometria semantica.
 CONSULTAS: Dict[str, List[str]] = {
     "cubierta": [

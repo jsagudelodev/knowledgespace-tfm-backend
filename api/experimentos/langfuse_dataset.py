@@ -27,7 +27,7 @@ porque son deterministas o corren en un entorno aislado y no dependen de que
 Langfuse esté activo. Tampoco deja rastro en `cost_tracking`: ese registro vive
 en el enrutador del chat, y este script llama al servicio directamente, igual
 que el resto de experimentos — decisión deliberada, documentada en
-`docs/OBSERVABILIDAD.md`, para no mezclar ejecuciones de evaluación con el
+`docs/TFM/OBSERVABILIDAD.md`, para no mezclar ejecuciones de evaluación con el
 gasto real de una organización. El coste de esta corrida queda visible en la
 propia interfaz de Langfuse, consulta por consulta. Este script es la
 demostración de que el dataset vive también dentro de Langfuse, apuntado

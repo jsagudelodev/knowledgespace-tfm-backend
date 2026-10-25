@@ -4,7 +4,7 @@ Reconstruye los vectores de uno o varios documentos con la configuracion
 ACTUAL del codigo: fragmentacion por oraciones y el namespace que construye
 `PineconeService.construir_namespace`. Sirve para resincronizar el indice
 cuando cambia la estrategia de fragmentacion o el esquema de nombres, que es
-justo lo que ocurrio en este proyecto (ver `docs/NUCLEO_RAG.md` seccion 0).
+justo lo que ocurrio en este proyecto (ver `docs/trabajo/NUCLEO_RAG.md` seccion 0).
 
 **Usa el pipeline de produccion, no una copia.** Importa
 `_procesar_documento_background` de `routers/v1/documents.py`, la misma funcion

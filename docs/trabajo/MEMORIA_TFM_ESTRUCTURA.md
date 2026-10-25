@@ -98,11 +98,11 @@ Los no funcionales son los que distinguen: latencia, coste por consulta,
 aislamiento entre empresas. Deberían poder cruzarse con el capítulo 5.
 
 ### 3.2 Arquitectura (2,5)
-**Necesita un diagrama de flujo.** Fuente: `docs/RAG_PIPELINE.md`.
+**Necesita un diagrama de flujo.** Fuente: `docs/TFM/RAG_PIPELINE.md`.
 
 ### 3.3 Selección tecnológica y costes (2)
 Por qué FastAPI, Pinecone, OpenAI, S3, Angular. Fuente:
-`docs/DEFENSA_TECNICA_AMPLIADA.md`, que ya tiene la comparativa Pinecone vs
+`docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md`, que ya tiene la comparativa Pinecone vs
 pgvector.
 
 > Aquí va el **análisis de coste e inferencia**, que la rúbrica *exige*:

@@ -1,6 +1,6 @@
 """Vector store (Pinecone): almacenamiento y búsqueda semántica de embeddings.
 El aislamiento multi-tenant vive aquí, en los namespaces — ver `construir_namespace`
-y `docs/PINECONE_VECTORES.md`."""
+y `docs/trabajo/PINECONE_VECTORES.md`."""
 from typing import Any, Dict, List, Optional
 
 from pinecone import Pinecone, ServerlessSpec

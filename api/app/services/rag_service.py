@@ -1,5 +1,5 @@
 """Etapa de consulta del pipeline RAG: recuperación en Pinecone + generación
-con OpenAI. Es el núcleo del producto — ver `docs/RAG_PIPELINE.md` §4."""
+con OpenAI. Es el núcleo del producto — ver `docs/TFM/RAG_PIPELINE.md` §4."""
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -56,7 +56,7 @@ class RAGUnavailableError(Exception):
 # fragmento mediocre — del segundo ya protege el prompt restrictivo.
 #
 # Reproducir: `python experimentos/medir_umbral.py --empresa N --asistente M`.
-# Razonamiento completo y comparativa en docs/RAG_PIPELINE.md §6.
+# Razonamiento completo y comparativa en docs/TFM/RAG_PIPELINE.md §6.
 #
 # Hay que repetir la medición si cambia el corpus, la fragmentación, el modelo
 # de embeddings o el idioma: los rangos de similitud coseno no son
