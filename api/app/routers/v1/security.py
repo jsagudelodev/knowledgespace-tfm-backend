@@ -73,9 +73,17 @@ def is_superadmin(user: User) -> bool:
 
 async def get_company_context(
     x_company_context: Optional[int] = Header(None, alias="X-Company-Context"),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_user),
 ) -> int:
-    """Company_id efectivo: un superadmin puede sobrescribirlo via X-Company-Context."""
+    """Company_id efectivo: un superadmin puede sobrescribirlo vía `X-Company-Context`
+    para ver y administrar los datos de otra empresa.
+
+    Depende de `get_current_user`, no de `get_current_admin_user`, a propósito:
+    los endpoints que lo usan (documentos, asistentes) están abiertos a
+    cualquier usuario autenticado, no solo a administradores. Exigir admin
+    aquí habría bloqueado con 403 a un usuario normal que nunca pidió
+    cambiar de empresa —el filtro de rol ya está en la condición de abajo,
+    que solo un `superadmin` puede activar—."""
     if x_company_context is not None and current_user.role == "superadmin":
         return x_company_context
     return current_user.company_id

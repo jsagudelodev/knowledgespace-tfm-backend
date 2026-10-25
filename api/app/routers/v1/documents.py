@@ -13,7 +13,7 @@ from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.document_repository import DocumentRepository
-from app.routers.v1.security import get_current_user
+from app.routers.v1.security import get_company_context, get_current_user
 from app.schemas.document import DocumentResponse, DocumentStatus, DocumentUpdate
 from app.services.document_service import DocumentService
 from app.services.notification_service import NotificationService
@@ -202,7 +202,8 @@ async def upload_document(
     assistant_id: Optional[int] = Form(None),
     category_id: Optional[int] = Form(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    company_id: int = Depends(get_company_context),
 ):
     file_extension = file.filename.split(".")[-1].lower() if "." in file.filename else ""
 
@@ -216,13 +217,13 @@ async def upload_document(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo supera el límite de 10MB")
 
     if category_id is not None:
-        _validate_category(db, category_id, current_user.company_id)
+        _validate_category(db, category_id, company_id)
 
     safe_filename = f"{uuid.uuid4().hex}.{file_extension}"
 
     try:
         s3 = S3Service()
-        key = S3Service.construir_key(current_user.company_id, safe_filename)
+        key = S3Service.construir_key(company_id, safe_filename)
         file_path = s3.subir_archivo(file, key)
     except Exception as e:
         raise HTTPException(
@@ -230,7 +231,7 @@ async def upload_document(
         ) from e
 
     document = Document(
-        company_id=current_user.company_id,
+        company_id=company_id,
         uploaded_by=current_user.id,
         assistant_id=assistant_id,
         category_id=category_id,
@@ -249,7 +250,7 @@ async def upload_document(
         document_id=documento_creado.id,
         s3_key=file_path,
         file_type=file_extension,
-        company_id=current_user.company_id,
+        company_id=company_id,
         assistant_id=assistant_id,
         original_filename=file.filename,
         uploaded_by=current_user.id,
@@ -261,18 +262,18 @@ async def upload_document(
 @router.get("/", response_model=List[DocumentResponse], summary="Listar documentos")
 async def list_documents(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    return DocumentRepository(db).get_by_company(current_user.company_id)
+    return DocumentRepository(db).get_by_company(company_id)
 
 
 @router.get("/{document_id}", response_model=DocumentResponse, summary="Obtener documento")
 async def get_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    document = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    document = DocumentRepository(db).get_of_company(document_id, company_id)
     if not document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
     return document
@@ -283,10 +284,10 @@ async def update_document(
     document_id: int,
     document: DocumentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
     repo = DocumentRepository(db)
-    db_document = repo.get_of_company(document_id, current_user.company_id)
+    db_document = repo.get_of_company(document_id, company_id)
     if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
     for key, value in document.model_dump(exclude_unset=True).items():
@@ -298,10 +299,11 @@ async def update_document(
 async def delete_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    company_id: int = Depends(get_company_context),
 ):
     repo = DocumentRepository(db)
-    db_document = repo.get_of_company(document_id, current_user.company_id)
+    db_document = repo.get_of_company(document_id, company_id)
     if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
@@ -341,14 +343,14 @@ async def delete_document(
 async def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
     """
     Genera una URL temporal firmada (presigned URL) para descargar el archivo desde S3.
     La URL expira en 1 hora — el archivo nunca se expone públicamente.
     """
     from fastapi.responses import JSONResponse
-    documento = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    documento = DocumentRepository(db).get_of_company(document_id, company_id)
     if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
@@ -363,7 +365,7 @@ async def download_document(
 async def list_document_chunks(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    company_id: int = Depends(get_company_context),
 ):
     """Devuelve en qué fragmentos quedó dividido el documento tras la ingesta.
 
@@ -381,7 +383,7 @@ async def list_document_chunks(
     La lista viene vacía mientras el documento se procesa o si la ingesta
     falló; el campo `status` del documento distingue ambas situaciones.
     """
-    documento = DocumentRepository(db).get_of_company(document_id, current_user.company_id)
+    documento = DocumentRepository(db).get_of_company(document_id, company_id)
     if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
@@ -414,10 +416,10 @@ async def retry_document(
     document_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    company_id: int = Depends(get_company_context),
 ):
     repo = DocumentRepository(db)
-    documento = repo.get_of_company(document_id, current_user.company_id)
+    documento = repo.get_of_company(document_id, company_id)
     if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 

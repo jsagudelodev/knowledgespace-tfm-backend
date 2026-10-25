@@ -6,10 +6,9 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.db.models.assistant import Assistant
-from app.db.models.user import User
 from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.document_repository import DocumentRepository
-from app.routers.v1.security import get_current_user
+from app.routers.v1.security import get_company_context
 from app.schemas.assistant import AssistantCreate, AssistantResponse, AssistantUpdate
 from app.schemas.document import DocumentResponse
 
@@ -34,9 +33,9 @@ def _with_counts(db: Session, assistant: Assistant) -> AssistantResponse:
 async def create_assistant(
     data: AssistantCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    assistant = Assistant(**data.model_dump(), company_id=current_user.company_id)
+    assistant = Assistant(**data.model_dump(), company_id=company_id)
     assistant = AssistantRepository(db).create(assistant)
     return _with_counts(db, assistant)
 
@@ -47,10 +46,10 @@ async def list_assistants(
     limit: int = 100,
     active_only: Optional[bool] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
     assistants = AssistantRepository(db).list_by_company(
-        current_user.company_id, skip=skip, limit=limit, active_only=active_only
+        company_id, skip=skip, limit=limit, active_only=active_only
     )
     return [_with_counts(db, a) for a in assistants]
 
@@ -59,9 +58,9 @@ async def list_assistants(
 async def get_assistant(
     assistant_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    return _with_counts(db, _get_or_404(db, assistant_id, current_user.company_id))
+    return _with_counts(db, _get_or_404(db, assistant_id, company_id))
 
 
 @router.put("/{assistant_id}", response_model=AssistantResponse, summary="Actualizar asistente")
@@ -69,9 +68,9 @@ async def update_assistant(
     assistant_id: int,
     data: AssistantUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    assistant = _get_or_404(db, assistant_id, current_user.company_id)
+    assistant = _get_or_404(db, assistant_id, company_id)
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(assistant, key, value)
     assistant = AssistantRepository(db).update(assistant)
@@ -82,9 +81,9 @@ async def update_assistant(
 async def delete_assistant(
     assistant_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    assistant = _get_or_404(db, assistant_id, current_user.company_id)
+    assistant = _get_or_404(db, assistant_id, company_id)
 
     # Cada asistente es un espacio de conocimiento con su propia documentación:
     # borrarlo mientras tenga documentos o widgets vinculados dejaría esos
@@ -110,7 +109,7 @@ async def delete_assistant(
 async def list_assistant_documents(
     assistant_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    company_id: int = Depends(get_company_context),
 ):
-    _get_or_404(db, assistant_id, current_user.company_id)
+    _get_or_404(db, assistant_id, company_id)
     return DocumentRepository(db).get_by_assistant(assistant_id)
