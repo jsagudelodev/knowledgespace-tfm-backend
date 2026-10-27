@@ -211,6 +211,55 @@ class FeedbackRepository(BaseRepository[Feedback]):
 
     # ── Convertir en pregunta sin respuesta ───────────────────────────────
 
+    @staticmethod
+    def _normalizar_pregunta(texto: str) -> str:
+        """Espacios y saltos de línea colapsados a uno solo, sin mayúsculas —
+        para que "Evolución Arquitectónica y Modelos\nGenerativos" y la misma
+        frase sin el salto de línea cuenten como la misma pregunta."""
+        return " ".join(texto.split()).casefold()
+
+    def _buscar_gap_abierto_igual(
+        self, company_id: int, assistant_id: Optional[int], question: str
+    ) -> Optional[KnowledgeGap]:
+        """Un gap ya abierto con el mismo texto, para el mismo asistente.
+
+        Solo texto EXACTO (normalizado) — no similitud semántica. Verificado
+        contra los datos reales: "hola" estaba duplicado 11 veces y había tres
+        pares de duplicados exactos, todos con el texto idéntico palabra por
+        palabra. Esto los habría evitado a todos sin tocar embeddings ni medir
+        similitud —ver `app/services/alcance_global.py` para la misma
+        filosofía de "lo barato primero"—. Variantes con texto distinto
+        ("hola, como te llamas") seguirán creando un gap nuevo; agruparlas de
+        verdad necesitaría comparar significado, no solo texto, y no hacía
+        falta para resolver lo que de verdad estaba pasando.
+
+        Solo mira gaps `open`/`in_progress`: uno ya `resolved` o `ignored` no
+        debe absorber una pregunta nueva en silencio, debe volver a abrirse
+        como caso propio para que alguien lo revise.
+        """
+        objetivo = self._normalizar_pregunta(question)
+        candidatos = (
+            self.db.query(KnowledgeGap)
+            .filter(
+                KnowledgeGap.company_id == company_id,
+                KnowledgeGap.assistant_id == assistant_id,
+                KnowledgeGap.status.in_(["open", "in_progress"]),
+            )
+            .all()
+        )
+        for gap in candidatos:
+            # El filtro de arriba ya debería dejar pasar solo este asistente y
+            # estos estados, pero se vuelve a comprobar aquí: que esta función
+            # sea correcta no puede depender de que nadie toque esa consulta
+            # SQL en el futuro sin tocar también esta condición.
+            if (
+                gap.assistant_id == assistant_id
+                and gap.status in ("open", "in_progress")
+                and self._normalizar_pregunta(gap.question) == objetivo
+            ):
+                return gap
+        return None
+
     def convert_to_gap(
         self,
         feedback: Feedback,
@@ -218,6 +267,19 @@ class FeedbackRepository(BaseRepository[Feedback]):
         company_id: int,
         user_id: int,
     ) -> KnowledgeGap:
+        existente = self._buscar_gap_abierto_igual(company_id, feedback.assistant_id, question)
+        if existente:
+            # No es una fila nueva: es la misma pregunta otra vez. `volume` ya
+            # alimenta las estadísticas y el orden "por impacto" del listado
+            # (`routers/v1/knowledge_gaps.py`), así que sumar aquí basta para
+            # que se vea reflejado sin tocar el frontend.
+            existente.volume = (existente.volume or 1) + 1
+            feedback.knowledge_gap_id = existente.id
+            feedback.status = "converted"
+            self.db.commit()
+            self.db.refresh(feedback)
+            return existente
+
         sources = (feedback.message.sources or []) if feedback.message else []
         scores = [s.get("score") for s in sources if isinstance(s, dict) and s.get("score") is not None]
         sources_count = len(sources)
