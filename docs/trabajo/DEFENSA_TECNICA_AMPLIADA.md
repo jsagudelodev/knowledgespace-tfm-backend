@@ -247,6 +247,43 @@ migraciones versionadas (Alembic, pendiente, ver limitaciones) y la falta de
 caché de embeddings para preguntas repetidas. Es una limitación de madurez
 operativa, no de arquitectura de fondo.
 
+**¿Por qué el sistema le pasa la pregunta al modelo aunque no haya contexto,
+en vez de responder directamente "no encontré información" sin llamar al
+LLM?** (2026-10-28, pregunta propia que costó entender a la primera)
+No es descuido: la decisión de abstenerse depende de dos cosas que solo el
+modelo puede evaluar juntas.
+
+1. **El umbral mide parecido, no si responde.** Un fragmento puede superar
+   el umbral de relevancia (0.30) —hablar del mismo tema— y aun así no
+   contener la respuesta concreta. Por eso `knowledge_gaps.gap_type`
+   distingue `hard` (ningún fragmento pasó el umbral) de `soft` (sí hay
+   fragmentos relevantes, pero no bastan). El caso `soft` **necesita** que el
+   LLM lea el contenido y juzgue si de verdad responde — no hay forma de que
+   Python decida eso solo con un número de similitud.
+2. **El historial de la conversación sigue yendo al modelo aunque la
+   recuperación de este turno dé cero resultados.** En
+   `RAGService._build_messages` (`api/app/services/rag_service.py:546-593`),
+   el `conversation_history` se agrega siempre, sin condición. Si la
+   pregunta es "¿y eso cuánto cuesta?", la búsqueda de *esa* frase sola
+   puede no encontrar nada —el pronombre no tiene con qué hacer match
+   semántico—, pero el modelo sí puede responderla con lo que ya se dijo
+   dos turnos atrás en la misma conversación. Cortar camino en cuanto la
+   recuperación de este turno da cero fragmentos rompería ese seguimiento de
+   conversación sin que nadie lo notara: parecería "abstención correcta"
+   cuando en realidad era una pregunta de seguimiento perfectamente
+   respondible.
+
+Código exacto: `generate_response` (`rag_service.py:315`) siempre construye
+`context` y `messages` y siempre llama al LLM, incluso con `relevant_docs`
+vacío — no hay ninguna rama que corte antes. `_build_context`
+(`rag_service.py:535`) devuelve cadena vacía si no hay documentos, y
+`_build_messages` (`rag_service.py:546`) convierte eso en un mensaje
+explícito ("No se encontró contexto relevante...") en vez de mandar un
+hueco silencioso, que invitaría al modelo a rellenarlo con conocimiento
+propio. Es distinto del filtro de descomposición de consultas o el de
+alcance global (`app/services/alcance_global.py`), donde la decisión de no
+llamar al LLM sí era puramente mecánica y segura de adelantar en Python.
+
 **¿Qué pasa con la privacidad de los documentos de cada empresa?**
 Los documentos viven en S3 con clave por documento (`s3_service.py`) y los
 vectores en el namespace aislado de Pinecone — ninguna empresa puede

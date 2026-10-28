@@ -110,8 +110,15 @@ widget público embebible):
   `Base.metadata.create_all` no funciona sobre SQLite (`assistants.quick_prompts`
   usa `JSONB`, exclusivo de Postgres), así que una base en memoria para pruebas
   exigiría declarar variantes por dialecto.
-- Sin CI/CD automatizado en este repositorio (el pipeline de Cloud Build
-  pertenece a la infraestructura comercial, excluida por lo anterior).
+- **Despliegue continuo sí existe, CI no** (corregido 2026-10-28: esta frase
+  decía que el pipeline de Cloud Build pertenecía a la infraestructura
+  comercial, excluida del alcance — dejó de ser cierto desde que la
+  producción apunta al backend de demostración del propio TFM, commit
+  `e4db995`). Cloud Run está conectado directamente a este repositorio
+  (`docs/TFM/DEPLOYMENT.md` §4) y despliega solo en cada push a `main`, igual
+  que Vercel con el frontend. Lo que sigue sin existir es la integración
+  continua propiamente dicha: ningún pipeline corre los tests ni el *linting*
+  como compuerta antes de desplegar.
 - El aislamiento entre empresas se apoya en la comprobación explícita de
   `company_id` en cada router y en los namespaces de Pinecone, no en
   permisos a nivel de fila ni en roles sobre documentos: cualquier

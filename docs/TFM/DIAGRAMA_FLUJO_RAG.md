@@ -2,8 +2,8 @@
 
 Material de defensa. Dos vistas complementarias del mismo sistema:
 
-1. **El esqueleto compartido** — lo que `generate_response()` hace siempre,
-   igual en las cuatro configuraciones.
+1. **El recorrido completo de una consulta**: lo que el chat hace siempre,
+   igual en todas las configuraciones. Es el diagrama de la memoria (3.2).
 2. **El único punto de extensión** — qué hace cada configuración dentro de
    `_recuperar()`, que es lo único que cambia entre ellas.
 
@@ -13,34 +13,51 @@ entorno. Ver `COMO_ARRANCAR.md` para cómo seleccionar la configuración activa.
 
 ---
 
-## 1. El esqueleto compartido (Template Method)
+## 1. El recorrido completo de una consulta
 
-Todo lo de aquí vive **una sola vez** en `RAGService.generate_response()` y se
-hereda sin modificar. El único rombo que varía por configuración es
-`_recuperar()` — ver la sección 2.
+Este es el diagrama del apartado 3.2 de la memoria. Todo lo que no sea
+`_recuperar()` vive **una sola vez** en `routers/v1/chat.py` y en
+`RAGService` (`_preparar_generacion` y `_build_messages`) y es común a todas
+las configuraciones. El único paso que varía es la recuperación, resaltado en
+amarillo; la sección 2 lo detalla.
 
 ```mermaid
-flowchart TD
-    A([Pregunta del usuario]) --> B[Generar embedding de la consulta]
-    B --> C{{"_recuperar(query, namespace)\n← ÚNICO PUNTO DE EXTENSIÓN"}}
-    C --> D[Filtrar por umbral de relevancia\n0.30]
-    D --> E{"¿Algún fragmento\nsupera el umbral?"}
-    E -- No --> F(["Abstención:\n'No encontré información\nsobre este tema...'"])
-    E -- Sí --> G[Construir contexto\ncon los fragmentos supervivientes]
-    G --> H[Construir mensajes:\nsystem + contexto + historial + pregunta]
-    H --> I[Llamada al modelo generativo\ngpt-4o-mini]
-    I --> J[Registrar coste\ntokens de entrada/salida]
-    J --> K([Respuesta + fuentes citadas])
+flowchart TB
+    subgraph P1 ["1 · Petición"]
+        direction LR
+        A([Pregunta]) --> B["Usuario, empresa<br/>e historial"]
+        B --> D{"¿Alcance<br/>global?"}
+        D -- Sí --> E(["Listado de documentos<br/>sin pasar por el RAG"])
+    end
 
-    style C fill:#fff3cd,stroke:#997404,stroke-width:2px
-    style F fill:#f8d7da,stroke:#842029
-    style K fill:#d1e7dd,stroke:#0f5132
+    subgraph P2 ["2 · Recuperación"]
+        direction LR
+        G{{"Búsqueda en Pinecone<br/>← único paso que varía"}} --> I{"¿Score<br/>≥ 0,30?"}
+        I -- Sí --> J["Fragmentos"]
+        I -- No --> K["Aviso<br/>«sin contexto»"]
+    end
+
+    subgraph P3 ["3 · Generación"]
+        direction LR
+        L["Prompt:<br/>reglas + contexto"] --> M["Respuesta con fuentes<br/>o abstención"]
+        M --> Q([Costo, traza<br/>y respuesta])
+    end
+
+    P1 -- "No es de alcance global" --> P2
+    P2 --> P3
+
+    style G fill:#fff3cd,stroke:#997404,stroke-width:2px
+    style K fill:#f8d7da,stroke:#842029
+    style Q fill:#d1e7dd,stroke:#0f5132
 ```
 
-**Lo que hay que señalar si preguntan por el umbral:** el filtro (paso D) es
-**posterior** a `_recuperar` y **común** a las cuatro configuraciones. Ninguna
-estrategia de recuperación puede saltárselo — es la garantía de que la
-abstención se comporta igual sin importar cuál esté activa.
+**Lo que hay que señalar si preguntan por la abstención:** cuando ningún
+fragmento supera el umbral, el sistema **no se salta el modelo**. Le envía un
+aviso explícito de que no hay contexto, y es el modelo el que se abstiene,
+porque las reglas del prompt se lo ordenan. Se hace así porque un contexto
+vacío y silencioso invita al modelo a rellenarlo con conocimiento propio. El
+filtro del umbral (rombo «¿Score ≥ 0,30?») es **posterior** a la recuperación y **común** a todas las
+configuraciones: ninguna estrategia de recuperación puede saltárselo.
 
 ---
 

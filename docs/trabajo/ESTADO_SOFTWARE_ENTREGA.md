@@ -154,7 +154,7 @@ la entrega:
 | ~~Cero tests en el frontend~~ — **resuelto el 23/24-10** | Buenas prácticas | 8 archivos `.spec.ts`, 34 tests (guards, interceptores, `AuthService`, `ChatService`, `ChunksDrawerComponent`) |
 | ~~Sin *linting* en el backend~~ — **resuelto el 21-10** | Buenas prácticas | `api/ruff.toml`, `api/requirements-dev.txt` |
 | ~~Sin *linting* en el frontend~~ — **resuelto el 23-10** | Buenas prácticas | `@angular-eslint`, `ng lint` |
-| Sin CI en ningún repo | Buenas prácticas | Ambos repos |
+| Despliegue continuo sí existe (Vercel y Cloud Run+Cloud Build, ambos disparados por push a `main`), pero sin CI: ningún pipeline corre los tests ni el *linting* como compuerta antes de desplegar | Buenas prácticas | `docs/TFM/DEPLOYMENT.md` §4-5 |
 | ~~Sin Alembic~~ — **resuelto el 21-10** | Mantenibilidad | `api/alembic/`, `MODELO_DATOS.md` §3.7 |
 | Deuda de esquema encontrada al adoptar Alembic (columnas `nullable`, tipos) | Mantenibilidad, no bloqueante | `MODELO_DATOS.md` §3.7 |
 | Método de ancla sin variantes equivalentes (`\|`) | Evaluación, no producto | `experimentos/ejecutar_dataset.py` |
@@ -171,3 +171,10 @@ resueltos los tests/linting de frontend y la alucinación de alcance global
 —verificado contra el código y contra el backend real en cada caso—, pero el
 resto del documento sigue con la fecha de verificación original del 19-20 de
 octubre. No se re-auditó todo de nuevo, solo estos puntos puntuales.
+
+**Nota (2026-10-28):** el punto de "sin CI/CD" estaba mal — sí hay despliegue
+continuo real en los dos repos (Vercel y Cloud Run+Cloud Build, por push a
+`main`); lo que falta es solo la integración continua (tests/*linting* como
+compuerta). El mismo error, más grave porque contradecía directamente a
+`docs/TFM/DEPLOYMENT.md`, estaba en `ALCANCE_TFM.md` ("el pipeline de Cloud
+Build pertenece a la infraestructura comercial") — corregido ahí también.
