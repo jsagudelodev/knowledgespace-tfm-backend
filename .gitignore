@@ -43,11 +43,11 @@ ENV/
 # con rutas absolutas. No pertenece al repositorio.
 .claude/
 
-# Copias de seguridad manuales de la memoria (Memoria_TFM_RESPALDO.docx,
-# Memoria_TFM_PREVIO.docx, Memoria_TFM_ANTES_11.docx y las que vengan).
-# El patron exige el guion bajo, de modo que `Memoria_TFM.docx` -el documento
-# de trabajo- no queda ignorado y se puede versionar.
-docs/Memoria_TFM_*.docx
+# La memoria del TFM y sus copias (Memoria_TFM.docx, Memoria_TFM_PREVIO.docx...)
+# no se versionan: el anexo 10.1 lleva las credenciales del usuario de
+# demostracion, que nunca deben llegar al repositorio. La memoria se entrega en
+# PDF por el campus. Antes del 2026-10-28 `Memoria_TFM.docx` si se versionaba.
+docs/Memoria_TFM*.docx
 
 # Documentos de prueba para los experimentos. Son material docente de terceros
 # y el repositorio se entrega con el TFM, asi que no se publican. Las cifras que

@@ -179,6 +179,13 @@ async def convert_to_gap(
             exc_info=True,
         )
 
-    feedbacks = repo.get_by_company(current_user.company_id, limit=1)
-    result = next((f for f in feedbacks if f.id == feedback_id), feedback)
-    return result
+    # El `feedback` de arriba (de `get_of_company`) nunca pasó por el
+    # enriquecimiento (`question`, `answer`, `assistant_name`...): esos
+    # campos son atributos calculados en memoria, no columnas de la tabla, y
+    # solo `get_by_company`/`_enrich` los rellenan. Sin esto, el frontend
+    # reemplaza la fila entera con esta respuesta
+    # (`feedback-list.component.ts`) y la deja sin pregunta, sin la
+    # respuesta citada ni el nombre del asistente hasta que se recarga la
+    # página — verificado contra un feedback real antes de corregirlo.
+    repo._enrich([feedback])
+    return feedback

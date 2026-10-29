@@ -51,8 +51,21 @@ class PineconeService:
         - id: identificador único del chunk
         - values: lista de 1536 floats (el embedding)
         - metadata: datos adicionales para filtrar o mostrar en resultados
+
+        Los metadatos con valor `None` se omiten: Pinecone solo admite texto,
+        números, booleanos o listas de texto, y rechaza el upsert completo si
+        encuentra un nulo. Le pasaba a las respuestas escritas a mano en
+        "Preguntas sin respuesta", que no vienen de ningún documento y llevaban
+        `document_id: None`: guardarlas fallaba siempre con un 502. Omitir la
+        clave equivale a "no tiene", y quien lee los resultados ya usa
+        `metadata.get(...)`.
         """
         indice = self.pc.Index(self.nombre_indice)
+        vectores = [
+            {**v, "metadata": {k: val for k, val in v["metadata"].items() if val is not None}}
+            if v.get("metadata") else v
+            for v in vectores
+        ]
         kwargs: Dict[str, Any] = {"vectors": vectores}
         if namespace:
             kwargs["namespace"] = namespace

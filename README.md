@@ -11,6 +11,7 @@ Backend REST API construido con FastAPI y desplegado en Google Cloud Run.
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Desarrollo local](#desarrollo-local)
 - [Primer arranque](#primer-arranque)
+- [Tests](#tests)
 - [Despliegue](#despliegue)
 - [Documentación](#documentación)
 
@@ -28,13 +29,14 @@ Backend REST API construido con FastAPI y desplegado en Google Cloud Run.
 | Servidor        | Gunicorn + Uvicorn workers        |
 | Contenedor      | Docker (multi-stage build)        |
 | Deploy          | Google Cloud Run                  |
-| CI/CD           | — (ver nota)                      |
+| Migraciones     | Alembic                           |
+| Despliegue continuo | Cloud Run conectado a GitHub (ver nota) |
 
-> **Sobre el CI/CD.** El producto comercial se despliega con Google Cloud Build
-> disparado por `main`, pero **ese pipeline no forma parte de esta entrega**: la
-> infraestructura de despliegue quedó fuera de alcance junto con los
-> identificadores de proyecto cloud y las cuentas de servicio. En este
-> repositorio no hay triggers ni workflows. Ver `ALCANCE_TFM.md`.
+> **Sobre el CI/CD.** Hay **despliegue continuo**: Cloud Run está conectado a
+> este repositorio y cada `push` a `main` construye la imagen y la despliega
+> (igual que Vercel con el frontend). **No hay integración continua**: ningún
+> pipeline ejecuta los tests ni el *linting* como requisito antes de desplegar;
+> se ejecutan a mano (ver [Tests](#tests)). Ver `ALCANCE_TFM.md`.
 
 ---
 
@@ -45,14 +47,17 @@ KnowledgeSpace/
 ├── api/                        # Servicio backend
 │   ├── main.py                 # Entrada FastAPI + registro de routers
 │   ├── requirements.txt
-│   ├── migrate_*.sql           # Migraciones manuales (no hay Alembic)
+│   ├── alembic/                # Migraciones de esquema (Alembic)
+│   ├── migrate_*.sql           # Migraciones manuales anteriores a Alembic (histórico)
+│   ├── tests/                  # Tests con pytest
+│   ├── experimentos/           # Evaluación: dataset, RAGAS, resultados
 │   ├── .env.example            # Variables de entorno requeridas
 │   └── app/
 │       ├── core/               # Configuración, base de datos, seguridad JWT
 │       ├── db/
 │       │   └── models/         # Modelos SQLAlchemy (13 tablas)
 │       ├── repositories/       # Capa de acceso a datos (patrón repositorio)
-│       ├── routers/v1/         # Endpoints REST (10 módulos)
+│       ├── routers/v1/         # Endpoints REST (16 módulos)
 │       ├── schemas/            # Validación de request/response con Pydantic v2
 │       └── services/           # Lógica de negocio e integraciones externas
 ├── docs/                       # Documentación técnica
@@ -74,12 +79,12 @@ KnowledgeSpace/
 
 ```bash
 # 1. Clonar y activar entorno virtual
-git clone https://github.com/jsagudelodev/KnowledgeSpace.git
-cd KnowledgeSpace
+git clone https://github.com/jsagudelodev/knowledgespace-tfm-backend.git
+cd knowledgespace-tfm-backend
 
-python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # Linux / Mac
+python -m venv .venv
+.venv\Scripts\activate       # Windows
+source .venv/bin/activate    # Linux / Mac
 
 # 2. Instalar dependencias
 pip install -r api/requirements.txt
@@ -134,22 +139,38 @@ Content-Type: application/json
 
 ---
 
+## Tests
+
+Siempre desde `api/`: desde la raíz, `pytest` no encuentra el paquete `app`.
+`pytest` viene en `requirements.txt`; `ruff`, en `requirements-dev.txt`.
+
+```bash
+cd api
+pip install -r requirements-dev.txt
+pytest
+ruff check .
+```
+
+---
+
 ## Despliegue
 
-Esta es la versión de alcance académico entregada como TFM (ver
-[ALCANCE_TFM.md](ALCANCE_TFM.md)). El servicio de demostración corre en Google
-Cloud Run, construido con el `Dockerfile` de la raíz del repo (Gunicorn +
-UvicornWorker) y una base de datos PostgreSQL gestionada.
+La aplicación está desplegada y se puede probar en
+https://knowledgespace-tfm-frontend.vercel.app (el usuario de demostración se
+indica en la memoria, no en el repositorio).
 
-Los detalles operativos de la infraestructura de producción comercial
-(identificadores de proyecto, URLs internas, cuentas de servicio, triggers de
-CI/CD) se excluyen deliberadamente de esta entrega por no ser parte de la
-contribución académica — mismo criterio ya aplicado al widget público
-embebido (ver `ALCANCE_TFM.md`).
+- **Backend:** Google Cloud Run (`europe-west1`), construido con el
+  `Dockerfile` de la raíz (Gunicorn + workers de Uvicorn). Cloud Run está
+  conectado a este repositorio y despliega en cada `push` a `main`.
+- **Frontend:** Vercel, conectado al repositorio `knowledgespace-tfm-frontend`.
+- **Base de datos:** PostgreSQL gestionado en Supabase; el esquema se migra con
+  Alembic (`cd api && alembic upgrade head`).
 
-Para desplegar tu propia instancia: build de la imagen con el `Dockerfile`
-raíz, variables de entorno según `api/.env.example`, y cualquier proveedor
-compatible con contenedores (Cloud Run, Render, Railway, etc.).
+La guía completa —servicios que usa la aplicación, cómo reconstruir el archivo
+de credenciales y los pasos en Cloud Run y Vercel— está en
+[docs/TFM/DEPLOYMENT.md](docs/TFM/DEPLOYMENT.md). Para desplegar en otro
+proveedor basta con la imagen del `Dockerfile` y las variables de
+`api/.env.example`.
 
 ---
 
@@ -157,6 +178,11 @@ compatible con contenedores (Cloud Run, Render, Railway, etc.).
 
 | Documento               | Descripción                                  |
 |-------------------------|----------------------------------------------|
-| `docs/PENDIENTES.md`    | Tareas técnicas pendientes del backend       |
+| `docs/TFM/ENTREGA_TFM.md` | Índice de la entrega del TFM: qué pide la guía y dónde está |
+| `docs/TFM/DEPLOYMENT.md`  | Guía de despliegue y credenciales            |
+| `docs/TFM/RAG_PIPELINE.md` | El pipeline RAG y sus decisiones            |
 | `docs/TFM/MODELO_DATOS.md`  | Modelo de datos: entidades y relaciones      |
+| `docs/TFM/DATASET_PREGUNTAS.md` | Dataset de evaluación y resultados     |
+| `COMO_ARRANCAR.md`      | Arranque local paso a paso                   |
+| `ALCANCE_TFM.md`        | Qué entra en la entrega y qué no             |
 | `api/.env.example`      | Variables de entorno requeridas con ejemplos |
