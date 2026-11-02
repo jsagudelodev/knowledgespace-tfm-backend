@@ -19,6 +19,7 @@ class MessageRepository(BaseRepository[Message]):
         content: str,
         sources: Optional[Any] = None,
         token_count: Optional[int] = None,
+        assistant_id: Optional[int] = None,
     ) -> Message:
         message = Message(
             conversation_id=conversation_id,
@@ -26,6 +27,7 @@ class MessageRepository(BaseRepository[Message]):
             content=content,
             sources=sources,
             token_count=token_count,
+            assistant_id=assistant_id,
         )
         self.db.add(message)
         self.db.commit()

@@ -19,6 +19,7 @@ class MessageResponse(BaseModel):
     content: str
     sources: Optional[List[Dict[str, Any]]] = None
     token_count: Optional[int] = None
+    assistant_id: Optional[int] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

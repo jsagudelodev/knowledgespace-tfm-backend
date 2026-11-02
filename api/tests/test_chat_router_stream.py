@@ -146,6 +146,22 @@ def test_el_evento_done_persiste_el_mensaje_y_trae_el_costo(monkeypatch):
     assert msg_repo.creados[0].content == "hola"
 
 
+def test_el_mensaje_guarda_el_asistente_que_respondio(monkeypatch):
+    """Sin esto, al reabrir la conversación se elegía el primer asistente activo
+    y el feedback se atribuía al seleccionado en pantalla, no al que respondió."""
+    rag = _RAGQueResponde([
+        {
+            "type": "done", "content": "hola", "sources": [],
+            "input_tokens": 10, "output_tokens": 1, "model": "gpt-4o-mini",
+            "embedding_model": "text-embedding-3-small", "embedding_tokens": 1,
+            "llamadas_auxiliares": [],
+        },
+    ])
+    _, msg_repo, _ = _generar(rag, monkeypatch, assistant_id=5)
+
+    assert msg_repo.creados[0].assistant_id == 5
+
+
 def test_las_llamadas_auxiliares_tambien_se_facturan(monkeypatch):
     """Una configuracion avanzada (descomposicion/reordenado) debe dejar su
     propia fila de coste, igual que en la ruta sincrona."""

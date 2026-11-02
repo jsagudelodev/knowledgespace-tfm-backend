@@ -109,7 +109,7 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 34 archivos y 216 tests unitarios sobre lógica pura
+- Cobertura de tests: 35 archivos y 222 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge

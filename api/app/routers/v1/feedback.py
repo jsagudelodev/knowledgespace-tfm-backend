@@ -7,7 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.db.models.conversation import Conversation
 from app.db.models.feedback import Feedback
+from app.db.models.message import Message
 from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.feedback_repository import FeedbackRepository
@@ -32,6 +34,26 @@ def _validate_period(period: str) -> str:
     return period
 
 
+def _asistente_del_mensaje(db: Session, message_id: Optional[int], company_id: int) -> Optional[int]:
+    """El asistente que de verdad respondió el mensaje calificado.
+
+    Antes se usaba el que mandaba la pantalla —el seleccionado al calificar—, y
+    en una conversación reabierta ese no tiene por qué ser el que respondió: la
+    pregunta sin respuesta derivada acababa en otro espacio de conocimiento.
+    Solo se acepta un mensaje de la propia empresa; si no, o si es anterior a
+    que se guardara el asistente (NULL), se vuelve al valor de la pantalla.
+    """
+    if not message_id:
+        return None
+    fila = (
+        db.query(Message.assistant_id)
+        .join(Conversation, Conversation.id == Message.conversation_id)
+        .filter(Message.id == message_id, Conversation.company_id == company_id)
+        .first()
+    )
+    return fila[0] if fila else None
+
+
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED, summary="Enviar feedback")
 async def submit_feedback(
     data: FeedbackCreate,
@@ -42,7 +64,7 @@ async def submit_feedback(
         company_id=current_user.company_id,
         user_id=current_user.id,
         widget_id=data.widget_id,
-        assistant_id=data.assistant_id,
+        assistant_id=_asistente_del_mensaje(db, data.message_id, current_user.company_id) or data.assistant_id,
         message_id=data.message_id,
         rating=data.rating,
         comment=data.comment,

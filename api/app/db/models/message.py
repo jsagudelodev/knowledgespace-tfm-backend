@@ -10,6 +10,9 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False, index=True)
+    # Qué asistente respondió (o a cuál se preguntó). NULL en los mensajes
+    # anteriores a la migración a1c3f5e7b902.
+    assistant_id = Column(Integer, ForeignKey("assistants.id", ondelete="SET NULL"), nullable=True, index=True)
     role = Column(String(20), nullable=False)
     content = Column(Text, nullable=False)
     sources = Column(JSON, nullable=True)

@@ -172,6 +172,7 @@ erDiagram
     messages {
         int id PK
         int conversation_id FK
+        int assistant_id FK
         string role
         text content
         jsonb sources
@@ -554,6 +555,7 @@ class User(Base):
 |-------|------|-------|
 | `id` | Integer PK | |
 | `conversation_id` | Integer FK | → conversations, indexado |
+| `assistant_id` | Integer FK | → assistants, `ON DELETE SET NULL`, indexado. Qué asistente respondió; NULL en los mensajes anteriores a la migración `a1c3f5e7b902` (2026-11-02). El feedback toma de aquí el asistente al calificar |
 | `role` | String(20) | `user` / `assistant` |
 | `content` | Text | |
 | `sources` | JSONB | Array de metadatos de documentos citados |

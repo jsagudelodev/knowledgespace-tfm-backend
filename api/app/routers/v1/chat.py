@@ -74,7 +74,10 @@ def _preparar_conversacion(
     history = msg_repo.get_by_conversation(conversation.id, skip=0, limit=20)
     conversation_history = [{"role": m.role, "content": m.content} for m in history]
 
-    msg_repo.create_message(conversation_id=conversation.id, role="user", content=payload.message)
+    msg_repo.create_message(
+        conversation_id=conversation.id, role="user", content=payload.message,
+        assistant_id=assistant.id if assistant else None,
+    )
 
     return assistant, conversation, conversation_history
 
@@ -159,6 +162,7 @@ async def chat_message(
         contenido = responder_alcance_global(db, current_user.company_id, assistant.id if assistant else None)
         assistant_message = msg_repo.create_message(
             conversation_id=conversation.id, role="assistant", content=contenido, sources=[], token_count=0,
+            assistant_id=assistant.id if assistant else None,
         )
         return ChatResponse(
             message_id=assistant_message.id,
@@ -210,6 +214,7 @@ async def chat_message(
         content=result["content"],
         sources=result["sources"],
         token_count=result.get("token_count"),
+        assistant_id=assistant.id if assistant else None,
     )
 
     cost_usd = _registrar_costes(
@@ -282,6 +287,7 @@ def _generar_eventos_sse(
             yield f"data: {json.dumps({'type': 'delta', 'content': contenido})}\n\n"
             assistant_message = msg_repo.create_message(
                 conversation_id=conversation_id, role="assistant", content=contenido, sources=[], token_count=0,
+                assistant_id=assistant_id,
             )
             payload_done = {
                 "type": "done",
@@ -317,6 +323,7 @@ def _generar_eventos_sse(
                     content=evento["content"],
                     sources=evento["sources"],
                     token_count=evento.get("token_count"),
+                    assistant_id=assistant_id,
                 )
                 cost_usd = _registrar_costes(
                     db, company_id, user_id, conversation_id, assistant_id, evento, duracion_ms,
