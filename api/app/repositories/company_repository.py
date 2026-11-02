@@ -16,7 +16,9 @@ class CompanyRepository(BaseRepository[Company]):
     def get_active(self) -> List[Company]:
         return (
             self.db.query(Company)
-            .filter(Company.is_active.is_(True))
+            # `== True` y no `.is_(True)`: la columna es INTEGER (ver IntBoolean) y
+            # Postgres no acepta `IS true` sobre un entero.
+            .filter(Company.is_active == True)  # noqa: E712
             .order_by(Company.name)
             .all()
         )

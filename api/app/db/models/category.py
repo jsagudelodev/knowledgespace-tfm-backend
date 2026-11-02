@@ -1,7 +1,8 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.db.types import IntBoolean
 
 
 class Category(Base):
@@ -14,7 +15,7 @@ class Category(Base):
     color      = Column(String(7), nullable=True)
     icon       = Column(String(50), nullable=True)
     sort_order = Column(Integer, default=0)
-    is_active  = Column(Boolean, nullable=False, default=True)
+    is_active  = Column(IntBoolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

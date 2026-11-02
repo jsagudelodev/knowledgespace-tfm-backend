@@ -1,6 +1,7 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, func
+from sqlalchemy import Column, DateTime, Integer, String, Text, func
 
 from app.core.database import Base
+from app.db.types import IntBoolean
 
 
 class Company(Base):
@@ -15,7 +16,7 @@ class Company(Base):
     max_users             = Column(Integer, nullable=False, default=5)
     max_documents         = Column(Integer, nullable=False, default=100)
     monthly_message_limit = Column(Integer, nullable=True)
-    is_active             = Column(Boolean, nullable=False, default=True)
+    is_active             = Column(IntBoolean, nullable=False, default=True)
     created_at            = Column(DateTime(timezone=True), server_default=func.now())
     updated_at            = Column(DateTime(timezone=True), onupdate=func.now())
 
