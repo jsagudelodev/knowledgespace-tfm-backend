@@ -21,7 +21,6 @@ from app.routers.v1.knowledge_gaps import router as knowledge_gaps_router
 from app.routers.v1.message import router as message_router
 from app.routers.v1.notification import router as notification_router
 from app.routers.v1.setup import router as setup_router
-from app.routers.v1.tags import router as tags_router
 from app.routers.v1.users import router as users_router
 
 
@@ -53,7 +52,6 @@ app.include_router(auth_router,         prefix="/api/v1/auth",          tags=["a
 app.include_router(users_router,        prefix="/api/v1/users",         tags=["users"])
 app.include_router(companies_router,    prefix="/api/v1/companies",     tags=["companies"])
 app.include_router(categories_router,   prefix="/api/v1/categories",    tags=["categories"])
-app.include_router(tags_router,         prefix="/api/v1/tags",          tags=["tags"])
 app.include_router(documents_router,    prefix="/api/v1/documents",     tags=["documents"])
 app.include_router(assistants_router,   prefix="/api/v1/assistants",    tags=["assistants"])
 app.include_router(chat_router,         prefix="/api/v1/chat",          tags=["chat"])

@@ -23,7 +23,7 @@
 | **documents** | Gestión de contenido | Metadatos de documentos subidos. Incluye `assistant_id` para multi-tenancy por asistente, estado de procesamiento, chunk count y mensajes de error. |
 | **conversations** | Historial de chat | Conversaciones de chat entre usuarios y la IA. Cada conversación agrupa múltiples mensajes. |
 | **messages** | Mensajes individuales | Cada mensaje de una conversación. Incluye rol (user/assistant), contenido, fuentes citadas (JSON) y conteo de tokens. |
-| **tags** | Clasificación flexible | Etiquetas para clasificar documentos de forma no jerárquica, con nombre y color para UI. |
+| **tags** | Retirada (2026-11-02) | Etiquetas con nombre y color, sin vínculo con documentos; solo se conserva la tabla (ver §2.7). |
 | **assistants** | Asistentes de conocimiento | Asistentes especializados con system prompt, modelo, temperatura, avatar y soft-delete. Agrupan documentos y widgets. |
 | **widgets** | Canales de despliegue | Configuraciones de widgets de chat con estética (colores, fuentes), identidad del bot, sugerencias rápidas, idiomas y límites de uso. PK en UUID. |
 | **feedback** | Calificación de respuestas | Permite calificar respuestas de la IA (1-5 estrellas) con comentario. Vinculado a assistant y message. |
@@ -565,6 +565,11 @@ class User(Base):
 ### 2.7 tags
 
 **Modelo:** `app/db/models/tag.py`
+
+> **Retirada como funcionalidad el 2026-11-02.** Sin `document_tags` (eliminada
+> el 2026-08-09, ver §3) las etiquetas no podían asignarse a ningún documento.
+> Se quitaron la API y la pantalla; el modelo y la tabla se conservan (3 filas)
+> para no forzar una migración destructiva. Ver `ALCANCE_TFM.md`.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|

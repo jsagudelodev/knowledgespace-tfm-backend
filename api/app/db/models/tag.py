@@ -4,6 +4,9 @@ from app.core.database import Base
 
 
 class Tag(Base):
+    # Módulo retirado el 2026-11-02 (ver ALCANCE_TFM.md): las etiquetas nunca se
+    # vincularon a documentos y la categoría ya cubre la organización. Se
+    # conserva solo el modelo para que Alembic no proponga borrar la tabla.
     __tablename__ = "tags"
 
     id         = Column(Integer, primary_key=True, index=True)
