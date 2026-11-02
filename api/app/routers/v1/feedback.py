@@ -13,7 +13,7 @@ from app.db.models.message import Message
 from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.feedback_repository import FeedbackRepository
-from app.routers.v1.security import get_current_user
+from app.routers.v1.security import get_current_admin_user, get_current_user
 from app.schemas.feedback import (
     FeedbackConvertGap,
     FeedbackCreate,
@@ -85,7 +85,7 @@ async def get_feedback_stats(
     assistant_id: Optional[int] = Query(None),
     period: str = Query("month"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     return FeedbackRepository(db).get_stats(
         current_user.company_id,
@@ -99,7 +99,7 @@ async def export_feedback(
     assistant_id: Optional[int] = Query(None),
     period: str = Query("month"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     csv_content = FeedbackRepository(db).get_export_csv(
         current_user.company_id,
@@ -121,7 +121,7 @@ async def list_feedback(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     return FeedbackRepository(db).get_by_company(
         current_user.company_id,
@@ -137,7 +137,7 @@ async def list_feedback(
 async def get_feedback(
     feedback_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     feedback = FeedbackRepository(db).get_of_company(feedback_id, current_user.company_id)
     if not feedback:
@@ -150,7 +150,7 @@ async def update_feedback_status(
     feedback_id: int,
     data: FeedbackUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     feedback = FeedbackRepository(db).get_of_company(feedback_id, current_user.company_id)
     if not feedback:
@@ -168,7 +168,7 @@ async def convert_to_gap(
     feedback_id: int,
     data: FeedbackConvertGap,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     repo = FeedbackRepository(db)
     feedback = repo.get_of_company(feedback_id, current_user.company_id)

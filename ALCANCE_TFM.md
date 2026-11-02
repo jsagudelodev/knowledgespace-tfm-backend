@@ -109,7 +109,7 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 35 archivos y 222 tests unitarios sobre lógica pura
+- Cobertura de tests: 37 archivos y 249 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge
@@ -129,5 +129,13 @@ widget público embebible):
   como compuerta antes de desplegar.
 - El aislamiento entre empresas se apoya en la comprobación explícita de
   `company_id` en cada router y en los namespaces de Pinecone, no en
-  permisos a nivel de fila ni en roles sobre documentos: cualquier
-  administrador ve todos los espacios de su propia empresa.
+  permisos a nivel de fila: cualquier administrador ve todos los espacios de
+  su propia empresa.
+- **Permisos por rol (2026-11-02).** Un `user` puede aportar: chatear,
+  calificar, ver documentos, asistentes y categorías, subir documentos y
+  borrar o recategorizar **los suyos**. Lo que cambia lo que el asistente
+  responde a toda la empresa, o expone datos de otros usuarios, exige `admin`:
+  gestionar asistentes y categorías, documentos ajenos, todo "Preguntas sin
+  respuesta" (sus resoluciones escriben en la base de conocimiento) y el
+  feedback de los demás. Antes la cuenta de demo de rol `user` podía, p. ej.,
+  borrar cualquier documento. Tests: `tests/test_permisos_por_rol.py`.

@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.db.models.assistant import Assistant
+from app.db.models.user import User
 from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.document_repository import DocumentRepository
-from app.routers.v1.security import get_company_context
+from app.routers.v1.security import get_company_context, get_current_admin_user
 from app.schemas.assistant import AssistantCreate, AssistantResponse, AssistantUpdate
 from app.schemas.document import DocumentResponse
 
@@ -29,10 +30,13 @@ def _with_counts(db: Session, assistant: Assistant) -> AssistantResponse:
     return response.model_copy(update={"document_count": doc_count, "widget_count": widget_count})
 
 
+# Leer asistentes queda abierto (el chat los lista); crearlos, editarlos o
+# borrarlos cambia lo que responde toda la empresa y exige admin.
 @router.post("/", response_model=AssistantResponse, status_code=status.HTTP_201_CREATED, summary="Crear asistente")
 async def create_assistant(
     data: AssistantCreate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
     company_id: int = Depends(get_company_context),
 ):
     assistant = Assistant(**data.model_dump(), company_id=company_id)
@@ -68,6 +72,7 @@ async def update_assistant(
     assistant_id: int,
     data: AssistantUpdate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
     company_id: int = Depends(get_company_context),
 ):
     assistant = _get_or_404(db, assistant_id, company_id)
@@ -81,6 +86,7 @@ async def update_assistant(
 async def delete_assistant(
     assistant_id: int,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
     company_id: int = Depends(get_company_context),
 ):
     assistant = _get_or_404(db, assistant_id, company_id)

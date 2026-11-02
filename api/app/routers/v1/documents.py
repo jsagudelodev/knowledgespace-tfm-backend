@@ -23,6 +23,23 @@ from app.services.s3_service import S3Service
 router = APIRouter()
 
 
+def _exigir_dueno_o_admin(documento: Document, usuario: User) -> None:
+    """Un usuario puede gestionar lo que subió él; lo de otros, solo un admin.
+
+    Subir sigue abierto a todos —aportar a la base de conocimiento no debe
+    depender del admin—, pero borrar, recategorizar o reprocesar un documento
+    ajeno cambia lo que el asistente responde a toda la empresa. Antes cualquier
+    usuario podía borrar cualquier documento (encontrado el 2026-11-02 con la
+    cuenta de demo de rol `user`).
+    """
+    if usuario.role in ("admin", "superadmin") or documento.uploaded_by == usuario.id:
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Solo quien subió el documento o un administrador puede modificarlo.",
+    )
+
+
 def _notificar_documento(
     db: Session,
     company_id: int,
@@ -284,12 +301,14 @@ async def update_document(
     document_id: int,
     document: DocumentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     company_id: int = Depends(get_company_context),
 ):
     repo = DocumentRepository(db)
     db_document = repo.get_of_company(document_id, company_id)
     if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
+    _exigir_dueno_o_admin(db_document, current_user)
     for key, value in document.model_dump(exclude_unset=True).items():
         setattr(db_document, key, value)
     return repo.update(db_document)
@@ -306,6 +325,7 @@ async def delete_document(
     db_document = repo.get_of_company(document_id, company_id)
     if not db_document:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
+    _exigir_dueno_o_admin(db_document, current_user)
 
     # 1. Eliminar vectores de Pinecone
     try:
@@ -416,12 +436,14 @@ async def retry_document(
     document_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     company_id: int = Depends(get_company_context),
 ):
     repo = DocumentRepository(db)
     documento = repo.get_of_company(document_id, company_id)
     if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
+    _exigir_dueno_o_admin(documento, current_user)
 
     file_extension = documento.filename.split(".")[-1].lower()
     documento.status = DocumentStatus.PROCESSING

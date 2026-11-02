@@ -7,7 +7,7 @@ from app.core.database import get_db
 from app.db.models.category import Category
 from app.db.models.user import User
 from app.repositories.category_repository import CategoryRepository
-from app.routers.v1.security import get_current_user
+from app.routers.v1.security import get_current_admin_user, get_current_user
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 
 router = APIRouter()
@@ -35,11 +35,13 @@ async def get_category(
     return category
 
 
+# Leer categorías queda abierto (al subir un documento se elige una); crearlas,
+# editarlas o borrarlas exige admin.
 @router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED, summary="Crear categoría")
 async def create_category(
     category_data: CategoryCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_admin_user)
 ):
     repo = CategoryRepository(db)
     existing = repo.get_by_name(current_user.company_id, category_data.name)
@@ -57,7 +59,7 @@ async def update_category(
     category_id: int,
     category_data: CategoryUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_admin_user)
 ):
     repo = CategoryRepository(db)
     category = repo.get_of_company(category_id, current_user.company_id)
@@ -81,7 +83,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_admin_user)
 ):
     repo = CategoryRepository(db)
     category = repo.get_of_company(category_id, current_user.company_id)

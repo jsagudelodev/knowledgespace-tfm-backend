@@ -55,6 +55,13 @@ TIPOS_DE_NOTIFICACION = [
         "icon": "check-circle",
         "color": "#10B981",
     },
+    {
+        "name": "document_requested",
+        "label": "Documento solicitado",
+        "description": "Un administrador te pidió un documento para responder una pregunta.",
+        "icon": "file-plus",
+        "color": "#2563EB",
+    },
 ]
 
 

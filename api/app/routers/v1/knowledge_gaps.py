@@ -17,7 +17,7 @@ from app.db.models.user import User
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
 from app.repositories.user_repository import UserRepository
-from app.routers.v1.security import get_current_user
+from app.routers.v1.security import get_current_admin_user, get_current_user
 from app.schemas.knowledge_gap import (
     KnowledgeGapAnswerRequest,
     KnowledgeGapIgnoreRequest,
@@ -29,7 +29,10 @@ from app.schemas.knowledge_gap import (
 from app.services.knowledge_gap_index_service import best_score, index_alias, index_answer
 from app.services.notification_service import NotificationService
 
-router = APIRouter()
+# Todo el módulo es de administración: lista las preguntas de todos los usuarios
+# y sus resoluciones escriben en la base de conocimiento que reciben todos. Antes
+# cualquier usuario podía, p. ej., indexar una respuesta escrita a mano.
+router = APIRouter(dependencies=[Depends(get_current_admin_user)])
 
 PAGE_SIZE = 25
 VALID_STATUSES = {"open", "resolved", "ignored"}
@@ -101,6 +104,33 @@ def _notify_resolved(db: Session, gap: KnowledgeGap) -> None:
     except Exception:
         logging.getLogger("uvicorn.error").warning(
             f"[Notification] No se pudo crear notificación 'knowledge_gap_resolved' para gap_id={gap.id}",
+            exc_info=True,
+        )
+
+
+def _notify_document_requested(db: Session, gap: KnowledgeGap, solicitante: User) -> None:
+    """Avisa a quien se le pide el documento. Antes la asignación no le llegaba
+    a nadie. Si el admin se lo asigna a sí mismo, no hay a quién avisar."""
+    import logging
+    if not gap.assigned_to or gap.assigned_to == solicitante.id:
+        return
+    nota = f" Nota: {gap.note}" if gap.note else ""
+    try:
+        NotificationService(db).create_for_user(
+            company_id=gap.company_id,
+            user_id=gap.assigned_to,
+            type_name="document_requested",
+            title="Te pidieron un documento",
+            message=(
+                f'{solicitante.full_name} necesita un documento para responder: '
+                f'"{gap.question[:120]}".{nota}'
+            )[:500],
+            entity_type=NotificationEntityType.KNOWLEDGE_GAP,
+            entity_id=gap.id,
+        )
+    except Exception:
+        logging.getLogger("uvicorn.error").warning(
+            f"[Notification] No se pudo crear notificación 'document_requested' para gap_id={gap.id}",
             exc_info=True,
         )
 
@@ -323,6 +353,7 @@ async def request_document(
     gap.due_at = now + timedelta(days=data.due_days)
     db.commit()
     db.refresh(gap)
+    _notify_document_requested(db, gap, current_user)
     return _enrich(gap, db)
 
 
