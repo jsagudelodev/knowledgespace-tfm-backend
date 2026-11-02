@@ -234,6 +234,15 @@ original en `docs/Memoria_TFM_respaldo_2026-11-01.docx`; ambos fuera de git):
 Resultado verificado abriendo el archivo con Word: 50 páginas, 21.187
 palabras, 6 figuras y 4 fragmentos de código.
 
+Hecho el 2026-11-02, para que la memoria coincida con el código del mismo día
+(respaldo previo en `docs/Memoria_TFM_respaldo_2026-11-02.docx`):
+
+- [x] 4.4: permisos por rol dentro de la organización; la limitación que queda es la lectura (no hay permisos de lectura por documento)
+- [x] 6.1: 249 pruebas; tabla actualizada (Aislamiento 49, Contexto 17, Preguntas sin respuesta 27 y fila nueva «Gestión y datos», 9); sin etiquetas en el párrafo de cobertura; «más de un tercio» en vez de «casi la mitad»
+- [x] 6.2: retirado el «error de permisos» que hoy ya no es cierto y añadido el hallazgo del recorrido con la cuenta de usuario normal
+- [x] 7.2 y capítulo 2: riesgo residual y mitigación con los permisos por rol
+- [x] Verificado con Word: 55 páginas, 24.056 palabras; la tabla de pruebas suma 249
+
 **Redactar (versión corta):**
 
 - [x] Capítulo 2: unas 1.340 palabras (2.1, 2.2 con la comparación con soluciones existentes, 2.3 solo RGPD y Reglamento de IA); cita las 21 fuentes de la bibliografía y ninguna más (2026-11-01). Pendiente que el autor lo lea y lo adapte a su voz
