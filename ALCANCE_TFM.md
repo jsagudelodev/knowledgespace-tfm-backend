@@ -73,6 +73,14 @@ widget público embebible):
 - CRUD administrativo de companies/users/notifications: es soporte necesario
   para que el multi-tenant funcione, no la contribución de investigación.
 
+- **Etiquetas, retiradas el 2026-11-02.** Eran un CRUD (`/api/v1/tags` y su
+  pantalla) que nunca se llegó a vincular a los documentos: ni tabla intermedia
+  ni columna en `documents`, así que crear una etiqueta no tenía efecto en
+  ninguna parte. La organización de documentos la cubre la **categoría**, que
+  sí se asigna, se muestra y filtra. Se quitaron router, repositorio, esquemas
+  y la pantalla; se conserva el modelo `Tag` para que Alembic no proponga
+  borrar la tabla, como con el widget. Test: `tests/test_etiquetas_retiradas.py`.
+
 - **Ocho tablas sin código detrás**: `budget_limits`, `quota_alerts`,
   `audit_logs`, `support_tickets`, `courses`, `quizzes`, `quiz_results` y
   `enrollments`. De las veintitrés tablas del esquema, catorce tienen modelo
@@ -101,7 +109,7 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 26 archivos y 176 tests unitarios sobre lógica pura
+- Cobertura de tests: 34 archivos y 216 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge

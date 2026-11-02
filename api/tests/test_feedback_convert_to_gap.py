@@ -13,7 +13,10 @@ Lo que se fija aquí:
        misma frase sin el salto de línea-,
     3. una pregunta de verdad distinta sí crea su propio gap,
     4. un gap ya resuelto o ignorado no absorbe una pregunta nueva en
-       silencio: debe volver a abrirse como caso propio.
+       silencio: debe volver a abrirse como caso propio,
+    5. y si ese caso propio repite una pregunta ya RESUELTA, nace marcado
+       como reincidente (`recurrence_count`, `reopened_at`): la resolución
+       anterior no funcionó.
 
 Son tests de lógica pura: `Session` se sustituye por un doble que imita
 `query().filter().all()`, `add`, `flush`, `commit`, `refresh`.
@@ -144,6 +147,65 @@ def test_un_gap_ya_resuelto_no_absorbe_la_pregunta_repetida():
 
     assert resuelto.volume == 1  # no se tocó
     assert len(db.agregados) == 1  # se abrió como caso propio
+
+
+# ── Reincidencia: una pregunta que vuelve tras resolverse ──────────────────
+
+def test_una_pregunta_ya_resuelta_que_vuelve_a_fallar_nace_reincidente():
+    """Si se dio por resuelta y vuelve a llegar como fallo, la resolución no
+    funcionó: el gap nuevo lo dice, en vez de parecer un caso más."""
+    resuelto = _gap_existente(1, "hola", status="resolved")
+    db = _DBFalsa(gaps_existentes=[resuelto])
+    repo = FeedbackRepository(db)
+
+    repo.convert_to_gap(_feedback(), "Hola", company_id=8, user_id=1)
+
+    nuevo = db.agregados[0]
+    assert nuevo.recurrence_count == 1
+    assert nuevo.reopened_at is not None
+
+
+def test_cuenta_cada_resolucion_previa_que_no_funciono():
+    resueltos = [_gap_existente(1, "hola", status="resolved"), _gap_existente(2, "hola", status="resolved")]
+    db = _DBFalsa(gaps_existentes=resueltos)
+    repo = FeedbackRepository(db)
+
+    repo.convert_to_gap(_feedback(), "hola", company_id=8, user_id=1)
+
+    assert db.agregados[0].recurrence_count == 2
+
+
+def test_una_pregunta_ignorada_no_cuenta_como_reincidencia():
+    """Ignorarla fue una decisión, no un intento fallido de responderla."""
+    ignorado = _gap_existente(1, "hola", status="ignored")
+    db = _DBFalsa(gaps_existentes=[ignorado])
+    repo = FeedbackRepository(db)
+
+    repo.convert_to_gap(_feedback(), "hola", company_id=8, user_id=1)
+
+    nuevo = db.agregados[0]
+    assert nuevo.recurrence_count == 0
+    assert nuevo.reopened_at is None
+
+
+def test_una_resuelta_de_otro_asistente_no_cuenta():
+    resuelto = _gap_existente(1, "hola", status="resolved", assistant_id=2)
+    db = _DBFalsa(gaps_existentes=[resuelto])
+    repo = FeedbackRepository(db)
+
+    repo.convert_to_gap(_feedback(assistant_id=5), "hola", company_id=8, user_id=1)
+
+    assert db.agregados[0].recurrence_count == 0
+
+
+def test_una_pregunta_nueva_no_es_reincidente():
+    db = _DBFalsa(gaps_existentes=[])
+    repo = FeedbackRepository(db)
+
+    repo.convert_to_gap(_feedback(), "que es un transformer", company_id=8, user_id=1)
+
+    assert db.agregados[0].recurrence_count == 0
+    assert db.agregados[0].reopened_at is None
 
 
 def test_la_busqueda_de_duplicados_se_restringe_a_gaps_abiertos():

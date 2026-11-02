@@ -260,6 +260,35 @@ class FeedbackRepository(BaseRepository[Feedback]):
                 return gap
         return None
 
+    def _contar_resueltos_iguales(
+        self, company_id: int, assistant_id: Optional[int], question: str
+    ) -> int:
+        """Cuántas veces esta misma pregunta ya se dio por resuelta antes.
+
+        Si vuelve a llegar como fallo después de resolverse, la resolución no
+        funcionó: el nuevo gap nace marcado como reincidente. Solo cuenta
+        `resolved`, no `ignored` —ignorarla fue una decisión, no un intento de
+        responderla—.
+        """
+        objetivo = self._normalizar_pregunta(question)
+        resueltos = (
+            self.db.query(KnowledgeGap)
+            .filter(
+                KnowledgeGap.company_id == company_id,
+                KnowledgeGap.assistant_id == assistant_id,
+                KnowledgeGap.status == "resolved",
+            )
+            .all()
+        )
+        # Misma comprobación defensiva en memoria que `_buscar_gap_abierto_igual`.
+        return sum(
+            1
+            for gap in resueltos
+            if gap.assistant_id == assistant_id
+            and gap.status == "resolved"
+            and self._normalizar_pregunta(gap.question) == objetivo
+        )
+
     def convert_to_gap(
         self,
         feedback: Feedback,
@@ -294,6 +323,8 @@ class FeedbackRepository(BaseRepository[Feedback]):
         except Exception:
             candidates = None
 
+        recurrence_count = self._contar_resueltos_iguales(company_id, feedback.assistant_id, question)
+
         gap = KnowledgeGap(
             company_id=company_id,
             user_id=user_id,
@@ -307,6 +338,8 @@ class FeedbackRepository(BaseRepository[Feedback]):
             status="open",
             channel="widget" if feedback.widget_id else "chat",
             candidates=candidates,
+            recurrence_count=recurrence_count,
+            reopened_at=datetime.now(timezone.utc) if recurrence_count else None,
         )
         self.db.add(gap)
         self.db.flush()
@@ -331,7 +364,7 @@ class FeedbackRepository(BaseRepository[Feedback]):
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow([
-            "id", "fecha", "usuario", "asistente", "calificacion",
+            "id", "fecha_utc", "usuario", "asistente", "calificacion",
             "comentario", "conversation_id", "estado",
         ])
         for f in feedbacks:
@@ -345,7 +378,8 @@ class FeedbackRepository(BaseRepository[Feedback]):
                 getattr(f, "conversation_id", "") or "",
                 f.status,
             ])
-        return output.getvalue()
+        # BOM: sin él Excel abre el archivo como ANSI y rompe tildes y eñes.
+        return "\ufeff" + output.getvalue()
 
     # ── Enriquecimiento ────────────────────────────────────────────────────
 

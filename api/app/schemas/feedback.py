@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 FeedbackStatus = Literal["new", "reviewed", "converted", "dismissed", "stale"]
 FeedbackPeriod = Literal["month", "90d", "12m"]
@@ -21,7 +21,8 @@ class FeedbackUpdate(BaseModel):
 
 
 class FeedbackConvertGap(BaseModel):
-    question: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+    question: str = Field(..., min_length=1)
 
 
 class FeedbackResponse(BaseModel):

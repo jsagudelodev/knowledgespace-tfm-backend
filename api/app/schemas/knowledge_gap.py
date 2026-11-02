@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class KnowledgeGapVariant(BaseModel):
@@ -84,7 +84,9 @@ class KnowledgeGapLinkRequest(BaseModel):
 
 
 class KnowledgeGapAnswerRequest(BaseModel):
-    answer_text: str
+    # Se indexa tal cual en Pinecone: vacío o solo espacios sería un vector sin contenido.
+    model_config = ConfigDict(str_strip_whitespace=True)
+    answer_text: str = Field(..., min_length=1)
 
 
 class KnowledgeGapRequestDocumentRequest(BaseModel):
