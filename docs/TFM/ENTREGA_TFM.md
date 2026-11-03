@@ -51,32 +51,32 @@ La columna **Tipo** distingue tres cosas que no hay que confundir:
 
 | Qué | Tipo | Capítulo | Estado |
 |---|---|---|---|
-| Extensión máxima de 60 páginas | Exigido (pág. 3) | — | ⚠️ Controlar al añadir imágenes |
+| Extensión máxima de 60 páginas | Exigido (pág. 3) | — | ⚠️ 55 páginas al 2026-11-02; controlar al añadir resumen, abstract y anexos |
 | Introducción: por qué, para quién, dónde aplica | Exigido (pág. 3) | 1 | ✅ |
-| Metodología: coordinación, implementación, testeo y métricas | Exigido (pág. 3) | 1 / 5 / 6 | ⚠️ Falta la frase del trabajo individual; la pág. 8 evalúa «la contribución individual de cada miembro» |
-| **Capturas de pantalla de la interfaz** | Exigido (pág. 3) | 4, 5, 6 | ❌ La memoria no tiene imágenes (ver §3) |
-| **Fragmentos de código críticos, comentados** | Exigido (pág. 3) | 3, 4 | ❌ Pendiente (ver §4) |
-| Conclusión, evaluación de resultados y trabajo futuro | Exigido (pág. 3) | 5 y 8 | ⚠️ 5 hecho; 8 pendiente |
-| **Dirección del repositorio** | Exigido (pág. 3) | 1 y anexo 10.1 | ❌ Pendiente (texto en §2) |
+| Metodología: coordinación, implementación, testeo y métricas | Exigido (pág. 3) | 1 / 5 / 6 | ✅ El trabajo individual se explica en 3.3 |
+| **Capturas de pantalla de la interfaz** | Exigido (pág. 3) | 4, 5, 6 | ✅ Cinco capturas (ver §3) |
+| **Fragmentos de código críticos, comentados** | Exigido (pág. 3) | 3, 4 | ✅ Cuatro fragmentos (ver §4) |
+| Conclusión, evaluación de resultados y trabajo futuro | Exigido (pág. 3) | 5 y 8 | ✅ |
+| **Dirección del repositorio** | Exigido (pág. 3) | 1 y anexo 10.1 | ✅ Al final de 1.3; falta repetirla en el anexo 10.1 |
 | Desglose del costo de inferencia y justificación frente a alternativas | Exigido: «se exige» (pág. 7) | 3.3 | ✅ Tokens y comparación gpt-4o-mini / gpt-4o |
-| Costo de alojamiento (hosting, APIs) y retorno de la inversión | Exigido: «se exige» (pág. 7) | 3.3 | ⚠️ Redactado el 2026-11-01 con el gasto real de octubre; falta pegarlo |
-| Utilidad diferencial frente a soluciones existentes | Criterio de evaluación (pág. 7) | 2 | ❌ Un párrafo dentro del capítulo 2 |
-| Optimización de latencia y escalabilidad | Criterio de evaluación (pág. 5) | 3.2 y 4.5 | ⚠️ El streaming va en el párrafo de la figura 3.2; falta una frase de escalabilidad en 4.5 |
+| Costo de alojamiento (hosting, APIs) y retorno de la inversión | Exigido: «se exige» (pág. 7) | 3.3 | ✅ Con el gasto real de octubre |
+| Utilidad diferencial frente a soluciones existentes | Criterio de evaluación (pág. 7) | 2 | ✅ En 2.2 (comparación con ChatGPT y NotebookLM) |
+| Optimización de latencia y escalabilidad | Criterio de evaluación (pág. 5) | 3.2 y 4.5 | ✅ Streaming en 3.2; escalabilidad en 4.5 |
 | Prompts relevantes y bien diseñados | Criterio de evaluación (pág. 7) | 4.3 | ✅ |
-| Estado del arte y bibliografía citada | Sugerido (índice); criterio de nota «fundamentación teórica» (pág. 5) | 2 y 9 ([`BIBLIOGRAFIA.md`](BIBLIOGRAFIA.md)) | ❌ Pendiente, versión corta: 3–4 páginas (LLM, RAG, RGPD y Reglamento de IA) |
-| Diagrama de flujo de la arquitectura | Sugerido (índice, 3.2) | 3.2 ([`figuras/figura-3.2-flujo-consulta.png`](figuras/figura-3.2-flujo-consulta.png), fuente en [`DIAGRAMA_FLUJO_RAG.md`](DIAGRAMA_FLUJO_RAG.md) §1) | ⚠️ Figura hecha; falta insertarla con su párrafo en lugar del `⟨PENDIENTE⟩` |
+| Estado del arte y bibliografía citada | Sugerido (índice); criterio de nota «fundamentación teórica» (pág. 5) | 2 y 9 ([`BIBLIOGRAFIA.md`](BIBLIOGRAFIA.md)) | ✅ Versión corta; falta que el autor lo lea y lo adapte a su voz |
+| Diagrama de flujo de la arquitectura | Sugerido (índice, 3.2) | 3.2 ([`figuras/figura-3.2-flujo-consulta.png`](figuras/figura-3.2-flujo-consulta.png), fuente en [`DIAGRAMA_FLUJO_RAG.md`](DIAGRAMA_FLUJO_RAG.md) §1) | ✅ Figura 1 |
 | Diseño de datos y pipelines | Sugerido (índice, 3.4) | 3.4 ([`MODELO_DATOS.md`](MODELO_DATOS.md), [`RAG_PIPELINE.md`](RAG_PIPELINE.md)) | ✅ |
-| Análisis de errores y limitaciones | Sugerido (índice, 5.3) | 5.3 y 5.4 | ⚠️ Redactados el 2026-10-28; falta pasarlos a la memoria |
+| Análisis de errores y limitaciones | Sugerido (índice, 5.3) | 5.3 y 5.4 | ✅ |
 | Observabilidad | Sugerido, «si aplica» (índice, 6.3) | 6.3 ([`OBSERVABILIDAD.md`](OBSERVABILIDAD.md)) | ✅ |
 | Anexo: despliegue y manual de usuario | Sugerido (índice, 10.1) | 10.1 ([`DEPLOYMENT.md`](DEPLOYMENT.md) + `doc/MANUAL_USUARIO.md` del frontend) | ⚠️ Hecho en los repositorios; falta la versión corta en la memoria |
 | Resultados completos de la evaluación | Sugerido (índice, anexos) | 10.3 ([`DATASET_PREGUNTAS.md`](DATASET_PREGUNTAS.md), `api/experimentos/resultados/`) | ⚠️ Falta en la memoria |
 | Dataset ampliado (de 18 a 27 preguntas, con 3 tipos nuevos), RAGAS, juez con criterios sí/no, Langfuse | Propio: la guía pide métricas, no cuáles | 5 y 6.3 | ✅ Cerrado: no ampliar más |
 | Documentos técnicos de esta carpeta (`DATASET_PREGUNTAS`, `RAG_PIPELINE`, `MODELO_DATOS`…) y este índice | Propio: material de apoyo del repositorio | `docs/TFM/` | ✅ |
 
-**Extensión:** la copia del 19-10 ya tiene unas 18.700 palabras sin imágenes
-ni capítulo 2. Al añadirlos se superarían las 60 páginas: el detalle por
-experimento del 5.3 (3.350 palabras) pasa al anexo 10.3, y en el cuerpo queda
-la tabla resumen con sus conclusiones.
+**Extensión:** con imágenes y capítulo 2, la memoria tiene 55 páginas y
+24.056 palabras (2026-11-02). Si al añadir resumen, abstract y anexos pasa de
+60, el detalle por experimento del 5.3 se mueve al anexo 10.3 y en el cuerpo
+queda la tabla resumen con sus conclusiones.
 
 ### Defensa (10 minutos de exposición y 5 de preguntas)
 
@@ -84,7 +84,7 @@ la tabla resumen con sus conclusiones.
 |---|---|---|
 | Ajustarse a 10 + 5 minutos | Exigido (pág. 5) | ❌ Pendiente de ensayar con reloj |
 | Presentación con apoyo visual | Criterio de evaluación (pág. 7) | ❌ Pendiente |
-| Vídeo demostrativo | Recomendado (pág. 3) | ❌ Pendiente |
+| Vídeo demostrativo | Recomendado (pág. 3) | ❌ Pendiente; guion y pasos en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md) |
 | Ensayo | Propio | Primer simulacro hecho el 2026-10-21 (5,7/10) |
 
 ---
@@ -177,11 +177,11 @@ dedicar el tiempo restante a pulir el código.
 ### Lo que falta (al 2026-11-02)
 
 Estado: el contenido que exige la guía ya está escrito. La memoria tiene 55
-páginas y 23.832 palabras.
+páginas y 24.056 palabras.
 
 **Urgente:**
 
-- [ ] Subir el arreglo del registro público (`api/app/routers/v1/auth.py`, `api/tests/test_auth_router.py`). Mientras no se suba, la ruta sigue abierta en producción
+- [x] Subir el arreglo del registro público (`api/app/routers/v1/auth.py`, `api/tests/test_auth_router.py`). Subido el 2026-11-02
 
 **Lo hace el autor (nadie puede hacerlo por él):**
 
@@ -203,13 +203,13 @@ páginas y 23.832 palabras.
 
 - [ ] Exportar a PDF y comprobar que no pasa de 60 páginas
 - [ ] Dar acceso de lectura al revisor en los dos repositorios
-- [ ] Subir `docs/TFM/figuras/figura-objetivo4-respuesta-indexada.jpg` y este archivo
+- [x] Subir `docs/TFM/figuras/figura-objetivo4-respuesta-indexada.jpg` y este archivo (2026-11-02)
 - [ ] Reactivar Supabase (plan gratuito: se pausa tras una semana sin uso) antes de la entrega y de la defensa
 
 **Defensa (10 minutos de exposición y 5 de preguntas):**
 
 - [ ] Presentación
-- [ ] Vídeo demostrativo
+- [ ] Vídeo demostrativo, la semana del 9 de noviembre. Guion de 8 escenas (unos 4 minutos), lista de comprobación previa y pasos de publicación en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md). El enlace va en el anexo 10.1
 - [ ] Ensayo cronometrado (primer simulacro, del 21-10: 5,7/10)
 
 ### Hecho

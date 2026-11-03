@@ -4,13 +4,14 @@ Acta de cada sesión con el tutor, las observaciones recibidas y el plan de
 acción derivado. Se actualiza el mismo día de cada reunión, mientras está
 fresca, y cada vez que se cierra alguno de los puntos pendientes.
 
-*Última actualización: 19 de octubre de 2026.* El acta de cada reunión se
+*Última actualización: 2 de noviembre de 2026.* El acta de cada reunión se
 conserva tal como se escribió; lo que se actualiza es el estado de resolución,
 la ficha técnica y el plan.
 
-> **Fecha límite de entrega: `⟨PENDIENTE — confirmar⟩`.** El calendario de más
-> abajo está anclado al 9 de octubre de 2026 y asume unas seis semanas. Si la
-> fecha real es otra, hay que recalcularlo.
+> **Fecha límite de entrega: hacia el 11 de noviembre de 2026, estimada.** El
+> 21 de octubre se calcularon unas tres semanas restantes; no hay fecha
+> oficial confirmada por escrito. El calendario de más abajo está anclado al 9
+> de octubre y se conserva como registro.
 
 ---
 
@@ -42,16 +43,16 @@ métricas.** Esa es la brecha a cerrar.
    apuntado contra el RAG?
 7. ¿Se aplica un control mínimo de alucinaciones?
 
-### Estado de resolución de las siete — al 12 de octubre de 2026
+### Estado de resolución de las siete — al 2 de noviembre de 2026
 
 | # | Pregunta | Estado | Dónde queda respondida |
 |---|---|---|---|
 | 1 | Tipos de preguntas | **Resuelta y medida** | `DATASET_PREGUNTAS.md`; memoria 5.1. Tres categorías —literal, distribuida y sin respuesta—, con métricas desglosadas por categoría. |
 | 2 | Varias preguntas a la vez | **Resuelta e implementada** | Memoria 5.3; `NUCLEO_RAG.md` §8 y §10. Era un defecto medido (48 % de cobertura). La descomposición sin tope lo sube al 88 %, pero enviando el doble de contexto; la configuración realmente activa (reparto equilibrado) llega al 52 %, sin coste extra — es la cifra que corresponde citar si preguntan por el sistema en producción, no el 88 %. |
-| 3 | Arquitectura RAG | **Resuelta** | `ARQUITECTURAS_RAG.md`. Naive RAG con filtro por umbral, más una intervención previa a la recuperación en la clase avanzada. |
+| 3 | Arquitectura RAG | **Resuelta** | `ARQUITECTURAS_RAG.md` §7. RAG avanzado en la taxonomía de Gao et al.: la línea base (densa + umbral 0,30) con descomposición de consultas y reparto equilibrado del contexto antes de recuperar. Configuración activa: `descomposicion_acotada`. |
 | 4 | ¿Híbrido? | **Resuelta** | `NUCLEO_RAG.md` §11. Implementado y medido el 19-10: mejora hit@1 (0,25→0,42) y *faithfulness* (0,939→0,965), pero empeora la cobertura de preguntas compuestas (48 %→30 %). Se probó también combinarlo con el reparto equilibrado (§12): mejora el reparto pero no recupera del todo esa cobertura (37 %). **Decisión: ninguna de las dos variantes se activa**, documentadas como alternativa. |
 | 5 | Técnica de recuperación | **Resuelta** | `RAG_PIPELINE.md` §6. Densa por coseno, `top_k=5`, umbral 0,30 revalidado sobre el índice vigente. |
-| 6 | Langfuse + dataset apuntado al RAG | **Resuelta** | `OBSERVABILIDAD.md` y `experimentos/langfuse_dataset.py`. Las 18 preguntas viven como *dataset* dentro de Langfuse y se ejecutaron contra el RAG como una *run* enlazada, no solo trazas sueltas. *2026-10-18.* |
+| 6 | Langfuse + dataset apuntado al RAG | **Resuelta** | `OBSERVABILIDAD.md` y `experimentos/langfuse_dataset.py`. Las preguntas viven como *dataset* dentro de Langfuse y se ejecutaron contra el RAG como una *run* enlazada, no solo trazas sueltas: las 18 originales el 2026-10-18, y las 27 del conjunto ampliado, contra `descomposicion_acotada`, el 2026-10-24. |
 | 7 | Control de alucinaciones | **Resuelta y medida** | Memoria 5.3 y 5.4. `faithfulness` 0,888, abstención correcta 6/6 y ninguna abstención indebida. |
 
 **El hallazgo que no se esperaba.** Al medir la abstención se vio que el umbral
@@ -69,9 +70,9 @@ La puntuación de similitud mide proximidad temática, no capacidad de responder
 Verificadas contra el código. Deben poder recitarse en cualquier reunión. La
 columna de la derecha señala lo que ha cambiado desde la reunión.
 
-| Pregunta | Respuesta al 19 de octubre de 2026 | Cambio |
+| Pregunta | Respuesta al 2 de noviembre de 2026 | Cambio |
 |---|---|---|
-| **Arquitectura** | Naive RAG con filtro post-recuperación por umbral como línea base, y **cinco variantes más** conviviendo con ella, seleccionables por variable de entorno sin tocar código (patrón Factory sobre Template Method): descomposición sin tope, descomposición con reparto equilibrado (la activa por defecto), reordenado, densa+léxica, y una combinación de las dos últimas. | ⬆ |
+| **Arquitectura** | **RAG avanzado.** Naive RAG con filtro post-recuperación por umbral como línea base, y **cinco variantes más** conviviendo con ella, seleccionables por variable de entorno sin tocar código (patrón Factory sobre Template Method): descomposición sin tope, descomposición con reparto equilibrado (la activa por defecto), reordenado, densa+léxica, y una combinación de las dos últimas. | ⬆ |
 | **Técnica de recuperación** | Densa, por similitud coseno (`metric="cosine"` en Pinecone), `top_k=5`, con descarte por umbral de 0,30 **revalidado** sobre el índice por oraciones. La variante híbrida añade BM25 fusionado por posición (RRF), filtrando por el mismo umbral antes de fusionar. | ⬆ |
 | **¿Híbrido?** | **Medido y descartado por ahora.** `RAGServiceHibrido`, hit@1 0,25→0,42 y *faithfulness* 0,939→0,965, pero empeora la cobertura de preguntas compuestas (48 %→30 %). Combinado con el reparto equilibrado (`RAGServiceDescomposicionHibrida`) mejora el reparto pero no recupera esa cobertura del todo (37 %) y es la configuración más lenta medida. Ninguna de las dos activa. | ⬆ |
 | **¿Reranking?** | **Implementado y medido el 14-10.** Mejora la recuperación (hit@3 de 0,50 a 0,667, MRR de 0,394 a 0,447), pero las cuatro métricas de generación de RAGAS se mueven dentro del margen de ruido del juez, y multiplica el coste por consulta ×3,7. Disponible, **no activo por defecto**. | ⬆ |
@@ -80,8 +81,8 @@ columna de la derecha señala lo que ha cambiado desde la reunión.
 | **Conversación** | Multiturno: se envían los 20 últimos mensajes al modelo. | = |
 | **Evaluación** | Chunking, umbral, preguntas compuestas, recuperación por frase ancla, generación con RAGAS (línea base, reordenado, híbrido y la combinación de híbrido con reparto equilibrado). **Ocho experimentos, todos reproducibles.** | ⬆ |
 | **Control de alucinaciones** | Los mismos tres mecanismos, medidos: `faithfulness` 0,888 en la base y 0,946 con reordenado; abstención correcta 6/6 en las cinco configuraciones donde se ha medido, sin abstenciones indebidas. | = |
-| **Observabilidad** | Langfuse sobre OpenTelemetry, cinco observaciones por consulta. Dependencia opcional. El dataset de 18 preguntas vive dentro de Langfuse como *run* enlazada a sus trazas. | ⬆ |
-| **Pruebas** | 117 tests en verde, 18 archivos. La mayoría apunta directamente a la aportación central: las seis estrategias de recuperación, el umbral y la abstención. | ⬆ |
+| **Observabilidad** | Langfuse sobre OpenTelemetry, cinco observaciones por consulta. Dependencia opcional. El dataset de 27 preguntas vive dentro de Langfuse como *run* enlazada a sus trazas. | ⬆ |
+| **Pruebas** | 249 tests en verde, 37 archivos. La mayor parte apunta a la aportación central —las seis estrategias de recuperación, el umbral y la abstención— y al aislamiento y los permisos por rol. | ⬆ |
 
 > La versión de esta ficha verificada el 9 de octubre decía «sin multi-query»,
 > «la evaluación de recuperación y alucinaciones, pendientes» y «ninguno está
@@ -98,7 +99,10 @@ fragmento; síntesis de varios fragmentos sobre un mismo tema.
 - Conteos y agregaciones ("¿cuántos documentos hay sobre X?"): el sistema no ve
   el corpus, ve cinco fragmentos.
 - Comparaciones exhaustivas entre documentos.
-- Preguntas sobre el conjunto de la documentación.
+- Preguntas sobre el contenido del conjunto de la documentación ("resume todo
+  lo que hay"). Las de catálogo —"¿qué documentos tienes?"— sí se responden,
+  con los metadatos de la base de datos y sin pasar por el RAG
+  (`alcance_global.py`).
 - Preguntas por la ausencia ("¿qué temas no se cubren?").
 - Aritmética o razonamiento temporal sobre los datos.
 
@@ -119,11 +123,19 @@ corresponde a la variante sin tope.
 disponible"*, el sistema respondió *"la documentación disponible se compone
 de…"* habiendo visto únicamente cinco fragmentos. No inventó contenido, pero
 sobredeclaró su cobertura. **Documentada en la memoria 5.4** como primero de
-los dos modos de alucinación analizados. **Sigue sin corregirse:** exigiría
-reconocer las preguntas de alcance global y responderlas con metadatos del
-corpus en lugar de con fragmentos recuperados.
+los dos modos de alucinación analizados. **Corregida el 25 de octubre** con
+`app/services/alcance_global.py`: un filtro de texto estricto reconoce las
+preguntas sobre el catálogo y las responde con los nombres de archivo reales
+de la base de datos, sin pasar por Pinecone ni por el modelo. Ante la duda no
+se activa y la pregunta sigue el camino normal del RAG.
 
 ### Preguntas abiertas para el tutor
+
+> **Decidido el 25 de octubre: el correo no se envía.** Las preguntas de esta
+> sección se conservan como registro. Las de reranking e híbrido perdieron
+> sentido porque ambos se implementaron y midieron; el resto se resolvió
+> leyendo la guía oficial (`docs/TFM/ENTREGA_TFM.md` §1). Lo que sigue es el
+> texto tal como se escribió.
 
 > 🟡 **Aclarado el 22 de octubre — no es una autorización institucional
 > explícita, es una circunstancia.** El máster describe el TFM como "de
@@ -184,7 +196,8 @@ cierra, aunque sea en borrador. No se acumula código para escribir al final.
       respuesta—, 17 frases ancla verificadas como únicas en el corpus y 12
       respuestas de referencia. Redactado a mano, no generado por un modelo.
       *2026-10-11.*
-- [ ] Correo al tutor con las cinco preguntas abiertas.
+- [x] ~~Correo al tutor con las cinco preguntas abiertas.~~ Descartado el
+      2026-10-25.
 
 ### Semana 1 — 12 al 18 de octubre
 
@@ -294,12 +307,12 @@ reproducibles desde `api/experimentos/`:
    referencias verificadas, formato y las dos citas con *venue* dudoso
    decididos. Ver `BIBLIOGRAFIA.md`. Queda pendiente solo el trabajo mecánico
    de transcribirla al capítulo 9 del `.docx`.
-2. **Confirmar el estado del correo al tutor** (las preguntas 1-5 de la lista
-   de abajo). Al 12 de octubre seguía sin enviarse y bloqueaba la decisión
-   sobre reranking e híbrido. Ambos se implementaron y midieron igualmente
-   desde entonces; falta registrar aquí si el tutor llegó a responder y qué
-   dijo.
-3. **La memoria.** Faltan los capítulos 2, 8, 9 y 10, y las secciones 6.2 y
+2. ~~Confirmar el estado del correo al tutor~~ — **descartado el 25 de
+   octubre**: no se envía.
+3. ~~La memoria.~~ **Completa el 2 de noviembre en lo que exige la guía**:
+   capítulos 2 y 8, secciones 6.2 y 7.2, bibliografía en el capítulo 9. Ver
+   el bloque siguiente. Texto original: faltaban los capítulos 2, 8, 9 y 10,
+   y las secciones 6.2 y
    7.2. El capítulo 2 se empezó el 20 de octubre con el método de
    pregunta-respuesta (no generado de una sola vez, por la advertencia de la
    rúbrica contra texto sin adaptación propia) y quedó pausado en la sección
@@ -311,3 +324,20 @@ El bloque C del plan —mejoras del pipeline RAG, cada una medida contra la
 línea base— **queda completo el 19 de octubre**: reordenado, híbrido,
 descomposición con reparto equilibrado y la combinación de las dos últimas,
 las cuatro medidas y con decisión documentada.
+
+### Actualización al 2 de noviembre
+
+- **Memoria:** 55 páginas y unas 24.000 palabras. Escritos los capítulos 1 a
+  9, con 6.2 y 7.2. Respaldo en `docs/Memoria_TFM_respaldo_2026-11-02.docx`.
+- **Pruebas:** 249 en el backend, en 37 archivos, y 61 en el frontend.
+- **Conjunto de evaluación:** ampliado de 18 a 27 preguntas el 22 de octubre,
+  con tres tipos nuevos: paráfrasis, premisa falsa y parcial. Ejecutado en
+  Langfuse contra `descomposicion_acotada`.
+- **Alcance global:** corregido el 25 de octubre (`alcance_global.py`).
+- **Permisos por rol:** el 2 de noviembre el servidor pasó a exigir el rol de
+  administración para gestionar asistentes y categorías, modificar
+  documentos ajenos, resolver preguntas sin respuesta y ver las valoraciones
+  de otros usuarios.
+- **Queda para la entrega:** resumen y abstract, anexos 10.1 y 10.3, exportar
+  a PDF, acceso del revisor a los repositorios, reactivar Supabase, y la
+  defensa (presentación, vídeo y ensayo).

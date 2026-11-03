@@ -53,8 +53,9 @@ en el prompt y generar. Sin intervención en ninguno de los cuatro puntos.
 | Coste mínimo y predecible | El orden lo decide la similitud, que no siempre acierta |
 | Comportamiento determinista y auditable | No detecta que la evidencia es insuficiente |
 
-**Es la arquitectura de este proyecto**, con dos añadidos que se describen en la
-sección 7.
+**Es la línea base de este proyecto** (`RAGService`), el término de comparación
+de todas las mejoras medidas. La configuración activa añade sobre ella una
+intervención previa a la recuperación; ver la sección 7.
 
 ---
 
@@ -81,7 +82,7 @@ fusionan los resultados por posición (RRF, el mismo mecanismo del ejercicio 9.0
 - **Ventaja:** no depende de que una única formulación acierte.
 - **Coste:** N búsquedas en lugar de una.
 
-### 3.3 Descomposición de consultas 🔴 **relevante para este proyecto**
+### 3.3 Descomposición de consultas ✅ **la configuración activa**
 
 Si la pregunta contiene varias intenciones, se parte en subpreguntas, se busca
 por separado y se unen los contextos.
@@ -92,8 +93,13 @@ cobertura cae a ~50% porque el mensaje entero se convierte en un único vector
 que no representa bien a ninguno de los dos temas. La descomposición ataca
 exactamente esa causa.
 
-Que el problema esté medido aquí y la solución tenga nombre propio en la
-literatura es material directo para los capítulos 7 y 8.
+Implementada en dos variantes. `RAGServiceAvanzado` une todos los fragmentos de
+las subpreguntas y sube la cobertura al 88 %, pero manda hasta el doble de
+contexto. `RAGServiceCompleto` —la activa, `descomposicion_acotada`— mantiene
+los cinco fragmentos de siempre y los reparte por turnos entre subpreguntas:
+la cobertura llega al 52 % y el desequilibrio entre temas baja de 1,83 a 0,83,
+al mismo coste de contexto que la línea base. Detalle en `NUCLEO_RAG.md` §8 y
+§10.
 
 ### 3.4 HyDE (*Hypothetical Document Embeddings*)
 
@@ -137,8 +143,14 @@ rankings. Desarrollado en el ejercicio `practica-tfm/9.0_rag_hibrido.py`.
 - **Ventaja:** cubre el punto ciego del denso con identificadores literales.
 - **Coste medido en el 9.0:** puede degradar consultas semánticas, al arrastrar
   coincidencias de palabras comunes poco informativas.
-- **Coste en este proyecto:** el índice usa métrica `cosine` y el modo híbrido
-  de Pinecone exige `dotproduct` — obligaría a reconstruir y reindexar.
+- **En este proyecto:** el modo híbrido nativo de Pinecone exige `dotproduct` y
+  el índice usa `cosine`, así que se evitó reindexar: BM25 se calcula en memoria
+  (`indice_lexico.py`) y se fusiona con la búsqueda densa por posición (RRF).
+  Implementado como `RAGServiceHibrido` y medido el 2026-10-19: hit@1 de 0,25 a
+  0,42 y fidelidad de 0,939 a 0,965, pero la cobertura de preguntas de dos
+  temas cae del 48 % al 30 %. Combinado con el reparto equilibrado
+  (`RAGServiceDescomposicionHibrida`) llega al 37 % y es la configuración más
+  lenta. **Medido, no activo.** Detalle en `NUCLEO_RAG.md` §11 y §12.
 
 ### 4.3 Recuperación jerárquica (*small-to-big*, *parent document*)
 
@@ -175,8 +187,10 @@ similitud vectorial. Implementado como ejercicio en `practica-tfm/7.0_reranking_
 - **Ventaja:** la similitud coseno aproxima la relevancia, no la mide. Un
   reordenador la juzga directamente.
 - **Coste:** una llamada extra por consulta, en el camino crítico de la latencia.
-- **Decisión en este proyecto:** evaluado y descartado. El razonamiento está en
-  `practica-tfm/SIMULACRO_DEFENSA.md` §9.
+- **Decisión en este proyecto:** implementado como `RAGServiceReranking` y
+  medido: hit@3 de 0,500 a 0,667 y MRR de 0,394 a 0,447, pero las métricas de
+  generación no mejoran fuera del ruido del evaluador y cada consulta cuesta
+  3,7 veces más. **Medido, no activo.** Detalle en `NUCLEO_RAG.md` §9.
 
 ### 5.2 Compresión de contexto
 
@@ -236,20 +250,38 @@ ningún fragmento concreto contiene la respuesta.
 
 ## 7. Dónde está este proyecto
 
-**RAG básico con dos refuerzos deliberados**, y aislamiento multi-tenant como
-restricción estructural:
+**RAG avanzado** en la taxonomía de Gao et al. (2023): la línea base con una
+intervención previa a la recuperación —descomposición de consultas con reparto
+equilibrado del contexto—, y aislamiento multi-tenant como restricción
+estructural. Configuración activa: `RAG_CONFIGURACION=descomposicion_acotada`
+(`RAGServiceCompleto`).
 
 | Punto | Qué se hace aquí |
 |---|---|
-| Pre-recuperación | Enrutado por asistente (*namespace* propio por dominio) |
-| Recuperación | Densa, `top_k=5`, `text-embedding-3-small` |
-| Post-recuperación | **Filtro por umbral de relevancia (0.30)** |
-| Generación | *System prompt* restrictivo + abstención explícita |
+| Pre-recuperación | Enrutado por asistente (*namespace* propio por dominio); preguntas sobre el catálogo completo respondidas con metadatos (`alcance_global.py`); **descomposición de la pregunta en subpreguntas** |
+| Recuperación | Densa, `top_k=5`, `text-embedding-3-small`, similitud coseno |
+| Post-recuperación | **Filtro por umbral de relevancia (0.30)**; reparto por turnos de los cinco fragmentos entre subpreguntas |
+| Generación | `gpt-4o-mini`, *system prompt* restrictivo + abstención explícita |
 
-Los dos refuerzos son el **troceado por oraciones** (medido en
-`../api/experimentos/medir_chunking.py`: elimina el 79% de cortes a mitad de palabra) y el **umbral
-de relevancia** (revalidado en `../api/experimentos/medir_umbral.py`: sigue dentro de la banda
-vacía entre ruido 0.258 y señal 0.393).
+Sobre esa base hay tres refuerzos medidos: el **troceado por oraciones**
+(`../api/experimentos/medir_chunking.py`: elimina el 79% de cortes a mitad de
+palabra), el **umbral de relevancia** (revalidado en
+`../api/experimentos/medir_umbral.py`: sigue dentro de la banda vacía entre
+ruido 0.258 y señal 0.393) y la **descomposición acotada** (cobertura de
+preguntas compuestas del 48 % al 52 %, desequilibrio de 1,83 a 0,83, sin
+aumentar el contexto).
+
+Las seis configuraciones conviven en el código y se eligen con una variable de
+entorno, sin tocarlo:
+
+| Configuración | Estado |
+|---|---|
+| `base` — RAG básico con umbral | Línea base de comparación |
+| `descomposicion` — sin tope | Medida, no activa: duplica el contexto |
+| **`descomposicion_acotada`** | **✅ Activa** |
+| `reranking` | Medida, no activa: ×3,7 de coste sin mejora medible en las respuestas |
+| `hibrido` — densa + BM25 | Medida, no activa: compuestas del 48 % al 30 % |
+| `descomposicion_hibrida` | Medida, no activa: compuestas al 37 %, la más lenta |
 
 ### Por qué esta arquitectura y no una más sofisticada
 
@@ -259,8 +291,10 @@ Cuatro argumentos, en orden de fuerza:
    puntuaciones, este umbral. Self-RAG, CRAG o un agente introducen decisiones
    tomadas por un modelo, que no se pueden justificar ante un usuario que
    pregunta por qué el sistema contestó eso.
-2. **Latencia y coste acotados.** Una búsqueda y una generación por consulta.
-   Las arquitecturas con bucle no permiten prometer un límite.
+2. **Latencia y coste acotados.** Una búsqueda y una generación por consulta;
+   solo si un filtro de texto detecta varias preguntas se añaden una llamada
+   para descomponer y una búsqueda por subpregunta, alrededor de 1,2 s más en
+   la mediana. Las arquitecturas con bucle no permiten prometer un límite.
 3. **Un corpus que cambia.** Todo lo que exija una fase de preproceso costosa
    —GraphRAG, recuperación contextual— se vuelve a pagar con cada actualización
    normativa. En comercio exterior eso es a menudo.
@@ -270,12 +304,14 @@ Cuatro argumentos, en orden de fuerza:
 
 ### La respuesta de 30 segundos para la defensa
 
-> *"La arquitectura es RAG básico con dos refuerzos: troceado por límites de
-> oración y filtro por umbral de relevancia, ambos medidos. Valoré reranking,
-> recuperación híbrida y descomposición de consultas. Las descarté para esta
-> entrega por latencia, por coste de reindexado o por falta de tiempo para
-> medirlas, y las documento como líneas de evolución. Preferí una arquitectura
-> auditable con cifras que la respalden a una más sofisticada sin evidencia."*
+> *"Es un RAG avanzado: recuperación densa con filtro por umbral, y antes de
+> buscar, descomposición de la pregunta en subpreguntas con reparto equilibrado
+> del contexto, para que una pregunta con dos temas no pierda uno. Implementé y
+> medí también el reordenado y la búsqueda híbrida con BM25. No los activé: el
+> reordenado multiplica el coste por 3,7 sin mejorar las respuestas de forma
+> medible, y el híbrido encuentra mejor el fragmento pero empeora justo las
+> preguntas compuestas. Las seis configuraciones se cambian con una variable de
+> entorno, y cada decisión tiene una cifra detrás."*
 
 ---
 
@@ -286,13 +322,13 @@ Cuatro argumentos, en orden de fuerza:
 | RAG básico | — | — | ✅ base |
 | Reescritura de consulta | Pre | Vocabulario distinto | ❌ |
 | Multi-query / Fusion | Pre | Formulación poco afortunada | ❌ |
-| **Descomposición** | Pre | **Preguntas compuestas** | 🔵 trabajo futuro |
+| **Descomposición** | Pre | **Preguntas compuestas** | ✅ activa, con reparto equilibrado |
 | HyDE | Pre | Distancia pregunta-respuesta | ❌ |
-| Enrutado | Pre | Espacio de búsqueda | ✅ por asistente |
-| Híbrida | Recuperación | Códigos y siglas | 🔵 trabajo futuro |
+| Enrutado | Pre | Espacio de búsqueda | ✅ por asistente, y preguntas de catálogo a metadatos |
+| Híbrida | Recuperación | Códigos y siglas | 🟠 implementada y medida, no activa |
 | Jerárquica | Recuperación | Precisión frente a contexto | 🔵 trabajo futuro |
 | Contextual | Recuperación | Fragmentos sin referente | ❌ coste en ingesta |
-| Reranking | Post | Orden por relevancia real | 🔵 evaluado y descartado |
+| Reranking | Post | Orden por relevancia real | 🟠 implementado y medido, no activo |
 | Compresión | Post | Tokens y ruido | ❌ |
 | Self-RAG | Generación | Autocrítica | ❌ no auditable |
 | CRAG | Generación | Evidencia insuficiente | 🟡 versión mínima: el umbral |

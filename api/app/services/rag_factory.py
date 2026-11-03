@@ -1,9 +1,9 @@
 """Elige qué configuración del pipeline RAG atiende cada consulta.
 
-Las cinco clases existen a la vez y se mantienen vivas a propósito: la línea
+Las seis clases existen a la vez y se mantienen vivas a propósito: la línea
 base es el término de comparación de todos los experimentos del capítulo 5, y
 sin ella no habría con qué comparar las mejoras. Lo que este módulo decide es
-cuál de las cinco atiende al usuario.
+cuál de las seis atiende al usuario.
 
     RAGService            Naive RAG con filtro por umbral. La línea base.
     RAGServiceAvanzado    + descomposición de consultas  (pre-recuperación)
@@ -39,11 +39,20 @@ cuesta: la llamada del reordenador consume unos 4.600 tokens de entrada, lo que
 multiplica por 3,7 el coste de cada consulta. Queda disponible, medido y
 documentado, pero activarlo hoy sería pagar sin cobrar. Ver el apartado 5.3.
 
-**Por qué el híbrido tampoco está activo, todavía.** Es la mejora que falta
-medir contra el conjunto de referencia. Ver el apartado 5.3 cuando esa
-medición exista; hasta entonces queda disponible y documentada, con el mismo
-criterio que ya se aplicó al reordenado: no se despliega una mejora sin
-haberla medido primero.
+**Por qué el híbrido tampoco está activo.** Medido el 2026-10-19 contra el
+conjunto de referencia: es el que mejor encuentra el fragmento correcto —hit@1
+de 0,25 a 0,42— y sube la fidelidad de 0,939 a 0,965, pero busca con la
+pregunta completa y baja la cobertura de las preguntas de dos temas del 48 % al
+30 %, peor que la línea base. Combinado con el reparto equilibrado
+(`descomposicion_hibrida`) recupera parte de esa cobertura, hasta el 37 %, sin
+llegar a la base, y es la configuración más lenta de las seis. Ninguna de las
+dos se activa porque retroceden justo en las preguntas compuestas. Ver el
+apartado 5.3.
+
+**`POR_DEFECTO` no es la configuración activa.** La activa la fija
+`settings.RAG_CONFIGURACION`, cuyo valor por defecto es
+`descomposicion_acotada`. `POR_DEFECTO` es solo la red de seguridad ante un
+nombre mal escrito.
 
 Cambiar de configuración no exige tocar código: basta la variable de entorno
 `RAG_CONFIGURACION`.
