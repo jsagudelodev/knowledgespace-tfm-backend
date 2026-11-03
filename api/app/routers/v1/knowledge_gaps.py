@@ -1,7 +1,13 @@
 """Preguntas sin respuesta: convierte lo que el asistente no supo responder en
-conocimiento indexado. Tres vías de resolución (vincular documento existente,
-escribir respuesta, pedir documento) y verificación automática contra el índice
-al resolver, para demostrar que la pregunta ahora sí se responde."""
+conocimiento indexado. Dos vías de resolución (vincular documento existente,
+escribir respuesta) y verificación automática contra el índice al resolver,
+para demostrar que la pregunta ahora sí se responde.
+
+"Pedir documento" (asignar la pregunta a una persona y dejarla "en curso") se
+retiró el 2026-11-03: el administrador resuelve respondiendo o con un documento,
+y una tercera vía que no resolvía nada confundía. Las columnas `assigned_to` y
+`requested_at` se conservan en el modelo; una pregunta que quedara `in_progress`
+se sigue listando y resolviendo como abierta."""
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
@@ -16,13 +22,11 @@ from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
-from app.repositories.user_repository import UserRepository
 from app.routers.v1.security import get_current_admin_user, get_current_user
 from app.schemas.knowledge_gap import (
     KnowledgeGapAnswerRequest,
     KnowledgeGapIgnoreRequest,
     KnowledgeGapLinkRequest,
-    KnowledgeGapRequestDocumentRequest,
     KnowledgeGapResponse,
     KnowledgeGapSummary,
 )
@@ -43,8 +47,7 @@ VERIFY_THRESHOLD = 0.7
 def _enrich(gap: KnowledgeGap, db: Session) -> KnowledgeGapResponse:
     """
     Convierte el registro de BD en la respuesta de la API, resolviendo los IDs
-    a nombres legibles (asistente, documento con el que se resolvió,
-    responsable asignado).
+    a nombres legibles (asistente y documento con el que se resolvió).
 
     La pantalla muestra "Vinculado a «Manual de RRHH»", no "documento 42", y
     hacerlo aquí evita que el frontend tenga que pedir cada nombre por
@@ -64,16 +67,9 @@ def _enrich(gap: KnowledgeGap, db: Session) -> KnowledgeGapResponse:
         if d:
             resolved_document_name = d.original_filename or d.filename
 
-    assignee_name = None
-    if gap.assigned_to:
-        u = db.get(User, gap.assigned_to)
-        if u:
-            assignee_name = u.full_name
-
     data = {c.name: getattr(gap, c.name) for c in gap.__table__.columns}
     data["assistant_name"] = assistant_name
     data["resolved_document_name"] = resolved_document_name
-    data["assignee_name"] = assignee_name
     return KnowledgeGapResponse(**data)
 
 
@@ -104,33 +100,6 @@ def _notify_resolved(db: Session, gap: KnowledgeGap) -> None:
     except Exception:
         logging.getLogger("uvicorn.error").warning(
             f"[Notification] No se pudo crear notificación 'knowledge_gap_resolved' para gap_id={gap.id}",
-            exc_info=True,
-        )
-
-
-def _notify_document_requested(db: Session, gap: KnowledgeGap, solicitante: User) -> None:
-    """Avisa a quien se le pide el documento. Antes la asignación no le llegaba
-    a nadie. Si el admin se lo asigna a sí mismo, no hay a quién avisar."""
-    import logging
-    if not gap.assigned_to or gap.assigned_to == solicitante.id:
-        return
-    nota = f" Nota: {gap.note}" if gap.note else ""
-    try:
-        NotificationService(db).create_for_user(
-            company_id=gap.company_id,
-            user_id=gap.assigned_to,
-            type_name="document_requested",
-            title="Te pidieron un documento",
-            message=(
-                f'{solicitante.full_name} necesita un documento para responder: '
-                f'"{gap.question[:120]}".{nota}'
-            )[:500],
-            entity_type=NotificationEntityType.KNOWLEDGE_GAP,
-            entity_id=gap.id,
-        )
-    except Exception:
-        logging.getLogger("uvicorn.error").warning(
-            f"[Notification] No se pudo crear notificación 'document_requested' para gap_id={gap.id}",
             exc_info=True,
         )
 
@@ -202,7 +171,7 @@ async def get_summary(
 @router.get("/", response_model=List[KnowledgeGapResponse], summary="Listar preguntas sin respuesta")
 async def list_gaps(
     status_filter: Optional[str] = Query(None, alias="status"),
-    sort: str = Query("impact"),
+    sort: str = Query("recent"),
     q: Optional[str] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(PAGE_SIZE, ge=1, le=100),
@@ -220,10 +189,11 @@ async def list_gaps(
     if q:
         query = query.filter(KnowledgeGap.question.ilike(f"%{q}%"))
 
-    if sort == "age":
-        query = query.order_by(KnowledgeGap.created_at.asc())
+    # "recent": lo último que se preguntó, arriba. "impact": las más consultadas.
+    if sort == "impact":
+        query = query.order_by(KnowledgeGap.volume.desc(), KnowledgeGap.created_at.desc())
     else:
-        query = query.order_by(KnowledgeGap.volume.desc(), KnowledgeGap.created_at.asc())
+        query = query.order_by(KnowledgeGap.created_at.desc())
 
     gaps = query.offset(skip).limit(limit).all()
     return [_enrich(g, db) for g in gaps]
@@ -322,38 +292,6 @@ async def write_answer(
     db.commit()
     db.refresh(gap)
     _notify_resolved(db, gap)
-    return _enrich(gap, db)
-
-
-@router.post(
-    "/{gap_id}/request-document",
-    response_model=KnowledgeGapResponse,
-    summary="Solicitar documento — pasa a en curso",
-)
-async def request_document(
-    gap_id: int,
-    data: KnowledgeGapRequestDocumentRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    gap = _get_or_404(db, gap_id, current_user.company_id)
-    if gap.status in ("resolved", "ignored"):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La pregunta ya está cerrada")
-
-    if data.assignee_id is not None:
-        assignee = UserRepository(db).get_of_company(data.assignee_id, current_user.company_id)
-        if not assignee:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
-
-    now = datetime.now(timezone.utc)
-    gap.status = "in_progress"
-    gap.assigned_to = data.assignee_id
-    gap.note = data.note
-    gap.requested_at = now
-    gap.due_at = now + timedelta(days=data.due_days)
-    db.commit()
-    db.refresh(gap)
-    _notify_document_requested(db, gap, current_user)
     return _enrich(gap, db)
 
 

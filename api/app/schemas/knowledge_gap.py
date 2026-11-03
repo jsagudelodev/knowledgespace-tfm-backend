@@ -73,7 +73,6 @@ class KnowledgeGapResponse(BaseModel):
     # Enriched fields
     assistant_name: Optional[str] = None
     resolved_document_name: Optional[str] = None
-    assignee_name: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -87,12 +86,6 @@ class KnowledgeGapAnswerRequest(BaseModel):
     # Se indexa tal cual en Pinecone: vacío o solo espacios sería un vector sin contenido.
     model_config = ConfigDict(str_strip_whitespace=True)
     answer_text: str = Field(..., min_length=1)
-
-
-class KnowledgeGapRequestDocumentRequest(BaseModel):
-    assignee_id: Optional[int] = None
-    note: Optional[str] = None
-    due_days: int = 3
 
 
 class KnowledgeGapIgnoreRequest(BaseModel):

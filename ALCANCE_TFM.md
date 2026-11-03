@@ -139,3 +139,11 @@ widget público embebible):
   respuesta" (sus resoluciones escriben en la base de conocimiento) y el
   feedback de los demás. Antes la cuenta de demo de rol `user` podía, p. ej.,
   borrar cualquier documento. Tests: `tests/test_permisos_por_rol.py`.
+- **"Pedir documento" retirado (2026-11-03).** Asignaba una pregunta sin
+  respuesta a una persona y la dejaba `in_progress` sin resolverla. Se quitaron
+  el endpoint `POST /knowledge-gaps/{id}/request-document`, su aviso
+  `document_requested` y la pantalla, en los dos repositorios. Se resuelve con
+  dos vías: vincular un documento o escribir la respuesta. Se conservan las
+  columnas `assigned_to`, `requested_at` y `due_at` y la migración
+  `b7d2e4f6a813`, ya aplicada en producción; una pregunta `in_progress` se
+  sigue tratando como abierta. Test: `tests/test_sin_pedir_documento.py`.
