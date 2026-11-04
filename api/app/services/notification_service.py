@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.db.models.notification import Notification, NotificationEntityType
 from app.db.models.notification_type import NotificationType
+from app.db.models.user import User
 from app.schemas.notification import NotificationCreate
 
 
@@ -14,9 +14,13 @@ class NotificationService:
     Avisos internos de empresa: documentos procesados o fallidos, preguntas
     sin respuesta detectadas y resueltas.
 
-    Dos destinatarios posibles: un usuario concreto (`create_for_user`) o
-    todos los admins de la empresa (`create_for_admins`, que se guarda con
-    `user_id = NULL` como broadcast y se filtra por rol al leer).
+    Cada notificación pertenece a un usuario: la bandeja es personal. Un aviso
+    para los administradores (`create_for_admins`) se guarda como una copia por
+    cada admin activo de la empresa. Hasta el 2026-11-03 se guardaba una sola
+    fila con `user_id = NULL` que veían todos los admins, y entonces "leída" era
+    compartida: un admin que la marcaba se la quitaba de "No leídas" a los
+    demás, y borrarla se la habría borrado a todos. La migración
+    `c4e8a2f6d1b3` repartió esas filas antiguas.
 
     El tipo de notificación no es un enum del código sino una fila de
     `notification_types` — se pasa por nombre (`type_name`) y se resuelve a
@@ -41,18 +45,13 @@ class NotificationService:
         """Aplica selectinload de notification_type para evitar lazy load en contexto async."""
         return query.options(selectinload(Notification.notification_type))
 
-    def _user_filter(self, user_id: int, role: str):
-        """
-        Notificaciones visibles para un usuario:
-        - Dirigidas específicamente a él (user_id = user_id), O
-        - Broadcast de empresa (user_id IS NULL) solo si es admin/superadmin
-        """
-        if role in ("admin", "superadmin"):
-            return or_(
-                Notification.user_id == user_id,
-                Notification.user_id.is_(None),
-            )
-        return Notification.user_id == user_id
+    def _own(self, company_id: int, user_id: int):
+        """Las notificaciones de un usuario: de su empresa y suyas. La empresa
+        se comprueba además del usuario, como en el resto de recursos."""
+        return (
+            Notification.company_id == company_id,
+            Notification.user_id == user_id,
+        )
 
     def _fetch_by_id(self, notification_id: int) -> Optional[Notification]:
         """Re-fetch con notification_type cargado tras un commit."""
@@ -108,20 +107,33 @@ class NotificationService:
         message: str,
         entity_type: Optional[NotificationEntityType] = None,
         entity_id: Optional[int] = None,
-    ) -> Notification:
-        """Crea una notificación broadcast (user_id=None) visible para todos los admins."""
-        notification = Notification(
-            company_id=company_id,
-            user_id=None,
-            type_id=self._get_type_id(type_name),
-            title=title,
-            message=message,
-            entity_type=entity_type,
-            entity_id=entity_id,
+    ) -> List[Notification]:
+        """Crea una copia de la notificación para cada admin activo de la empresa."""
+        type_id = self._get_type_id(type_name)
+        admins = (
+            self.db.query(User.id)
+            .filter(
+                User.company_id == company_id,
+                User.role.in_(("admin", "superadmin")),
+                User.is_active.is_(True),
+            )
+            .all()
         )
-        self.db.add(notification)
+        notifications = [
+            Notification(
+                company_id=company_id,
+                user_id=admin_id,
+                type_id=type_id,
+                title=title,
+                message=message,
+                entity_type=entity_type,
+                entity_id=entity_id,
+            )
+            for (admin_id,) in admins
+        ]
+        self.db.add_all(notifications)
         self.db.commit()
-        return self._fetch_by_id(notification.id)
+        return notifications
 
     # ── Consulta ──────────────────────────────────────────────────────────────
 
@@ -129,16 +141,12 @@ class NotificationService:
         self,
         company_id: int,
         user_id: int,
-        role: str,
         read: Optional[bool] = None,
         type_filter: Optional[str] = None,
         skip: int = 0,
         limit: int = 20,
     ) -> List[Notification]:
-        query = self._with_type(self.db.query(Notification)).filter(
-            Notification.company_id == company_id,
-            self._user_filter(user_id, role),
-        )
+        query = self._with_type(self.db.query(Notification)).filter(*self._own(company_id, user_id))
         if read is not None:
             query = query.filter(Notification.read == read)
         if type_filter:
@@ -152,26 +160,20 @@ class NotificationService:
             .all()
         )
 
-    def get_unread_count(self, company_id: int, user_id: int, role: str) -> int:
+    def get_unread_count(self, company_id: int, user_id: int) -> int:
         return (
             self.db.query(Notification)
-            .filter(
-                Notification.company_id == company_id,
-                self._user_filter(user_id, role),
-                Notification.read.is_(False),
-            )
+            .filter(*self._own(company_id, user_id), Notification.read.is_(False))
             .count()
         )
 
-    def get_counts(self, company_id: int, user_id: int, role: str) -> dict:
-        base = self.db.query(Notification).filter(
-            Notification.company_id == company_id,
-            self._user_filter(user_id, role),
-        )
+    def get_counts(self, company_id: int, user_id: int) -> dict:
+        base = self.db.query(Notification).filter(*self._own(company_id, user_id))
         type_base = base.join(Notification.notification_type)
         return {
             "todas": base.count(),
             "unread": base.filter(Notification.read.is_(False)).count(),
+            "read": base.filter(Notification.read.is_(True)).count(),
             "documents": type_base.filter(NotificationType.name.like("document%")).count(),
             "budget": type_base.filter(NotificationType.name.like("budget%")).count(),
             "knowledge_gap": type_base.filter(NotificationType.name.like("knowledge%")).count(),
@@ -186,15 +188,11 @@ class NotificationService:
     # ── Marcado de lectura ────────────────────────────────────────────────────
 
     def mark_as_read(
-        self, notification_id: int, company_id: int, user_id: int, role: str
+        self, notification_id: int, company_id: int, user_id: int
     ) -> Optional[Notification]:
         notification = (
             self.db.query(Notification)
-            .filter(
-                Notification.id == notification_id,
-                Notification.company_id == company_id,
-                self._user_filter(user_id, role),
-            )
+            .filter(Notification.id == notification_id, *self._own(company_id, user_id))
             .first()
         )
         if not notification:
@@ -205,16 +203,36 @@ class NotificationService:
             self.db.commit()
         return self._fetch_by_id(notification_id)
 
-    def mark_all_as_read(self, company_id: int, user_id: int, role: str) -> int:
+    def mark_all_as_read(self, company_id: int, user_id: int) -> int:
         now = datetime.now(timezone.utc)
         updated = (
             self.db.query(Notification)
-            .filter(
-                Notification.company_id == company_id,
-                self._user_filter(user_id, role),
-                Notification.read.is_(False),
-            )
+            .filter(*self._own(company_id, user_id), Notification.read.is_(False))
             .update({"read": True, "read_at": now}, synchronize_session=False)
         )
         self.db.commit()
         return updated
+
+    # ── Borrado ───────────────────────────────────────────────────────────────
+    # Cada usuario limpia su bandeja y solo puede borrar lo suyo: por eso las
+    # notificaciones son por usuario y no compartidas.
+
+    def delete(self, notification_id: int, company_id: int, user_id: int) -> bool:
+        deleted = (
+            self.db.query(Notification)
+            .filter(Notification.id == notification_id, *self._own(company_id, user_id))
+            .delete(synchronize_session=False)
+        )
+        self.db.commit()
+        return deleted > 0
+
+    def delete_read(self, company_id: int, user_id: int) -> int:
+        """Borra las notificaciones ya leídas del usuario. Las no leídas se
+        conservan: nunca se borra en bloque algo que el usuario no ha visto."""
+        deleted = (
+            self.db.query(Notification)
+            .filter(*self._own(company_id, user_id), Notification.read.is_(True))
+            .delete(synchronize_session=False)
+        )
+        self.db.commit()
+        return deleted

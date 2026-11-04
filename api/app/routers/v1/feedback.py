@@ -190,7 +190,7 @@ async def convert_to_gap(
         NotificationService(db).create_for_admins(
             company_id=current_user.company_id,
             type_name="knowledge_gap_found",
-            title="Brecha de conocimiento",
+            title="Nueva pregunta sin respuesta",
             message=f'Nueva pregunta sin responder: "{gap.question[:120]}"',
             entity_type=NotificationEntityType.KNOWLEDGE_GAP,
             entity_id=gap.id,

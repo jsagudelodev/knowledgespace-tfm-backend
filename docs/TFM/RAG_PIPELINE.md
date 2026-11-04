@@ -450,10 +450,13 @@ Si Pinecone falla en el paso 1, el error se ignora y se continúa (el documento 
 ## 8. Otros consumidores de embeddings/Pinecone
 
 `app/services/knowledge_gap_index_service.py` reutiliza `EmbeddingService` y
-`PineconeService` (mismo patrón de namespace con fallback asistente → empresa que
-usa `RAGService.generate_response`) para el módulo de Preguntas sin respuesta:
+`PineconeService` para el módulo de Preguntas sin respuesta. Busca en el namespace
+del asistente y, si no hay resultados, en el de la empresa. **El chat no hace ese
+fallback** (`RAGService.generate_response` se queda en el namespace del
+asistente): aquí se admite porque un administrador revisa el candidato antes de
+vincularlo, mientras que el chat responde sin nadie revisando.
 
-- `find_candidates` — busca documentos candidatos para una pregunta sin responder.
+- `find_candidates` — busca documentos candidatos para una pregunta sin responder: uno por documento, con su mejor fragmento, hasta tres.
 - `best_score` — reejecuta la pregunta contra el índice al verificar una resolución (`POST /knowledge-gaps/{id}/verify`).
 - `index_answer` — indexa una respuesta escrita a mano como chunk propio (`POST /knowledge-gaps/{id}/answer`).
 - `index_alias` — indexa la pregunta y sus variantes como alias de un documento existente al vincular (`POST /knowledge-gaps/{id}/link`).

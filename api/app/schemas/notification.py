@@ -40,6 +40,7 @@ class NotificationUnreadCount(BaseModel):
 class NotificationCounts(BaseModel):
     todas: int
     unread: int
+    read: int
     documents: int
     budget: int
     knowledge_gap: int

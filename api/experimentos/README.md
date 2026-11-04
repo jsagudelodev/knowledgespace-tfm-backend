@@ -99,14 +99,15 @@ método: en las diapositivas la desviación de tamaño pasa de 107 a 228.
 
 ---
 
-## Pendientes
+## El resto de experimentos
 
-**2. Calidad de recuperación.** Requiere un conjunto de preguntas con el
-fragmento correcto anotado a mano. Mediría `hit@1`, `hit@3` y MRR con cada
-estrategia. Es el experimento que de verdad dice cuál recupera mejor; el primero
-solo dice qué le hace cada uno al texto.
+Este README solo detalla el primero. Los doce realizados hasta hoy están en:
 
-**3. Revalidación del umbral de relevancia.** El `0.30` de
-`RAGService.RELEVANCE_THRESHOLD` se midió **antes** de que existiera la división
-por oraciones. Como el chunking cambia la distribución de similitudes, hay que
-repetir la medición de `docs/TFM/RAG_PIPELINE.md` §6 y confirmar o corregir el valor.
+- [`REGISTRO.md`](REGISTRO.md): índice con la pregunta, el resultado, la
+  decisión y los archivos de evidencia de cada uno, y la convención para los
+  nuevos.
+- [`GUIA_PRUEBAS.md`](GUIA_PRUEBAS.md): explicación de cada experimento para
+  la defensa, lo que falta medir y cómo reproducirlo.
+
+Los dos pendientes que figuraban aquí ya se hicieron: la calidad de
+recuperación es EXP-04 y la revalidación del umbral, EXP-02.

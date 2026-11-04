@@ -100,11 +100,19 @@ Un namespace es un **espacio lógico dentro del índice** que aísla vectores. L
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Al BUSCAR (chat)                                                   │
 │                                                                     │
+│  Con asistente → solo su namespace, sin fallback a la empresa.      │
+│  Sin nada relevante, responde que no encontró información.          │
+│  Sin asistente → namespace "company-{cid}".                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  Al BUSCAR candidatos (Preguntas sin respuesta)                     │
+│                                                                     │
 │  1. Buscar en namespace del asistente                               │
 │  2. Si no hay resultados → fallback a namespace de la empresa       │
 │                                                                     │
-│  Esto permite que el asistente use sus documentos propios,          │
-│  pero si no tiene nada relevante busca en el pool general.          │
+│  Aquí sí se admite: un administrador revisa el candidato antes      │
+│  de vincularlo. Ver `knowledge_gap_index_service._search`.          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 

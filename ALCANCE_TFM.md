@@ -109,12 +109,15 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 37 archivos y 249 tests unitarios sobre lógica pura
+- Cobertura de tests: 39 archivos y 256 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge
-  gaps—. **Sin tests de integración**: ninguno levanta la
-  aplicación ni toca la base de datos, en parte porque
+  gaps—. **Sin tests de integración**: ninguno levanta la aplicación ni toca la
+  base de datos real. La única excepción parcial es
+  `tests/test_notificaciones_por_usuario.py`, que crea en SQLite en memoria solo
+  las cuatro tablas que necesita para probar los filtros de las notificaciones.
+  No se extiende al resto en parte porque
   `Base.metadata.create_all` no funciona sobre SQLite (`assistants.quick_prompts`
   usa `JSONB`, exclusivo de Postgres), así que una base en memoria para pruebas
   exigiría declarar variantes por dialecto.
@@ -147,3 +150,10 @@ widget público embebible):
   columnas `assigned_to`, `requested_at` y `due_at` y la migración
   `b7d2e4f6a813`, ya aplicada en producción; una pregunta `in_progress` se
   sigue tratando como abierta. Test: `tests/test_sin_pedir_documento.py`.
+- **Notificaciones por usuario (2026-11-03).** Los avisos para administradores
+  eran una fila compartida (`user_id` NULL): marcarla como leída se la quitaba
+  de "No leídas" a todos los admins. Ahora cada admin activo recibe su copia, y
+  cada usuario puede borrar las suyas, una a una o las leídas en bloque
+  (`DELETE /notifications/{id}` y `DELETE /notifications/read`). La migración
+  de datos `c4e8a2f6d1b3` repartió las filas compartidas existentes. Test:
+  `tests/test_notificaciones_por_usuario.py`.

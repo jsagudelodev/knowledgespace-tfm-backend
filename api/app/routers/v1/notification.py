@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -24,7 +24,6 @@ async def get_counts(
     return NotificationService(db).get_counts(
         company_id=current_user.company_id,
         user_id=current_user.id,
-        role=current_user.role,
     )
 
 
@@ -40,7 +39,6 @@ async def get_unread_count(
     count = NotificationService(db).get_unread_count(
         company_id=current_user.company_id,
         user_id=current_user.id,
-        role=current_user.role,
     )
     return {"count": count}
 
@@ -61,7 +59,6 @@ async def list_notifications(
     return NotificationService(db).list_notifications(
         company_id=current_user.company_id,
         user_id=current_user.id,
-        role=current_user.role,
         read=read,
         type_filter=type,
         skip=skip,
@@ -93,7 +90,6 @@ async def mark_as_read(
         notification_id=notification_id,
         company_id=current_user.company_id,
         user_id=current_user.id,
-        role=current_user.role,
     )
     if not notification:
         raise HTTPException(status_code=404, detail="Notificación no encontrada")
@@ -112,6 +108,42 @@ async def mark_all_as_read(
     updated = NotificationService(db).mark_all_as_read(
         company_id=current_user.company_id,
         user_id=current_user.id,
-        role=current_user.role,
     )
     return {"updated": updated}
+
+
+# Cada usuario limpia su propia bandeja. `/read` va antes que `/{notification_id}`
+# para que "read" no se intente leer como id.
+@router.delete(
+    "/read",
+    response_model=dict,
+    summary="Eliminar mis notificaciones ya leídas",
+)
+async def delete_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    deleted = NotificationService(db).delete_read(
+        company_id=current_user.company_id,
+        user_id=current_user.id,
+    )
+    return {"deleted": deleted}
+
+
+@router.delete(
+    "/{notification_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar una notificación propia",
+)
+async def delete_notification(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not NotificationService(db).delete(
+        notification_id=notification_id,
+        company_id=current_user.company_id,
+        user_id=current_user.id,
+    ):
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -85,14 +85,14 @@ def _get_or_404(db: Session, gap_id: int, company_id: int) -> KnowledgeGap:
 
 
 def _notify_resolved(db: Session, gap: KnowledgeGap) -> None:
-    """Avisa a los admins que una brecha fue resuelta. Efecto secundario —
+    """Avisa a los admins de que una pregunta sin respuesta se resolvió. Efecto secundario —
     no debe romper el flujo de resolución si falla."""
     import logging
     try:
         NotificationService(db).create_for_admins(
             company_id=gap.company_id,
             type_name="knowledge_gap_resolved",
-            title="Brecha resuelta",
+            title="Pregunta resuelta",
             message=f'Se resolvió: "{gap.question[:120]}"',
             entity_type=NotificationEntityType.KNOWLEDGE_GAP,
             entity_id=gap.id,

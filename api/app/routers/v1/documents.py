@@ -205,7 +205,9 @@ def _procesar_documento_background(
             _notificar_documento(
                 db, company_id, documento.uploaded_by, "document_failed",
                 title="Error al procesar documento",
-                message=f'"{original_filename}" no pudo procesarse: {str(exc)[:200]}',
+                # El detalle técnico (p. ej. "NoSuchKey" de S3) ya queda en
+                # `error_message` y en el log; al usuario no le sirve.
+                message=f'"{original_filename}" no se pudo procesar. Puedes reintentarlo desde Documentos.',
                 document_id=document_id,
             )
     finally:

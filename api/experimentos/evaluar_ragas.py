@@ -152,7 +152,14 @@ def resumir_criterios(veredictos: List[Dict[str, Any]]) -> Dict[str, Any]:
     return resumen
 
 
-def recalcular_criterios(datos: Dict[str, Any], ragas_json: Path, modelo: str) -> int:
+def ragas_previo(ragas_json: Path) -> tuple[Path, Dict[str, Any]]:
+    if not ragas_json.is_absolute():
+        ragas_json = AQUI / ragas_json
+    return ragas_json, json.loads(ragas_json.read_text(encoding="utf-8"))
+
+
+def recalcular_criterios(datos: Dict[str, Any], entrada: Path, ragas_json: Path,
+                         modelo: str) -> int:
     """Vuelve a aplicar los criterios sobre un resultado de RAGAS existente.
 
     Sirve cuando se corrige un criterio: RAGAS es la parte cara y no cambia.
@@ -162,9 +169,14 @@ def recalcular_criterios(datos: Dict[str, Any], ragas_json: Path, modelo: str) -
     """
     from langchain_openai import ChatOpenAI
 
-    if not ragas_json.is_absolute():
-        ragas_json = AQUI / ragas_json
-    previo = json.loads(ragas_json.read_text(encoding="utf-8"))
+    ragas_json, previo = ragas_previo(ragas_json)
+    # Las respuestas juzgadas tienen que ser las de la ejecución que ese JSON
+    # evaluó. Comprobar solo los ids no basta: dos ejecuciones del mismo
+    # dataset tienen las mismas preguntas y respuestas distintas. El 2026-11-03
+    # los veredictos de una configuración se escribieron en el JSON de otra
+    # porque la entrada se tomaba del `dataset_ejecutado` más reciente.
+    if previo.get("entrada") and previo["entrada"] != entrada.name:
+        raise SystemExit(f"{ragas_json.name} evaluó {previo['entrada']}, no {entrada.name}.")
     # Que sean las mismas preguntas es la comprobacion que importa: un JSON de
     # RAGAS de otra ejecucion recibiria veredictos que no le corresponden.
     ids_previos = {v["id"] for v in previo.get("criterios", {}).get("por_pregunta", [])}
@@ -202,14 +214,20 @@ def main() -> int:
 
     cargar_clave()
 
-    entrada = Path(args.entrada) if args.entrada else ultimo_json()
+    if args.entrada:
+        entrada = Path(args.entrada)
+    elif args.solo_criterios:
+        # Sin `--entrada`, las respuestas son las que ese JSON de RAGAS evaluó.
+        entrada = RESULTADOS / ragas_previo(Path(args.solo_criterios))[1]["entrada"]
+    else:
+        entrada = ultimo_json()
     if not entrada.is_absolute():
         entrada = AQUI / entrada
     datos = json.loads(entrada.read_text(encoding="utf-8"))
     print(f"Entrada: {entrada.name}  ({datos['fecha']})")
 
     if args.solo_criterios:
-        return recalcular_criterios(datos, Path(args.solo_criterios), args.modelo)
+        return recalcular_criterios(datos, entrada, Path(args.solo_criterios), args.modelo)
 
     from langchain_openai import ChatOpenAI, OpenAIEmbeddings
     from ragas import EvaluationDataset, evaluate

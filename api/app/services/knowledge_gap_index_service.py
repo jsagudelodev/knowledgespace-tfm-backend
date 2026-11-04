@@ -55,16 +55,25 @@ def _search(question: str, company_id: int, assistant_id: Optional[int], top_k: 
 
 def find_candidates(question: str, company_id: int, assistant_id: Optional[int], top_k: int = 3) -> List[dict]:
     """Candidatos del índice para una pregunta: documento, chunk y score, por
-    encima del umbral de relevancia. Alimenta el modo "Vincular documento"."""
-    matches = _search(question, company_id, assistant_id, top_k)
+    encima del umbral de relevancia. Alimenta el modo "Vincular documento".
+
+    Un candidato por documento, con su mejor fragmento: antes se devolvían los
+    `top_k` fragmentos tal cual, y cuando eran del mismo documento el panel
+    mostraba tres veces el mismo nombre. Se piden más fragmentos de los que se
+    devuelven para que queden hasta `top_k` documentos distintos."""
+    matches = _search(question, company_id, assistant_id, top_k * 4)
     candidates = []
+    vistos = set()
     for m in matches:
         score = float(getattr(m, "score", 0) or 0)
         if score < RELEVANCE_THRESHOLD:
             continue
         meta = m.metadata or {}
-        if not meta.get("document_id"):
+        if not meta.get("document_id") or meta["document_id"] in vistos:
             continue
+        if len(candidates) == top_k:
+            break
+        vistos.add(meta["document_id"])
         candidates.append({
             "document_id": meta["document_id"],
             "chunk_id": meta.get("chunk_index", 0),
