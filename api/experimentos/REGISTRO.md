@@ -11,7 +11,9 @@ explicación de cada experimento, pensada para la defensa, está en
 memoria dice «el sexto experimento», es `EXP-06`. Los posteriores se
 incorporaron el 4 de noviembre así: EXP-08 y EXP-13 forman parte del quinto
 experimento (las dos variantes de la descomposición), y EXP-09 y EXP-10 son el
-octavo (recuperación híbrida).
+octavo (recuperación híbrida). EXP-14 y EXP-15 son el noveno (modelo de
+embedding y tamaño de fragmento), con el defecto del recorte a 1.000
+caracteres en 5.3 y su consecuencia en 5.4.
 
 Desde EXP-02, todos se ejecutaron contra el corpus de producción: empresa 8,
 asistente 1, espacio `company-8-assistant-1` (8 documentos, 87 fragmentos).
@@ -37,8 +39,8 @@ es una segunda ejecución sobre los mismos tres documentos y parámetros.
 | EXP-11 | ¿Cómo responde a paráfrasis, premisas falsas y preguntas parciales? | 23-10 | Paráfrasis 1/3, premisa falsa 0/3, parcial 2/3; abstención excesiva en 22, 24 y 26 | Limitación declarada | 5.1, 5.3, 5.4 |
 | EXP-12 | ¿Unas reglas en el prompt corrigen las premisas falsas? | 25-10 | Premisa falsa de 0/3 a 1/3, pero la pertinencia baja de 0,698 a 0,583 | Revertido | 5.4 |
 | [EXP-13](EXP-13_descomposicion-con-o-sin-tope/LEEME.md) | ¿Qué descomposición da mejores respuestas, con tope o sin tope? | 03-11 | 27 preguntas: indistinguibles dentro del ruido. Compuestas: la acotada responde las dos partes en 18/18 y la sin tope en 15/18; con la misma evidencia más ruido, la sin tope se abstiene | Se mantiene la acotada, ahora con evidencia de respuesta | 5.3, dentro del quinto |
-| [EXP-14](EXP-14_modelo-embedding/LEEME.md) | ¿Recupera mejor `text-embedding-3-large` que `3-small`? | 04-11 | MRR de 0,362 a 0,443, pero 6 preguntas a favor y 3 en contra: no concluyente. El umbral 0,30 seguiría valiendo | Se mantiene `3-small` | ⚠️ No está |
-| [EXP-15](EXP-15_tamano-fragmento/LEEME.md) | ¿Qué tamaño de fragmento recupera mejor: 500, 1.000 o 1.500? | 04-11 | hit@3 idéntico (0,52) en los tres; diferencias de posición no concluyentes; con 500 el umbral queda casi en el ruido. **Destapó un defecto:** producción guarda solo 1.000 caracteres por fragmento y eso causa la abstención indebida de la pregunta 26 | Se mantiene 1.000; corrección del recorte pendiente | ⚠️ No está |
+| [EXP-14](EXP-14_modelo-embedding/LEEME.md) | ¿Recupera mejor `text-embedding-3-large` que `3-small`? | 04-11 | MRR de 0,362 a 0,443, pero 6 preguntas a favor y 3 en contra: no concluyente. El umbral 0,30 seguiría valiendo | Se mantiene `3-small` | 5.3, noveno |
+| [EXP-15](EXP-15_tamano-fragmento/LEEME.md) | ¿Qué tamaño de fragmento recupera mejor: 500, 1.000 o 1.500? | 04-11 | hit@3 idéntico (0,52) en los tres; diferencias de posición no concluyentes; con 500 el umbral queda casi en el ruido. **Destapó un defecto:** producción guardaba solo 1.000 caracteres por fragmento y eso causaba la abstención indebida de la pregunta 26. Corregido y reindexado: la 26 responde, pero añade de memoria un dato que no está en los documentos | Se mantiene 1.000; recorte corregido | 5.3, noveno; 5.4 |
 
 **Pendientes (los pidió el tutor el 3 de noviembre):** modelo de embedding,
 tamaño de fragmento y, sin petición explícita pero previsible en la defensa,

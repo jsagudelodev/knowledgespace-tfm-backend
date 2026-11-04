@@ -88,10 +88,60 @@ que `RAGService._build_context` entrega al modelo**.
   26 de las 27 preguntas. La diferencia de cifras viene del texto, no de la
   búsqueda.
 
-**Corrección pendiente de decisión:** guardar el fragmento completo en los
-metadatos y reindexar los 8 documentos del asistente. Afecta a lo que el
-modelo lee en producción, así que exige repetir al menos el conjunto de
-referencia con la configuración activa.
+### Corrección aplicada (4 de noviembre)
+
+1. **Código.** `routers/v1/documents.py` guarda ahora el fragmento completo
+   (la construcción de los vectores pasó a `_vectores_de_documento`). El mismo
+   recorte estaba en `knowledge_gap_index_service.py`, en las respuestas
+   escritas a mano y en los alias, y también se quitó. Tres tests nuevos en
+   `tests/test_texto_completo_en_metadatos.py`; se comprobó que fallan al
+   volver a poner el recorte. Suite completa: 266 tests.
+2. **Reindexado** de los 8 documentos con `reindexar.py --asistente 1`: los
+   mismos fragmentos (8, 5, 5, 19, 18, 5, 6 y 21) y 88 vectores antes y
+   después. `doc-39-chunk-13` tiene ahora sus 1.673 caracteres.
+3. **Repetición del conjunto de referencia** con la configuración activa,
+   temperatura 0, RAGAS y criterios con gpt-4.1.
+
+| | Antes (3 de noviembre) | Después (4 de noviembre) |
+|---|---|---|
+| hit@1 / hit@3 / MRR | 0,24 / 0,48 / 0,362 | 0,29 / 0,52 / 0,409 |
+| Abstención correcta | 6/6 | 6/6 |
+| Abstención indebida | 22, 24 y **26** | 22 y 24 |
+| Fidelidad / pertinencia (RAGAS) | 0,773 / 0,696 | 0,731 / 0,741 |
+| Premisa falsa / parcial (gpt-4.1) | 0/3 / 2/3 | 0/3 / 2/3 |
+
+**La pregunta 26 después del arreglo.** Ya no se abstiene: responde
+correctamente en qué se diferencia StyleGAN, porque ahora el modelo lee esa
+parte del fragmento. Pero añade «StyleGAN fue desarrollado por NVIDIA», y
+**«NVIDIA» no aparece en ninguno de los cinco fragmentos recibidos**: el
+modelo completó la otra mitad de la pregunta con su propio conocimiento. El
+criterio `parcial` la sigue marcando como no cumplida, ahora por esa razón y
+no por abstenerse.
+
+**Lectura:**
+
+- La corrección era necesaria: el modelo tiene que leer lo mismo que la
+  búsqueda encontró. Una abstención indebida desaparece y la recuperación
+  medida por ancla sube, porque las anclas que estaban en la parte recortada
+  ahora llegan al modelo.
+- El recorte **escondía otro fallo**. Mientras el modelo no veía la respuesta,
+  se abstenía; al verla, aporta el dato que falta de memoria. Es el mismo
+  límite de las premisas falsas: las reglas del prompt dicen qué hacer cuando
+  no hay contexto, pero no frenan del todo que el modelo complete con lo que
+  sabe cuando sí lo hay.
+- Las cifras de RAGAS se mueven dentro del ruido entre ejecuciones (EXP-13),
+  así que no se atribuyen al arreglo. La bajada de fidelidad es coherente con
+  la frase sobre NVIDIA, pero no se puede separar del ruido.
+
+**Archivos:** `resultados/dataset_ejecutado_2026-11-04_descomposicion_acotada_temp0.0_texto_completo.json`
+y `resultados/ragas_2026-11-04_avanzado_descomposicion_acotada_temp0.0_texto_completo.json`.
+
+**Para la defensa:** «Midiendo el tamaño de fragmento descubrí que el modelo
+solo leía los primeros 1.000 caracteres de cada fragmento. Lo corregí, y la
+pregunta 26 dejó de abstenerse. Pero al leer la respuesta completa, el modelo
+añadió de memoria la empresa que creó StyleGAN, que no está en los
+documentos. El recorte tapaba un segundo fallo, del mismo tipo que las
+premisas falsas, y lo dejo declarado como limitación.»
 
 ---
 

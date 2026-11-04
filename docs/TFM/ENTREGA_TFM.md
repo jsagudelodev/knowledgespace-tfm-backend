@@ -174,10 +174,32 @@ Fuera de esta carpeta, pero parte de la entrega:
 Criterio acordado el 2026-11-01: hacer lo que pide la guía, sin ampliar, y
 dedicar el tiempo restante a pulir el código.
 
-### Lo que falta (al 2026-11-02)
+### Lo que falta (al 2026-11-04)
 
 Estado: el contenido que exige la guía ya está escrito. La memoria tiene 55
-páginas y 24.056 palabras.
+páginas y 23.535 palabras, **sin** portada, resumen, abstract, índice ni
+anexos. La guía (pág. 3) fija «un máximo de 50-60 páginas» y no excluye nada,
+y su índice de ejemplo incluye la portada y el resumen dentro de la memoria:
+lo que falta añadir (unas 5 o 6 páginas) la dejaría en torno a 60. Los anexos
+tienen que ser cortos y remitir al repositorio.
+
+**Hecho el 2026-11-04** (respaldos previos en
+`docs/Memoria_TFM_respaldo_2026-11-04.docx` y `..._2026-11-04b.docx`):
+
+- [x] Seis configuraciones en 2.1, 3.2 y 4.1; acotada activa con EXP-13 en el quinto experimento; híbrida como octavo; desequilibrio corregido de 0,9 a 0,8
+- [x] Noveno experimento (EXP-14 y EXP-15): modelo de embedding y tamaño de fragmento, en una sola tabla, con el defecto del recorte a 1.000 caracteres
+- [x] 5.4: «Completar con conocimiento propio» (la pregunta 26 tras el arreglo)
+- [x] Recorte del capítulo 5: de 20 a 17 páginas (primer experimento en 5.1, 5.3 y 5.4; limitaciones del evaluador y de las frases ancla)
+- [x] Resumen y abstract (misma página), con palabras clave
+- [x] Índice automático de Word (niveles 1 y 2) y saltos de página antes del índice y de la introducción
+- [x] Anexos cortos: 10.1 (repositorios, usuarios de demostración, ejecución en local, manual), 10.2 (dónde están el prompt, la configuración y el modelo de datos) y 10.3 (correspondencia entre la numeración de la memoria y `api/experimentos/REGISTRO.md`)
+- [ ] **Rellenar los marcadores del anexo 10.1:** credenciales de los dos usuarios de demostración y enlace al vídeo
+- [ ] Portada (la hace el autor): con ella, la memoria queda en 60 páginas exactas
+- [ ] Actualizar el 6.1: la suite tiene ahora 266 pruebas, la memoria dice 249
+- [ ] Al exportar a PDF, comprobar que no pasa de 60 páginas; si pasa, recortar el 6.3 o el 7.1
+
+Con todo lo anterior, Word cuenta 59 páginas y 24.593 palabras (respaldo previo en
+`docs/Memoria_TFM_respaldo_2026-11-04c.docx`).
 
 **Urgente:**
 
