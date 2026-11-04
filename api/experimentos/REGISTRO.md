@@ -8,8 +8,10 @@ explicación de cada experimento, pensada para la defensa, está en
 *Última actualización: 3 de noviembre de 2026.*
 
 **La numeración EXP-01 a EXP-07 es la del capítulo 5 de la memoria.** Cuando la
-memoria dice «el sexto experimento», es `EXP-06`. Los posteriores (EXP-08 en
-adelante) se hicieron después de redactar ese capítulo.
+memoria dice «el sexto experimento», es `EXP-06`. Los posteriores se
+incorporaron el 4 de noviembre así: EXP-08 y EXP-13 forman parte del quinto
+experimento (las dos variantes de la descomposición), y EXP-09 y EXP-10 son el
+octavo (recuperación híbrida).
 
 Desde EXP-02, todos se ejecutaron contra el corpus de producción: empresa 8,
 asistente 1, espacio `company-8-assistant-1` (8 documentos, 87 fragmentos).
@@ -29,12 +31,14 @@ es una segunda ejecución sobre los mismos tres documentos y parámetros.
 | EXP-05 | ¿La descomposición corrige las preguntas compuestas? | 12-10 | Cobertura del 48 % al 88 %, pero hasta el doble de contexto | Superada por EXP-08 | 5.3 |
 | EXP-06 | ¿Qué efecto tiene la temperatura en la fidelidad? | 14-10 | Fidelidad de 0,888 a 0,939; mínima de 0,538 a 0,750 | Temperatura 0 para todos | 5.3 |
 | EXP-07 | ¿El reordenado mejora las respuestas? | 14-10 | hit@3 de 0,50 a 0,667, pero respuestas sin mejora medible y coste ×3,7 | Medido, no activo | 5.3 |
-| EXP-08 | ¿Se puede repartir el contexto sin pagar el doble? | 16-10 | Cobertura 52 %, desequilibrio 0,83, mismo coste que la base | **Activa** (`descomposicion_acotada`) | ⚠️ No está |
-| EXP-09 | ¿La búsqueda híbrida (densa + BM25) recupera mejor? | 19-10 | hit@1 de 0,25 a 0,42, fidelidad 0,965, pero cobertura de compuestas al 30 % | Medido, no activo | ⚠️ No está |
-| EXP-10 | ¿Combinar reparto e híbrido suma lo mejor de ambos? | 19-10 | Mejor hit@3 (0,67) y MRR (0,544), pero compuestas al 37 % y la más lenta | Medido, no activo | ⚠️ No está |
+| EXP-08 | ¿Se puede repartir el contexto sin pagar el doble? | 16-10 | Cobertura 52 %, desequilibrio 0,83, mismo coste que la base | **Activa** (`descomposicion_acotada`) | 5.3, dentro del quinto |
+| EXP-09 | ¿La búsqueda híbrida (densa + BM25) recupera mejor? | 19-10 | hit@1 de 0,25 a 0,42, fidelidad 0,965, pero cobertura de compuestas al 30 % | Medido, no activo | 5.3, octavo |
+| EXP-10 | ¿Combinar reparto e híbrido suma lo mejor de ambos? | 19-10 | Mejor hit@3 (0,67) y MRR (0,544), pero compuestas al 37 % y la más lenta | Medido, no activo | 5.3, octavo |
 | EXP-11 | ¿Cómo responde a paráfrasis, premisas falsas y preguntas parciales? | 23-10 | Paráfrasis 1/3, premisa falsa 0/3, parcial 2/3; abstención excesiva en 22, 24 y 26 | Limitación declarada | 5.1, 5.3, 5.4 |
 | EXP-12 | ¿Unas reglas en el prompt corrigen las premisas falsas? | 25-10 | Premisa falsa de 0/3 a 1/3, pero la pertinencia baja de 0,698 a 0,583 | Revertido | 5.4 |
-| [EXP-13](EXP-13_descomposicion-con-o-sin-tope/LEEME.md) | ¿Qué descomposición da mejores respuestas, con tope o sin tope? | 03-11 | 27 preguntas: indistinguibles dentro del ruido. Compuestas: la acotada responde las dos partes en 18/18 y la sin tope en 15/18; con la misma evidencia más ruido, la sin tope se abstiene | Se mantiene la acotada, ahora con evidencia de respuesta | ⚠️ No está |
+| [EXP-13](EXP-13_descomposicion-con-o-sin-tope/LEEME.md) | ¿Qué descomposición da mejores respuestas, con tope o sin tope? | 03-11 | 27 preguntas: indistinguibles dentro del ruido. Compuestas: la acotada responde las dos partes en 18/18 y la sin tope en 15/18; con la misma evidencia más ruido, la sin tope se abstiene | Se mantiene la acotada, ahora con evidencia de respuesta | 5.3, dentro del quinto |
+| [EXP-14](EXP-14_modelo-embedding/LEEME.md) | ¿Recupera mejor `text-embedding-3-large` que `3-small`? | 04-11 | MRR de 0,362 a 0,443, pero 6 preguntas a favor y 3 en contra: no concluyente. El umbral 0,30 seguiría valiendo | Se mantiene `3-small` | ⚠️ No está |
+| [EXP-15](EXP-15_tamano-fragmento/LEEME.md) | ¿Qué tamaño de fragmento recupera mejor: 500, 1.000 o 1.500? | 04-11 | hit@3 idéntico (0,52) en los tres; diferencias de posición no concluyentes; con 500 el umbral queda casi en el ruido. **Destapó un defecto:** producción guarda solo 1.000 caracteres por fragmento y eso causa la abstención indebida de la pregunta 26 | Se mantiene 1.000; corrección del recorte pendiente | ⚠️ No está |
 
 **Pendientes (los pidió el tutor el 3 de noviembre):** modelo de embedding,
 tamaño de fragmento y, sin petición explícita pero previsible en la defensa,
@@ -60,6 +64,8 @@ Todos en [`resultados/`](resultados/).
 | EXP-10 | los tres anteriores | `preguntas_compuestas_2026-10-19_descomposicion_hibrida.json`, `dataset_ejecutado_2026-10-19_descomposicion_hibrida_temp0.0.json`, `ragas_2026-10-19_avanzado_descomposicion_hibrida_temp0.0.json` |
 | EXP-11 | `ejecutar_dataset.py` + `evaluar_ragas.py` (con `criterios.py`) | `dataset_ejecutado_2026-10-23_descomposicion_acotada_temp0.0.json`, `ragas_2026-10-23_avanzado_descomposicion_acotada_temp0.0.json` |
 | EXP-12 | igual que EXP-11, con el prompt modificado | `dataset_ejecutado_2026-10-25_descomposicion_acotada_temp0.0_prompt_v2.json`, `ragas_2026-10-25_avanzado_descomposicion_acotada_temp0.0_prompt_v2.json` |
+| EXP-15 | `comparar_tamano_fragmento.py` | `EXP-15_tamano-fragmento/resultados/2026-11-04.json`; espacios `exp-chunk-500/1000/1500` |
+| EXP-14 | `comparar_embeddings.py` | `EXP-14_modelo-embedding/resultados/2026-11-04.json`; espacio `exp-emb-3-large` en Pinecone |
 | EXP-13 | parte A: `ejecutar_dataset.py` + `evaluar_ragas.py`; parte B: `responder_compuestas.py` | A: los cuatro `*_2026-11-03_descomposicion*` de `resultados/`; B: `EXP-13_descomposicion-con-o-sin-tope/resultados/2026-11-03_parte-b.json` y `.md` |
 
 Las 27 preguntas de EXP-11 también se ejecutaron como *dataset* en Langfuse

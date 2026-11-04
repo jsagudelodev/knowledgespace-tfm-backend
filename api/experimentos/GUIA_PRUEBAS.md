@@ -225,8 +225,8 @@ respuesta honesta es la de la última columna.
 
 | Decisión | Por qué se tomó | Respuesta honesta hoy | Experimento previsto |
 |---|---|---|---|
-| Modelo de embedding `text-embedding-3-small` | Coste y simplicidad; no se comparó | «Lo elegí por coste y no lo comparé con otro. Es una limitación.» | **EXP-14:** `3-small` frente a `3-large` |
-| Fragmentos de ~1.000 caracteres | Valor heredado del troceado anterior | «Medí la estrategia, no el tamaño.» | **EXP-15:** 500, 1.000 y 1.500 |
+| Modelo de embedding `text-embedding-3-small` | Coste y simplicidad | ✅ **Medido en EXP-14:** «`3-large` mejora el MRR de 0,36 a 0,44, pero gana en 6 preguntas y pierde en 3: no es concluyente, y cambiar obliga a reindexar y repetir las mediciones. El umbral seguiría valiendo.» | Hecho |
+| Fragmentos de ~1.000 caracteres | Valor heredado del troceado anterior | ✅ **Medido en EXP-15:** «500, 1.000 y 1.500 dan el mismo hit@3; las diferencias no son concluyentes y con 500 el umbral quedaría casi en el ruido.» Además destapó que producción recorta a 1.000 el texto que lee el modelo | Hecho |
 | `top_k = 5` | Valor habitual; no se midió | «No lo medí; con más fragmentos sube el coste y el modelo atiende peor el centro del contexto.» | EXP-16, si da tiempo |
 | Generador `gpt-4o-mini` | Coste: `gpt-4o` cuesta 16,7 veces más (memoria 3.3) | Medido en coste, no en calidad | Opcional |
 | Pinecone frente a pgvector | Espacios de nombres para el aislamiento | La memoria ya declara que no se comparó y que pgvector habría bastado | No se hará |
@@ -272,8 +272,15 @@ comprobar que dice lo que se le atribuye antes de citarla (regla de
 
 ## 5. Diferencias entre la memoria y el código
 
-Revisado el 3 de noviembre contra `docs/Memoria_TFM.docx`. La memoria se
-redactó antes de EXP-08, EXP-09 y EXP-10, y no se actualizó después:
+**Corregidas el 4 de noviembre** (respaldo previo en
+`docs/Memoria_TFM_respaldo_2026-11-04.docx`). La memoria habla ahora de seis
+configuraciones (2.1, 3.2 y 4.1), presenta la descomposición acotada y EXP-13
+dentro del quinto experimento, añade la híbrida como octavo y declara activa
+la acotada. También se corrigió el desequilibrio de la sin tope en la tabla del
+quinto experimento: decía 0,9 y la media de las seis parejas es 0,83. El
+documento tiene 57 páginas.
+
+Lo que se encontró el 3 de noviembre, antes de corregir:
 
 - Habla de **«tres clases»** y **«tres configuraciones»** (apartados 3.2 y 5.3).
   En el código hay seis.

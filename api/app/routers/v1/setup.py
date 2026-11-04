@@ -41,20 +41,6 @@ TIPOS_DE_NOTIFICACION = [
         "icon": "trash",
         "color": "#6B7280",
     },
-    {
-        "name": "knowledge_gap_found",
-        "label": "Pregunta sin respuesta",
-        "description": "Una consulta no encontró respuesta en los documentos.",
-        "icon": "help-circle",
-        "color": "#8B5CF6",
-    },
-    {
-        "name": "knowledge_gap_resolved",
-        "label": "Pregunta resuelta",
-        "description": "Se resolvió una pregunta que no tenía respuesta.",
-        "icon": "check-circle",
-        "color": "#10B981",
-    },
 ]
 
 

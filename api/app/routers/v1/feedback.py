@@ -10,7 +10,6 @@ from app.core.database import get_db
 from app.db.models.conversation import Conversation
 from app.db.models.feedback import Feedback
 from app.db.models.message import Message
-from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.feedback_repository import FeedbackRepository
 from app.routers.v1.security import get_current_admin_user, get_current_user
@@ -21,7 +20,6 @@ from app.schemas.feedback import (
     FeedbackStats,
     FeedbackUpdate,
 )
-from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -178,28 +176,16 @@ async def convert_to_gap(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Este feedback ya tiene una pregunta sin respuesta asociada"
         )
-    gap = repo.convert_to_gap(
+    repo.convert_to_gap(
         feedback=feedback,
         question=data.question,
         company_id=current_user.company_id,
         user_id=current_user.id,
     )
 
-    import logging
-    try:
-        NotificationService(db).create_for_admins(
-            company_id=current_user.company_id,
-            type_name="knowledge_gap_found",
-            title="Nueva pregunta sin respuesta",
-            message=f'Nueva pregunta sin responder: "{gap.question[:120]}"',
-            entity_type=NotificationEntityType.KNOWLEDGE_GAP,
-            entity_id=gap.id,
-        )
-    except Exception:
-        logging.getLogger("uvicorn.error").warning(
-            f"[Notification] No se pudo crear notificación 'knowledge_gap_found' para gap_id={gap.id}",
-            exc_info=True,
-        )
+    # Sin notificación (retirada el 2026-11-04): convertir lo hace un admin, y
+    # el aviso "Nueva pregunta sin respuesta" le llegaba a él mismo. Lo
+    # pendiente ya lo muestra la pantalla Preguntas sin respuesta.
 
     # El `feedback` de arriba (de `get_of_company`) nunca pasó por el
     # enriquecimiento (`question`, `answer`, `assistant_name`...): esos

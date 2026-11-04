@@ -6,7 +6,12 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.db.models.user import User
 from app.routers.v1.security import get_current_user
-from app.schemas.notification import NotificationCounts, NotificationResponse, NotificationUnreadCount
+from app.schemas.notification import (
+    NotificationBulkAction,
+    NotificationCounts,
+    NotificationResponse,
+    NotificationUnreadCount,
+)
 from app.services.notification_service import NotificationService
 
 router = APIRouter()
@@ -72,8 +77,8 @@ async def list_notifications(
 # compararlos con el token, así que cualquier usuario autenticado podía insertar
 # notificaciones en otra empresa. Eso contradice la regla del proyecto —el
 # `company_id` sale del JWT, nunca del cuerpo— y además nadie lo llamaba: las
-# notificaciones las crea el backend al procesar un documento o resolver una
-# pregunta sin respuesta, a través de `NotificationService.create`.
+# notificaciones las crea el backend al procesar o borrar un documento, a través
+# de `NotificationService.create_for_user`.
 
 
 @router.patch(
@@ -112,22 +117,25 @@ async def mark_all_as_read(
     return {"updated": updated}
 
 
-# Cada usuario limpia su propia bandeja. `/read` va antes que `/{notification_id}`
-# para que "read" no se intente leer como id.
-@router.delete(
-    "/read",
+# Cada usuario limpia su propia bandeja: varias elegidas a la vez, al estilo
+# correo, o una sola con DELETE.
+@router.post(
+    "/bulk",
     response_model=dict,
-    summary="Eliminar mis notificaciones ya leídas",
+    summary="Marcar como leídas o eliminar varias notificaciones propias",
 )
-async def delete_read(
+async def bulk_action(
+    data: NotificationBulkAction,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    deleted = NotificationService(db).delete_read(
+    affected = NotificationService(db).bulk(
+        ids=data.ids,
+        action=data.action,
         company_id=current_user.company_id,
         user_id=current_user.id,
     )
-    return {"deleted": deleted}
+    return {"affected": affected}
 
 
 @router.delete(

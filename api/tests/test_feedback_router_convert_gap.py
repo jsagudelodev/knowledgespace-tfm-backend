@@ -12,9 +12,8 @@ frontend reemplaza la fila entera con esta respuesta
 (`feedback-list.component.ts`), así que el bug era visible: la fila se
 quedaba sin pregunta ni respuesta citada hasta recargar la página.
 
-Son tests de lógica pura: `FeedbackRepository` y `NotificationService` se
-sustituyen por dobles, y la función async del router se llama directamente
-con `asyncio.run`.
+Son tests de lógica pura: `FeedbackRepository` se sustituye por un doble, y la
+función async del router se llama directamente con `asyncio.run`.
 """
 import asyncio
 from types import SimpleNamespace
@@ -56,11 +55,8 @@ class _RepoFalso:
             f.assistant_name = "Demo"
 
 
-def _patch(monkeypatch, repo, notificaciones_ok=True):
+def _patch(monkeypatch, repo):
     monkeypatch.setattr(feedback_module, "FeedbackRepository", lambda db: repo)
-    notif = SimpleNamespace(create_for_admins=(lambda **kw: None) if notificaciones_ok
-                             else (lambda **kw: (_ for _ in ()).throw(RuntimeError("falló"))))
-    monkeypatch.setattr(feedback_module, "NotificationService", lambda db: notif)
 
 
 def test_la_respuesta_viene_enriquecida_no_el_feedback_crudo(monkeypatch):
@@ -103,16 +99,11 @@ def test_un_feedback_ya_convertido_no_se_puede_convertir_de_nuevo(monkeypatch):
     assert exc.value.status_code == 409
 
 
-def test_si_falla_la_notificacion_la_conversion_igual_se_completa(monkeypatch):
-    """Un fallo al avisar a los admins no debe impedir que el feedback quede
-    convertido -la notificación es secundaria, la conversión es el dato real-."""
-    fb = _feedback()
-    repo = _RepoFalso(fb)
-    _patch(monkeypatch, repo, notificaciones_ok=False)
+def test_convertir_no_crea_notificaciones():
+    """Retirado el 2026-11-04: convertir lo hace un admin y el aviso "Nueva
+    pregunta sin respuesta" le llegaba a él mismo. Ni convertir ni resolver
+    importan ya el servicio de notificaciones."""
+    from app.routers.v1 import knowledge_gaps
 
-    resultado = asyncio.run(
-        feedback_module.convert_to_gap(12, FeedbackConvertGap(question="x"),
-                                        db=None, current_user=_usuario())
-    )
-
-    assert resultado.knowledge_gap_id == 99
+    assert not hasattr(feedback_module, "NotificationService")
+    assert not hasattr(knowledge_gaps, "NotificationService")

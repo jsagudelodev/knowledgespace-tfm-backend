@@ -768,15 +768,18 @@ class NotificationType(Base):
 
 **Filas de seed iniciales.** Las siembra `POST /api/v1/setup`
 (`app/routers/v1/setup.py` → `TIPOS_DE_NOTIFICACION`), junto a la creación de
-tablas. Son **los cinco tipos que el código emite**, ni uno más:
+tablas. Son **los tres tipos que el código emite**, ni uno más:
 
 | name | label | color | Quién la emite |
 |------|-------|-------|----------------|
 | `document_processed` | Documento procesado | `#10B981` | `documents.py` al terminar la ingesta |
 | `document_failed` | Error al procesar documento | `#EF4444` | `documents.py` si falla la ingesta |
 | `document_deleted` | Documento eliminado | `#6B7280` | `documents.py` al borrar |
-| `knowledge_gap_found` | Pregunta sin respuesta | `#8B5CF6` | `feedback.py` al convertir en gap |
-| `knowledge_gap_resolved` | Pregunta resuelta | `#10B981` | `knowledge_gaps.py` al resolver |
+
+`knowledge_gap_found` y `knowledge_gap_resolved` se dejaron de emitir y de
+sembrar el 2026-11-04: los creaba la acción de un admin y le llegaban a él
+mismo. La migración `d9f1b3c5a7e2` borró los avisos ya emitidos; los dos tipos
+siguen en el catálogo de las bases existentes, sin uso.
 
 > **Por qué el seed importa.** El tipo no es un enum del código: el servicio lo
 > resuelve por nombre contra esta tabla y lanza `ValueError` si no existe. Como

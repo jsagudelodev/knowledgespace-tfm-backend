@@ -2,7 +2,8 @@
 
 Antes los avisos para administradores eran una fila compartida (`user_id`
 NULL): marcarla como leída se la quitaba de "No leídas" a todos los admins.
-Ahora cada admin recibe su copia y puede borrarla sin afectar a nadie.
+Ahora cada notificación es de un usuario y cada uno marca y borra lo suyo sin
+afectar a nadie.
 
 A diferencia del resto de la suite, estos tests usan una base SQLite en memoria
 con solo las cuatro tablas implicadas: `create_all` completo no funciona en
@@ -36,7 +37,6 @@ def db():
         User(id=13, company_id=1, email="off@acme.test", full_name="Inactivo", hashed_password="x",
              role="admin", is_active=False),
         User(id=20, company_id=2, email="a@otra.test", full_name="Admin otra", hashed_password="x", role="admin"),
-        NotificationType(id=1, name="knowledge_gap_found", label="Pregunta sin respuesta"),
         NotificationType(id=2, name="document_processed", label="Documento procesado"),
     ])
     session.commit()
@@ -45,16 +45,11 @@ def db():
 
 
 def _aviso_admins(svc, company_id=1):
-    return svc.create_for_admins(company_id=company_id, type_name="knowledge_gap_found", title="t", message="m")
-
-
-def test_un_aviso_para_admins_crea_una_copia_por_admin_activo(db):
-    svc = NotificationService(db)
-    _aviso_admins(svc)
-
-    destinatarios = sorted(n.user_id for n in db.query(Notification).all())
-    # Ni el usuario normal (12), ni el admin inactivo (13), ni el de otra empresa (20).
-    assert destinatarios == [10, 11]
+    """Un aviso igual para cada admin, cada uno con su propia fila."""
+    destinatarios = [20] if company_id == 2 else [10, 11]
+    for user_id in destinatarios:
+        svc.create_for_user(company_id=company_id, user_id=user_id,
+                            type_name="document_processed", title="t", message="m")
 
 
 def test_marcar_leida_no_afecta_a_los_demas_admins(db):
@@ -80,17 +75,41 @@ def test_cada_uno_borra_solo_lo_suyo(db):
     assert db.query(Notification).filter_by(id=ajena).count() == 0
 
 
-def test_eliminar_leidas_conserva_las_no_leidas_y_las_de_otros(db):
-    svc = NotificationService(db)
+def _tres_del_usuario(svc):
     for _ in range(3):
         svc.create_for_user(company_id=1, user_id=12, type_name="document_processed", title="t", message="m")
-    leida = db.query(Notification).filter_by(user_id=12).first()
-    svc.mark_as_read(leida.id, company_id=1, user_id=12)
-    _aviso_admins(svc)
 
-    assert svc.delete_read(company_id=1, user_id=12) == 1
-    assert svc.get_counts(company_id=1, user_id=12)["todas"] == 2
-    assert db.query(Notification).filter(Notification.user_id.in_([10, 11])).count() == 2
+
+def test_eliminar_varias_elegidas_solo_borra_esas(db):
+    svc = NotificationService(db)
+    _tres_del_usuario(svc)
+    a, b, c = [n.id for n in db.query(Notification).filter_by(user_id=12).order_by(Notification.id)]
+
+    assert svc.bulk([a, c], "delete", company_id=1, user_id=12) == 2
+    assert [n.id for n in db.query(Notification).filter_by(user_id=12)] == [b]
+
+
+def test_marcar_varias_como_leidas(db):
+    svc = NotificationService(db)
+    _tres_del_usuario(svc)
+    a, b, _ = [n.id for n in db.query(Notification).filter_by(user_id=12).order_by(Notification.id)]
+
+    assert svc.bulk([a, b], "read", company_id=1, user_id=12) == 2
+    assert svc.get_unread_count(company_id=1, user_id=12) == 1
+    # Ya leídas: repetir no cuenta de nuevo.
+    assert svc.bulk([a, b], "read", company_id=1, user_id=12) == 0
+
+
+def test_ids_ajenos_metidos_en_la_lista_se_ignoran(db):
+    svc = NotificationService(db)
+    _tres_del_usuario(svc)
+    _aviso_admins(svc)                 # de los admins 10 y 11
+    _aviso_admins(svc, company_id=2)   # del admin 20, otra empresa
+    mia = db.query(Notification).filter_by(user_id=12).first().id
+    ajenas = [n.id for n in db.query(Notification).filter(Notification.user_id.in_([10, 11, 20]))]
+
+    assert svc.bulk([mia, *ajenas], "delete", company_id=1, user_id=12) == 1
+    assert db.query(Notification).filter(Notification.id.in_(ajenas)).count() == len(ajenas)
 
 
 def test_no_se_ven_ni_se_borran_notificaciones_de_otra_empresa(db):

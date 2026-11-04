@@ -109,7 +109,7 @@ widget público embebible):
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 39 archivos y 256 tests unitarios sobre lógica pura
+- Cobertura de tests: 40 archivos y 263 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge
@@ -152,8 +152,16 @@ widget público embebible):
   sigue tratando como abierta. Test: `tests/test_sin_pedir_documento.py`.
 - **Notificaciones por usuario (2026-11-03).** Los avisos para administradores
   eran una fila compartida (`user_id` NULL): marcarla como leída se la quitaba
-  de "No leídas" a todos los admins. Ahora cada admin activo recibe su copia, y
-  cada usuario puede borrar las suyas, una a una o las leídas en bloque
-  (`DELETE /notifications/{id}` y `DELETE /notifications/read`). La migración
+  de "No leídas" a todos los admins. Ahora cada notificación es de un usuario, y
+  cada uno puede borrar las suyas, una a una o varias elegidas a la vez
+  al estilo Gmail (`DELETE /notifications/{id}` y `POST /notifications/bulk`,
+  que también marca como leídas; un id ajeno en la lista se ignora). La migración
   de datos `c4e8a2f6d1b3` repartió las filas compartidas existentes. Test:
   `tests/test_notificaciones_por_usuario.py`.
+- **Sin avisos de preguntas sin respuesta (2026-11-04).** "Nueva pregunta sin
+  respuesta" y "Pregunta resuelta" los creaba la acción de un admin
+  (convertir, resolver) y le llegaban a él mismo. Se dejaron de emitir y de
+  sembrar en instalaciones nuevas, y la migración de datos `d9f1b3c5a7e2`
+  borró los ya emitidos. Las notificaciones quedan para los documentos, cuyo
+  procesamiento ocurre en segundo plano. Test:
+  `tests/test_feedback_router_convert_gap.py`.

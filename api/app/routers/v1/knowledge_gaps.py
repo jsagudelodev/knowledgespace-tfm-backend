@@ -18,7 +18,6 @@ from app.core.database import get_db
 from app.db.models.assistant import Assistant
 from app.db.models.document import Document
 from app.db.models.knowledge_gap import KnowledgeGap
-from app.db.models.notification import NotificationEntityType
 from app.db.models.user import User
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
@@ -31,7 +30,6 @@ from app.schemas.knowledge_gap import (
     KnowledgeGapSummary,
 )
 from app.services.knowledge_gap_index_service import best_score, index_alias, index_answer
-from app.services.notification_service import NotificationService
 
 # Todo el módulo es de administración: lista las preguntas de todos los usuarios
 # y sus resoluciones escriben en la base de conocimiento que reciben todos. Antes
@@ -82,26 +80,6 @@ def _get_or_404(db: Session, gap_id: int, company_id: int) -> KnowledgeGap:
     if not gap:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pregunta no encontrada")
     return gap
-
-
-def _notify_resolved(db: Session, gap: KnowledgeGap) -> None:
-    """Avisa a los admins de que una pregunta sin respuesta se resolvió. Efecto secundario —
-    no debe romper el flujo de resolución si falla."""
-    import logging
-    try:
-        NotificationService(db).create_for_admins(
-            company_id=gap.company_id,
-            type_name="knowledge_gap_resolved",
-            title="Pregunta resuelta",
-            message=f'Se resolvió: "{gap.question[:120]}"',
-            entity_type=NotificationEntityType.KNOWLEDGE_GAP,
-            entity_id=gap.id,
-        )
-    except Exception:
-        logging.getLogger("uvicorn.error").warning(
-            f"[Notification] No se pudo crear notificación 'knowledge_gap_resolved' para gap_id={gap.id}",
-            exc_info=True,
-        )
 
 
 def _auto_verify(gap: KnowledgeGap) -> None:
@@ -253,7 +231,6 @@ async def link_document(
     _auto_verify(gap)
     db.commit()
     db.refresh(gap)
-    _notify_resolved(db, gap)
     return _enrich(gap, db)
 
 
@@ -291,7 +268,6 @@ async def write_answer(
     _auto_verify(gap)
     db.commit()
     db.refresh(gap)
-    _notify_resolved(db, gap)
     return _enrich(gap, db)
 
 

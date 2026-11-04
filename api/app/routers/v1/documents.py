@@ -71,6 +71,47 @@ def _notificar_documento(
         )
 
 
+def _vectores_de_documento(
+    document_id: int,
+    original_filename: str,
+    company_id: int,
+    assistant_id: Optional[int],
+    chunks: List[str],
+    embeddings: List[List[float]],
+) -> List[dict]:
+    """Un vector por fragmento, con el texto **completo** en los metadatos.
+
+    Ese texto es lo que `RAGService._build_context` entrega al modelo, así que
+    tiene que ser el mismo que se convirtió en vector. Hasta el 2026-11-04 se
+    guardaba `chunk[:1000]`: la búsqueda encontraba el fragmento por su texto
+    entero, pero el modelo solo leía los primeros 1.000 caracteres. El troceado
+    agrupa oraciones hasta unos 1.000, y una «oración» sin punto —habitual en
+    diapositivas— lo supera: en el corpus de evaluación, 10 de 87 fragmentos,
+    el mayor de 2.785. La pregunta 26 se abstenía por eso: su respuesta
+    empezaba en el carácter 1.028 de un fragmento de 1.673. Ver
+    `experimentos/EXP-15_tamano-fragmento/LEEME.md`.
+
+    Sin tope propio: el modelo de embedding admite 8.191 tokens, unos 33.000
+    caracteres en español, por debajo de los 40 KB de metadatos de Pinecone.
+    Un fragmento tan largo haría fallar la ingesta antes, al convertirlo.
+    """
+    return [
+        {
+            "id": f"doc-{document_id}-chunk-{i}",
+            "values": embedding,
+            "metadata": {
+                "document_id": document_id,
+                "document_name": original_filename,
+                "company_id": company_id,
+                "assistant_id": assistant_id,
+                "chunk_index": i,
+                "text": chunk,
+            },
+        }
+        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=True))
+    ]
+
+
 def _procesar_documento_background(
     document_id: int,
     s3_key: str,
@@ -144,21 +185,9 @@ def _procesar_documento_background(
 
         # ── 4. Construir vectores con metadata para Pinecone ──────────────
         namespace = PineconeService.construir_namespace(company_id, assistant_id)
-        vectores = [
-            {
-                "id": f"doc-{document_id}-chunk-{i}",
-                "values": embedding,
-                "metadata": {
-                    "document_id": document_id,
-                    "document_name": original_filename,
-                    "company_id": company_id,
-                    "assistant_id": assistant_id,
-                    "chunk_index": i,
-                    "text": chunk[:1000],   # guardar extracto del texto para mostrarlo en resultados
-                },
-            }
-            for i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=True))
-        ]
+        vectores = _vectores_de_documento(
+            document_id, original_filename, company_id, assistant_id, chunks, embeddings
+        )
 
         # ── 5. Subir a Pinecone ────────────────────────────────────────────
         pinecone_svc = PineconeService()

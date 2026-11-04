@@ -112,7 +112,9 @@ def index_answer(
             "assistant_id": assistant_id,
             "knowledge_gap_id": gap_id,
             "answered_by": answered_by,
-            "text": answer_text[:1000],
+            # Completa: es lo que el modelo lee al usarla como fuente. Ver
+            # `_vectores_de_documento` en routers/v1/documents.py.
+            "text": answer_text,
         },
     }
     PineconeService().upsert_vectores([vector], namespace=namespace)
@@ -145,7 +147,7 @@ def index_alias(
                 "assistant_id": assistant_id,
                 "knowledge_gap_id": gap_id,
                 "alias_of_chunk_id": chunk_id,
-                "text": text[:1000],
+                "text": text,
             },
         }
         for i, (text, embedding) in enumerate(zip(texts, embeddings, strict=True))

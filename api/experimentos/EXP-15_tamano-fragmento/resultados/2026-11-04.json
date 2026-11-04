@@ -1,0 +1,5915 @@
+{
+  "experimento": "EXP-15",
+  "pregunta": "¿Qué tamaño de fragmento recupera mejor, sobre los mismos documentos?",
+  "fecha": "2026-11-04",
+  "commit": "630e464+cambios-locales",
+  "dataset": {
+    "archivo": "dataset_evaluacion.csv",
+    "sha256": "776050faa0916b2f339ac61c66698fc61e8dc3a7c7e2138c5dd8c1745c393361"
+  },
+  "parametros": {
+    "modelo_embedding": "text-embedding-3-small",
+    "umbral": "ninguno",
+    "tamanos": [
+      500,
+      1000,
+      1500
+    ],
+    "control": 1000,
+    "volumen_igualado": 5000
+  },
+  "corpus": {
+    "espacio_produccion": "company-8-assistant-1",
+    "vectores_produccion_antes": 88,
+    "vectores_produccion_despues": 88,
+    "documentos": {
+      "36": {
+        "nombre": "1 - Diapositivas_Tema2_Clase3.pdf",
+        "caracteres": 7324,
+        "sha256": "d46e973d385883a438b95aa8e82b9da3defd14a6c547d187ce0a7ca165f3bac3"
+      },
+      "37": {
+        "nombre": "Resumen de Clase 1 - Tema 3.pdf",
+        "caracteres": 4094,
+        "sha256": "6e7c106fb47bdf8bf66d88426b51696b2ebe8c5ff72cc91546fad1fbe9277995"
+      },
+      "38": {
+        "nombre": "Resumen Clase 2 - Tema 3.pdf",
+        "caracteres": 3894,
+        "sha256": "6fe09a97223c5602403a2c5415eb61f01e10accd3227d70e5fd62104ff74c090"
+      },
+      "39": {
+        "nombre": "Clase 2 – Modelos Autoregresivos, VAEs y GANs.pdf",
+        "caracteres": 15167,
+        "sha256": "80598a1e47e8f7e0df896bda4f7abc960b1ac0089043089ccea35b5af2d4f0c5"
+      },
+      "40": {
+        "nombre": "Clase 3 – Difusión, LLMs y Estado Actual.pdf",
+        "caracteres": 16521,
+        "sha256": "d1fcd0a53df14d53940b8d5fb92b58232cf632741017bd486d79918c080efef6"
+      },
+      "41": {
+        "nombre": "Resumen Tema 4 Clase 5.pdf",
+        "caracteres": 4242,
+        "sha256": "cf29f036746d694d0696a6b10015c3d2c46c0c9a82baabc165bac57dc6160d21"
+      },
+      "43": {
+        "nombre": "Resumen Tema 6 Clase 1.pdf",
+        "caracteres": 5177,
+        "sha256": "712505d11a269a42bea22f14a670232ad9c8df5e11e2442438a658cd1b79f93f"
+      },
+      "44": {
+        "nombre": "Diapositivas Tema 6 - Sesión 1.pdf",
+        "caracteres": 18482,
+        "sha256": "5ba302d20915987e13ae429aef5f2e517ae6c2c33d3f0d681877f0494ab9d946"
+      }
+    },
+    "fragmentos_no_documentales": 1
+  },
+  "variantes": {
+    "500": {
+      "espacio": "exp-chunk-500",
+      "fragmentos": 162,
+      "longitud_media": 461,
+      "longitud_max": 2785,
+      "sobre_recorte_produccion": 9,
+      "caracteres_que_perderia_el_recorte": 5020,
+      "anclas_partidas_en_preguntas": [],
+      "tokens_indexado": 22991,
+      "top_5": {
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.333,
+            "hit_3": 0.524,
+            "hit_5": 0.571,
+            "mrr": 0.422
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.25,
+            "mrr": 0.083
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.375,
+            "hit_3": 0.625,
+            "hit_5": 0.625,
+            "mrr": 0.5
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.333,
+            "hit_5": 0.333,
+            "mrr": 0.111
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.667
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 1.0,
+            "mrr": 0.733
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                0,
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.645,
+              0.616,
+              0.562,
+              0.557,
+              0.552
+            ],
+            "ids": [
+              "doc-39-chunk-0",
+              "doc-40-chunk-0",
+              "doc-39-chunk-14",
+              "doc-37-chunk-8",
+              "doc-39-chunk-15"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.584,
+              0.58,
+              0.58,
+              0.547,
+              0.547
+            ],
+            "ids": [
+              "doc-43-chunk-1",
+              "doc-44-chunk-3",
+              "doc-37-chunk-3",
+              "doc-43-chunk-7",
+              "doc-44-chunk-1"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.793,
+              0.617,
+              0.605,
+              0.563,
+              0.552
+            ],
+            "ids": [
+              "doc-44-chunk-23",
+              "doc-44-chunk-34",
+              "doc-44-chunk-11",
+              "doc-44-chunk-25",
+              "doc-44-chunk-22"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.701,
+              0.671,
+              0.65,
+              0.578,
+              0.568
+            ],
+            "ids": [
+              "doc-44-chunk-23",
+              "doc-44-chunk-34",
+              "doc-44-chunk-22",
+              "doc-44-chunk-11",
+              "doc-44-chunk-25"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.609,
+              0.547,
+              0.492,
+              0.48,
+              0.477
+            ],
+            "ids": [
+              "doc-39-chunk-14",
+              "doc-38-chunk-5",
+              "doc-39-chunk-10",
+              "doc-40-chunk-6",
+              "doc-39-chunk-8"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.44,
+              0.435,
+              0.377,
+              0.362,
+              0.33
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-6",
+              "doc-37-chunk-3",
+              "doc-43-chunk-4",
+              "doc-40-chunk-7"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.555,
+              0.544,
+              0.528,
+              0.508,
+              0.507
+            ],
+            "ids": [
+              "doc-40-chunk-10",
+              "doc-40-chunk-9",
+              "doc-40-chunk-8",
+              "doc-37-chunk-7",
+              "doc-40-chunk-20"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.641,
+              0.582,
+              0.556,
+              0.538,
+              0.521
+            ],
+            "ids": [
+              "doc-40-chunk-23",
+              "doc-40-chunk-22",
+              "doc-40-chunk-20",
+              "doc-40-chunk-10",
+              "doc-40-chunk-25"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.645,
+              0.508,
+              0.379,
+              0.379,
+              0.369
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-4",
+              "doc-36-chunk-6",
+              "doc-44-chunk-20",
+              "doc-36-chunk-8"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.67,
+              0.588,
+              0.504,
+              0.488,
+              0.452
+            ],
+            "ids": [
+              "doc-36-chunk-7",
+              "doc-36-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-5",
+              "doc-36-chunk-0"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.682,
+              0.592,
+              0.561,
+              0.557,
+              0.557
+            ],
+            "ids": [
+              "doc-44-chunk-17",
+              "doc-44-chunk-19",
+              "doc-44-chunk-16",
+              "doc-43-chunk-8",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.678,
+              0.658,
+              0.61,
+              0.582,
+              0.578
+            ],
+            "ids": [
+              "doc-44-chunk-27",
+              "doc-44-chunk-15",
+              "doc-44-chunk-12",
+              "doc-43-chunk-7",
+              "doc-44-chunk-18"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.595,
+              0.583,
+              0.545,
+              0.499,
+              0.44
+            ],
+            "ids": [
+              "doc-43-chunk-6",
+              "doc-43-chunk-5",
+              "doc-41-chunk-6",
+              "doc-44-chunk-24",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.38,
+              0.367,
+              0.356,
+              0.352
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-7",
+              "doc-36-chunk-6",
+              "gap-38-answer"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.406,
+              0.381,
+              0.379,
+              0.375,
+              0.37
+            ],
+            "ids": [
+              "doc-39-chunk-12",
+              "doc-41-chunk-0",
+              "doc-43-chunk-5",
+              "doc-43-chunk-4",
+              "doc-40-chunk-6"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.41,
+              0.295,
+              0.274,
+              0.242,
+              0.235
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-41-chunk-2",
+              "doc-44-chunk-12",
+              "doc-44-chunk-26",
+              "doc-43-chunk-7"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.333,
+              0.33,
+              0.283,
+              0.283,
+              0.281
+            ],
+            "ids": [
+              "doc-40-chunk-18",
+              "doc-44-chunk-47",
+              "doc-36-chunk-3",
+              "doc-44-chunk-12",
+              "doc-44-chunk-1"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.161,
+              0.151,
+              0.143,
+              0.133,
+              0.121
+            ],
+            "ids": [
+              "doc-44-chunk-44",
+              "doc-40-chunk-18",
+              "doc-40-chunk-10",
+              "doc-40-chunk-9",
+              "doc-40-chunk-8"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.551,
+              0.549,
+              0.547,
+              0.541,
+              0.54
+            ],
+            "ids": [
+              "doc-44-chunk-45",
+              "doc-44-chunk-37",
+              "doc-43-chunk-8",
+              "doc-44-chunk-28",
+              "doc-44-chunk-21"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.502,
+              0.489,
+              0.484,
+              0.48,
+              0.477
+            ],
+            "ids": [
+              "doc-40-chunk-17",
+              "doc-40-chunk-16",
+              "doc-37-chunk-4",
+              "doc-40-chunk-14",
+              "doc-38-chunk-2"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.602,
+              0.59,
+              0.588,
+              0.577,
+              0.571
+            ],
+            "ids": [
+              "doc-40-chunk-12",
+              "doc-40-chunk-8",
+              "doc-40-chunk-17",
+              "doc-40-chunk-0",
+              "doc-37-chunk-8"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.695,
+              0.679,
+              0.62,
+              0.596,
+              0.595
+            ],
+            "ids": [
+              "doc-39-chunk-15",
+              "doc-39-chunk-17",
+              "doc-38-chunk-6",
+              "doc-38-chunk-1",
+              "doc-37-chunk-8"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.633,
+              0.566,
+              0.557,
+              0.536,
+              0.523
+            ],
+            "ids": [
+              "doc-36-chunk-7",
+              "doc-36-chunk-8",
+              "doc-36-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-5"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.531,
+              0.523,
+              0.479,
+              0.447,
+              0.435
+            ],
+            "ids": [
+              "doc-41-chunk-2",
+              "doc-41-chunk-9",
+              "doc-41-chunk-0",
+              "doc-41-chunk-3",
+              "doc-41-chunk-8"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.665,
+              0.663,
+              0.589,
+              0.44,
+              0.395
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-41-chunk-9",
+              "doc-41-chunk-1",
+              "doc-41-chunk-4",
+              "doc-41-chunk-2"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.534,
+              0.494,
+              0.486,
+              0.483
+            ],
+            "ids": [
+              "doc-39-chunk-17",
+              "doc-39-chunk-15",
+              "doc-40-chunk-6",
+              "doc-39-chunk-18",
+              "doc-39-chunk-22"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                5
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.451,
+              0.393,
+              0.37,
+              0.366,
+              0.361
+            ],
+            "ids": [
+              "doc-37-chunk-6",
+              "doc-37-chunk-1",
+              "doc-39-chunk-23",
+              "doc-40-chunk-8",
+              "doc-40-chunk-7"
+            ]
+          }
+        ]
+      },
+      "mismo_volumen": {
+        "k": 10,
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.333,
+            "hit_3": 0.524,
+            "hit_5": 0.571,
+            "mrr": 0.437
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.25,
+            "mrr": 0.083
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.375,
+            "hit_3": 0.625,
+            "hit_5": 0.625,
+            "mrr": 0.539
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.333,
+            "hit_5": 0.333,
+            "mrr": 0.111
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.667
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 1.0,
+            "mrr": 0.733
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                0,
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.646,
+              0.617,
+              0.562,
+              0.557,
+              0.552,
+              0.53,
+              0.525,
+              0.519,
+              0.518,
+              0.502
+            ],
+            "ids": [
+              "doc-39-chunk-0",
+              "doc-40-chunk-0",
+              "doc-39-chunk-14",
+              "doc-37-chunk-8",
+              "doc-39-chunk-15",
+              "doc-37-chunk-6",
+              "doc-39-chunk-17",
+              "doc-39-chunk-22",
+              "doc-38-chunk-5",
+              "doc-40-chunk-6"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.584,
+              0.58,
+              0.58,
+              0.547,
+              0.547,
+              0.533,
+              0.524,
+              0.519,
+              0.518,
+              0.508
+            ],
+            "ids": [
+              "doc-43-chunk-1",
+              "doc-44-chunk-3",
+              "doc-37-chunk-3",
+              "doc-43-chunk-7",
+              "doc-44-chunk-1",
+              "doc-44-chunk-44",
+              "doc-44-chunk-5",
+              "doc-39-chunk-8",
+              "doc-43-chunk-10",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.793,
+              0.617,
+              0.605,
+              0.563,
+              0.552,
+              0.544,
+              0.535,
+              0.513,
+              0.438,
+              0.438
+            ],
+            "ids": [
+              "doc-44-chunk-23",
+              "doc-44-chunk-34",
+              "doc-44-chunk-11",
+              "doc-44-chunk-25",
+              "doc-44-chunk-22",
+              "doc-44-chunk-10",
+              "doc-44-chunk-42",
+              "doc-44-chunk-13",
+              "doc-44-chunk-41",
+              "doc-44-chunk-45"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                6
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.167
+            },
+            "scores": [
+              0.701,
+              0.671,
+              0.65,
+              0.578,
+              0.568,
+              0.561,
+              0.513,
+              0.504,
+              0.494,
+              0.492
+            ],
+            "ids": [
+              "doc-44-chunk-23",
+              "doc-44-chunk-34",
+              "doc-44-chunk-22",
+              "doc-44-chunk-11",
+              "doc-44-chunk-25",
+              "doc-44-chunk-28",
+              "doc-44-chunk-33",
+              "doc-44-chunk-10",
+              "doc-44-chunk-13",
+              "doc-44-chunk-42"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.609,
+              0.547,
+              0.492,
+              0.48,
+              0.477,
+              0.458,
+              0.448,
+              0.438,
+              0.421,
+              0.409
+            ],
+            "ids": [
+              "doc-39-chunk-14",
+              "doc-38-chunk-5",
+              "doc-39-chunk-10",
+              "doc-40-chunk-6",
+              "doc-39-chunk-8",
+              "doc-39-chunk-11",
+              "doc-39-chunk-15",
+              "doc-39-chunk-17",
+              "doc-39-chunk-22",
+              "doc-38-chunk-1"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.5
+            },
+            "scores": [
+              0.44,
+              0.435,
+              0.377,
+              0.362,
+              0.33,
+              0.307,
+              0.305,
+              0.292,
+              0.278,
+              0.267
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-6",
+              "doc-37-chunk-3",
+              "doc-43-chunk-4",
+              "doc-40-chunk-7",
+              "doc-40-chunk-14",
+              "doc-40-chunk-0",
+              "doc-41-chunk-6",
+              "doc-43-chunk-8",
+              "doc-41-chunk-7"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.555,
+              0.544,
+              0.528,
+              0.508,
+              0.507,
+              0.502,
+              0.493,
+              0.492,
+              0.447,
+              0.44
+            ],
+            "ids": [
+              "doc-40-chunk-10",
+              "doc-40-chunk-9",
+              "doc-40-chunk-8",
+              "doc-37-chunk-7",
+              "doc-40-chunk-20",
+              "doc-40-chunk-21",
+              "doc-40-chunk-23",
+              "doc-40-chunk-12",
+              "doc-40-chunk-16",
+              "doc-40-chunk-25"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                7
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.143
+            },
+            "scores": [
+              0.641,
+              0.582,
+              0.555,
+              0.539,
+              0.521,
+              0.503,
+              0.498,
+              0.49,
+              0.484,
+              0.483
+            ],
+            "ids": [
+              "doc-40-chunk-23",
+              "doc-40-chunk-22",
+              "doc-40-chunk-20",
+              "doc-40-chunk-10",
+              "doc-40-chunk-25",
+              "doc-40-chunk-9",
+              "doc-40-chunk-17",
+              "doc-40-chunk-21",
+              "doc-40-chunk-15",
+              "doc-40-chunk-8"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.645,
+              0.508,
+              0.379,
+              0.379,
+              0.369,
+              0.356,
+              0.352,
+              0.344,
+              0.344,
+              0.342
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-4",
+              "doc-36-chunk-6",
+              "doc-44-chunk-20",
+              "doc-36-chunk-8",
+              "doc-44-chunk-37",
+              "doc-44-chunk-30",
+              "doc-36-chunk-5",
+              "doc-44-chunk-12",
+              "doc-36-chunk-7"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.5
+            },
+            "scores": [
+              0.67,
+              0.588,
+              0.504,
+              0.488,
+              0.452,
+              0.438,
+              0.427,
+              0.423,
+              0.418,
+              0.392
+            ],
+            "ids": [
+              "doc-36-chunk-7",
+              "doc-36-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-5",
+              "doc-36-chunk-0",
+              "doc-36-chunk-11",
+              "doc-36-chunk-1",
+              "doc-36-chunk-10",
+              "doc-36-chunk-9",
+              "doc-36-chunk-8"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.682,
+              0.592,
+              0.561,
+              0.557,
+              0.557,
+              0.556,
+              0.554,
+              0.54,
+              0.534,
+              0.525
+            ],
+            "ids": [
+              "doc-44-chunk-17",
+              "doc-44-chunk-19",
+              "doc-44-chunk-16",
+              "doc-43-chunk-8",
+              "doc-44-chunk-12",
+              "doc-44-chunk-20",
+              "doc-44-chunk-15",
+              "doc-44-chunk-26",
+              "doc-44-chunk-18",
+              "doc-44-chunk-27"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.333
+            },
+            "scores": [
+              0.678,
+              0.658,
+              0.61,
+              0.582,
+              0.578,
+              0.578,
+              0.578,
+              0.537,
+              0.529,
+              0.528
+            ],
+            "ids": [
+              "doc-44-chunk-27",
+              "doc-44-chunk-15",
+              "doc-44-chunk-12",
+              "doc-43-chunk-7",
+              "doc-44-chunk-18",
+              "doc-44-chunk-20",
+              "doc-44-chunk-16",
+              "doc-44-chunk-31",
+              "doc-44-chunk-25",
+              "doc-44-chunk-45"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.596,
+              0.583,
+              0.545,
+              0.499,
+              0.44,
+              0.436,
+              0.421,
+              0.406,
+              0.401,
+              0.39
+            ],
+            "ids": [
+              "doc-43-chunk-6",
+              "doc-43-chunk-5",
+              "doc-41-chunk-6",
+              "doc-44-chunk-24",
+              "doc-43-chunk-4",
+              "doc-43-chunk-1",
+              "doc-39-chunk-23",
+              "doc-39-chunk-13",
+              "doc-40-chunk-24",
+              "doc-37-chunk-1"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.38,
+              0.367,
+              0.356,
+              0.352,
+              0.351,
+              0.345,
+              0.335,
+              0.335,
+              0.326
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-7",
+              "doc-36-chunk-6",
+              "gap-38-answer",
+              "doc-36-chunk-8",
+              "doc-43-chunk-4",
+              "doc-44-chunk-20",
+              "doc-36-chunk-3",
+              "doc-39-chunk-5"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.406,
+              0.381,
+              0.379,
+              0.375,
+              0.37,
+              0.369,
+              0.361,
+              0.361,
+              0.355,
+              0.354
+            ],
+            "ids": [
+              "doc-39-chunk-12",
+              "doc-41-chunk-0",
+              "doc-43-chunk-5",
+              "doc-43-chunk-4",
+              "doc-40-chunk-6",
+              "gap-38-answer",
+              "doc-39-chunk-13",
+              "doc-40-chunk-26",
+              "doc-40-chunk-2",
+              "doc-36-chunk-17"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.411,
+              0.295,
+              0.274,
+              0.242,
+              0.235,
+              0.232,
+              0.231,
+              0.228,
+              0.225,
+              0.222
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-41-chunk-2",
+              "doc-44-chunk-12",
+              "doc-44-chunk-26",
+              "doc-43-chunk-7",
+              "doc-41-chunk-0",
+              "doc-44-chunk-1",
+              "doc-44-chunk-17",
+              "doc-41-chunk-9",
+              "doc-44-chunk-39"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.333,
+              0.33,
+              0.283,
+              0.283,
+              0.281,
+              0.267,
+              0.255,
+              0.249,
+              0.247,
+              0.245
+            ],
+            "ids": [
+              "doc-40-chunk-18",
+              "doc-44-chunk-47",
+              "doc-44-chunk-12",
+              "doc-36-chunk-3",
+              "doc-44-chunk-1",
+              "doc-41-chunk-0",
+              "doc-44-chunk-18",
+              "doc-39-chunk-5",
+              "doc-40-chunk-13",
+              "doc-44-chunk-2"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.161,
+              0.151,
+              0.143,
+              0.133,
+              0.121,
+              0.117,
+              0.116,
+              0.115,
+              0.114,
+              0.111
+            ],
+            "ids": [
+              "doc-44-chunk-44",
+              "doc-40-chunk-18",
+              "doc-40-chunk-10",
+              "doc-40-chunk-9",
+              "doc-40-chunk-8",
+              "doc-44-chunk-17",
+              "doc-44-chunk-12",
+              "doc-44-chunk-19",
+              "doc-39-chunk-7",
+              "doc-44-chunk-2"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.333
+            },
+            "scores": [
+              0.552,
+              0.549,
+              0.547,
+              0.541,
+              0.54,
+              0.519,
+              0.518,
+              0.515,
+              0.495,
+              0.494
+            ],
+            "ids": [
+              "doc-44-chunk-45",
+              "doc-44-chunk-37",
+              "doc-43-chunk-8",
+              "doc-44-chunk-28",
+              "doc-44-chunk-21",
+              "doc-44-chunk-3",
+              "doc-44-chunk-24",
+              "doc-44-chunk-26",
+              "doc-44-chunk-25",
+              "doc-44-chunk-46"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.502,
+              0.489,
+              0.484,
+              0.479,
+              0.477,
+              0.477,
+              0.466,
+              0.464,
+              0.46,
+              0.459
+            ],
+            "ids": [
+              "doc-40-chunk-17",
+              "doc-40-chunk-16",
+              "doc-37-chunk-4",
+              "doc-40-chunk-14",
+              "doc-38-chunk-2",
+              "doc-37-chunk-0",
+              "doc-39-chunk-1",
+              "doc-40-chunk-8",
+              "doc-37-chunk-8",
+              "doc-38-chunk-8"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.602,
+              0.59,
+              0.588,
+              0.577,
+              0.571,
+              0.568,
+              0.566,
+              0.565,
+              0.556,
+              0.554
+            ],
+            "ids": [
+              "doc-40-chunk-12",
+              "doc-40-chunk-8",
+              "doc-40-chunk-17",
+              "doc-40-chunk-0",
+              "doc-37-chunk-8",
+              "doc-40-chunk-14",
+              "doc-40-chunk-16",
+              "doc-40-chunk-19",
+              "doc-39-chunk-23",
+              "doc-40-chunk-7"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 10,
+              "rr": 0.0
+            },
+            "scores": [
+              0.695,
+              0.679,
+              0.62,
+              0.596,
+              0.595,
+              0.592,
+              0.579,
+              0.573,
+              0.571,
+              0.571
+            ],
+            "ids": [
+              "doc-39-chunk-15",
+              "doc-39-chunk-17",
+              "doc-38-chunk-6",
+              "doc-38-chunk-1",
+              "doc-37-chunk-8",
+              "doc-40-chunk-6",
+              "doc-39-chunk-0",
+              "doc-40-chunk-14",
+              "doc-39-chunk-22",
+              "doc-39-chunk-1"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.633,
+              0.566,
+              0.557,
+              0.536,
+              0.523,
+              0.415,
+              0.409,
+              0.388,
+              0.383,
+              0.379
+            ],
+            "ids": [
+              "doc-36-chunk-7",
+              "doc-36-chunk-8",
+              "doc-36-chunk-6",
+              "doc-36-chunk-4",
+              "doc-36-chunk-5",
+              "doc-36-chunk-14",
+              "doc-40-chunk-4",
+              "doc-36-chunk-2",
+              "doc-36-chunk-0",
+              "doc-36-chunk-3"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.531,
+              0.523,
+              0.479,
+              0.447,
+              0.435,
+              0.428,
+              0.419,
+              0.416,
+              0.41,
+              0.402
+            ],
+            "ids": [
+              "doc-41-chunk-2",
+              "doc-41-chunk-9",
+              "doc-41-chunk-0",
+              "doc-41-chunk-3",
+              "doc-41-chunk-8",
+              "doc-44-chunk-29",
+              "doc-36-chunk-10",
+              "doc-41-chunk-1",
+              "doc-43-chunk-10",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.664,
+              0.663,
+              0.59,
+              0.44,
+              0.395,
+              0.335,
+              0.331,
+              0.317,
+              0.312,
+              0.311
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-41-chunk-9",
+              "doc-41-chunk-1",
+              "doc-41-chunk-4",
+              "doc-41-chunk-2",
+              "doc-36-chunk-0",
+              "doc-38-chunk-9",
+              "doc-40-chunk-8",
+              "doc-40-chunk-24",
+              "doc-36-chunk-14"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.534,
+              0.494,
+              0.486,
+              0.483,
+              0.483,
+              0.469,
+              0.465,
+              0.437,
+              0.427
+            ],
+            "ids": [
+              "doc-39-chunk-17",
+              "doc-39-chunk-15",
+              "doc-40-chunk-6",
+              "doc-39-chunk-18",
+              "doc-39-chunk-22",
+              "doc-38-chunk-1",
+              "doc-39-chunk-14",
+              "doc-39-chunk-20",
+              "doc-39-chunk-21",
+              "doc-37-chunk-7"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                5
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 10,
+              "rr": 0.2
+            },
+            "scores": [
+              0.451,
+              0.393,
+              0.37,
+              0.366,
+              0.361,
+              0.36,
+              0.353,
+              0.35,
+              0.345,
+              0.345
+            ],
+            "ids": [
+              "doc-37-chunk-6",
+              "doc-37-chunk-1",
+              "doc-39-chunk-23",
+              "doc-40-chunk-8",
+              "doc-40-chunk-7",
+              "doc-37-chunk-0",
+              "doc-40-chunk-3",
+              "doc-38-chunk-2",
+              "doc-40-chunk-9",
+              "doc-37-chunk-8"
+            ]
+          }
+        ]
+      },
+      "banda": {
+        "consultas": {
+          "cubierta": [
+            {
+              "consulta": "que son las GANs",
+              "scores": [
+                0.58,
+                0.546,
+                0.537,
+                0.472,
+                0.462
+              ],
+              "top_1": 0.58,
+              "top_k": 0.462
+            },
+            {
+              "consulta": "que es un VAE",
+              "scores": [
+                0.524,
+                0.504,
+                0.474,
+                0.471,
+                0.461
+              ],
+              "top_1": 0.524,
+              "top_k": 0.461
+            },
+            {
+              "consulta": "que son los modelos de difusion",
+              "scores": [
+                0.59,
+                0.513,
+                0.477,
+                0.473,
+                0.416
+              ],
+              "top_1": 0.59,
+              "top_k": 0.416
+            },
+            {
+              "consulta": "que es la geometria semantica",
+              "scores": [
+                0.53,
+                0.522,
+                0.508,
+                0.474,
+                0.449
+              ],
+              "top_1": 0.53,
+              "top_k": 0.449
+            }
+          ],
+          "tangencial": [
+            {
+              "consulta": "que es la arquitectura transformer",
+              "scores": [
+                0.565,
+                0.441,
+                0.44,
+                0.428,
+                0.414
+              ],
+              "top_1": 0.565,
+              "top_k": 0.414
+            },
+            {
+              "consulta": "como se entrena una red neuronal",
+              "scores": [
+                0.521,
+                0.504,
+                0.502,
+                0.484,
+                0.477
+              ],
+              "top_1": 0.521,
+              "top_k": 0.477
+            }
+          ],
+          "ajena": [
+            {
+              "consulta": "cual es la capital de Francia",
+              "scores": [
+                0.172,
+                0.152,
+                0.133,
+                0.132,
+                0.129
+              ],
+              "top_1": 0.172,
+              "top_k": 0.129
+            },
+            {
+              "consulta": "como preparo una paella",
+              "scores": [
+                0.282,
+                0.242,
+                0.239,
+                0.217,
+                0.212
+              ],
+              "top_1": 0.282,
+              "top_k": 0.212
+            },
+            {
+              "consulta": "cuanto cuesta un billete de tren a Madrid",
+              "scores": [
+                0.189,
+                0.168,
+                0.165,
+                0.159,
+                0.157
+              ],
+              "top_1": 0.189,
+              "top_k": 0.157
+            }
+          ]
+        },
+        "analisis": {
+          "ruido_maximo": 0.282,
+          "senal_minima": 0.416,
+          "banda_vacia": 0.134,
+          "centro_de_la_banda": 0.349,
+          "hay_banda": true
+        }
+      }
+    },
+    "1000": {
+      "espacio": "exp-chunk-1000",
+      "fragmentos": 88,
+      "longitud_media": 850,
+      "longitud_max": 2785,
+      "sobre_recorte_produccion": 10,
+      "caracteres_que_perderia_el_recorte": 5021,
+      "anclas_partidas_en_preguntas": [],
+      "tokens_indexado": 22986,
+      "top_5": {
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.238,
+            "hit_3": 0.524,
+            "hit_5": 0.667,
+            "mrr": 0.386
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.5,
+            "mrr": 0.133
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.25,
+            "hit_3": 0.625,
+            "hit_5": 0.75,
+            "mrr": 0.463
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.0,
+            "hit_5": 0.333,
+            "mrr": 0.067
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.333,
+            "hit_3": 1.0,
+            "hit_5": 1.0,
+            "mrr": 0.555
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.667
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                3
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.639,
+              0.629,
+              0.609,
+              0.553,
+              0.525
+            ],
+            "ids": [
+              "doc-37-chunk-3",
+              "doc-39-chunk-0",
+              "doc-40-chunk-0",
+              "doc-39-chunk-12",
+              "doc-39-chunk-13"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.594,
+              0.591,
+              0.554,
+              0.545,
+              0.539
+            ],
+            "ids": [
+              "doc-44-chunk-2",
+              "doc-43-chunk-0",
+              "doc-44-chunk-1",
+              "doc-43-chunk-3",
+              "doc-43-chunk-5"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.788,
+              0.612,
+              0.542,
+              0.508,
+              0.499
+            ],
+            "ids": [
+              "doc-44-chunk-10",
+              "doc-44-chunk-15",
+              "doc-44-chunk-11",
+              "doc-44-chunk-4",
+              "doc-44-chunk-18"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                5
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.712,
+              0.626,
+              0.547,
+              0.545,
+              0.527
+            ],
+            "ids": [
+              "doc-44-chunk-10",
+              "doc-44-chunk-15",
+              "doc-44-chunk-11",
+              "doc-44-chunk-9",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.539,
+              0.492,
+              0.488,
+              0.48,
+              0.477
+            ],
+            "ids": [
+              "doc-39-chunk-11",
+              "doc-39-chunk-9",
+              "doc-38-chunk-2",
+              "doc-40-chunk-4",
+              "doc-39-chunk-7"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.44,
+              0.435,
+              0.372,
+              0.333,
+              0.33
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-4",
+              "doc-41-chunk-3",
+              "doc-43-chunk-2",
+              "doc-40-chunk-5"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.564,
+              0.558,
+              0.539,
+              0.512,
+              0.491
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-40-chunk-7",
+              "doc-40-chunk-14",
+              "doc-40-chunk-15",
+              "doc-40-chunk-8"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.605,
+              0.59,
+              0.587,
+              0.524,
+              0.507
+            ],
+            "ids": [
+              "doc-40-chunk-7",
+              "doc-40-chunk-14",
+              "doc-40-chunk-15",
+              "doc-40-chunk-8",
+              "doc-40-chunk-6"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.459,
+              0.424,
+              0.363,
+              0.363,
+              0.36
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-2",
+              "doc-44-chunk-5",
+              "doc-36-chunk-4",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.704,
+              0.599,
+              0.46,
+              0.444,
+              0.441
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-2",
+              "doc-36-chunk-0",
+              "doc-36-chunk-1",
+              "doc-36-chunk-4"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.735,
+              0.632,
+              0.563,
+              0.555,
+              0.552
+            ],
+            "ids": [
+              "doc-44-chunk-7",
+              "doc-44-chunk-8",
+              "doc-44-chunk-6",
+              "doc-44-chunk-12",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                5
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.653,
+              0.643,
+              0.582,
+              0.548,
+              0.546
+            ],
+            "ids": [
+              "doc-44-chunk-7",
+              "doc-44-chunk-6",
+              "doc-44-chunk-5",
+              "doc-44-chunk-11",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.534,
+              0.515,
+              0.508,
+              0.421,
+              0.408
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-43-chunk-3",
+              "doc-43-chunk-2",
+              "doc-39-chunk-17",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.354,
+              0.352,
+              0.326,
+              0.322
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-36-chunk-3",
+              "gap-38-answer",
+              "doc-40-chunk-5",
+              "doc-36-chunk-2"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.378,
+              0.374,
+              0.371,
+              0.37
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-43-chunk-2",
+              "doc-43-chunk-3",
+              "doc-41-chunk-0",
+              "doc-40-chunk-4"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.41,
+              0.247,
+              0.233,
+              0.225,
+              0.219
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-43-chunk-3",
+              "doc-44-chunk-5",
+              "doc-43-chunk-0",
+              "doc-41-chunk-0"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.303,
+              0.279,
+              0.25,
+              0.247,
+              0.246
+            ],
+            "ids": [
+              "doc-44-chunk-20",
+              "doc-44-chunk-7",
+              "doc-44-chunk-5",
+              "doc-41-chunk-0",
+              "doc-44-chunk-6"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.137,
+              0.132,
+              0.127,
+              0.125,
+              0.118
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-44-chunk-1",
+              "doc-40-chunk-7",
+              "doc-44-chunk-3",
+              "doc-40-chunk-12"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                5
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.576,
+              0.549,
+              0.536,
+              0.527,
+              0.526
+            ],
+            "ids": [
+              "doc-44-chunk-12",
+              "doc-44-chunk-5",
+              "doc-44-chunk-9",
+              "doc-44-chunk-4",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.573,
+              0.526,
+              0.516,
+              0.502,
+              0.493
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-40-chunk-12",
+              "doc-37-chunk-3",
+              "doc-37-chunk-0",
+              "doc-40-chunk-15"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.623,
+              0.596,
+              0.581,
+              0.575,
+              0.57
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-40-chunk-8",
+              "doc-40-chunk-12",
+              "doc-40-chunk-6",
+              "doc-40-chunk-0"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.688,
+              0.679,
+              0.666,
+              0.659,
+              0.623
+            ],
+            "ids": [
+              "doc-39-chunk-12",
+              "doc-39-chunk-13",
+              "doc-38-chunk-3",
+              "doc-37-chunk-3",
+              "doc-39-chunk-0"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.627,
+              0.555,
+              0.447,
+              0.415,
+              0.409
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-2",
+              "doc-36-chunk-1",
+              "doc-36-chunk-0",
+              "doc-40-chunk-2"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.517,
+              0.517,
+              0.514,
+              0.433,
+              0.412
+            ],
+            "ids": [
+              "doc-41-chunk-0",
+              "doc-41-chunk-4",
+              "doc-41-chunk-1",
+              "doc-43-chunk-3",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.615,
+              0.599,
+              0.465,
+              0.351,
+              0.324
+            ],
+            "ids": [
+              "doc-41-chunk-1",
+              "doc-41-chunk-4",
+              "doc-41-chunk-0",
+              "doc-37-chunk-2",
+              "doc-40-chunk-16"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.535,
+              0.498,
+              0.494,
+              0.488
+            ],
+            "ids": [
+              "doc-39-chunk-13",
+              "doc-39-chunk-12",
+              "doc-37-chunk-3",
+              "doc-40-chunk-4",
+              "doc-39-chunk-14"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.413,
+              0.379,
+              0.371,
+              0.37,
+              0.364
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-37-chunk-0",
+              "doc-38-chunk-1",
+              "doc-39-chunk-17",
+              "doc-37-chunk-3"
+            ]
+          }
+        ]
+      },
+      "mismo_volumen": {
+        "k": 5,
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.238,
+            "hit_3": 0.524,
+            "hit_5": 0.667,
+            "mrr": 0.386
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.5,
+            "mrr": 0.133
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.25,
+            "hit_3": 0.625,
+            "hit_5": 0.75,
+            "mrr": 0.463
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.0,
+            "hit_5": 0.333,
+            "mrr": 0.067
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.333,
+            "hit_3": 1.0,
+            "hit_5": 1.0,
+            "mrr": 0.555
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.667
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                3
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.639,
+              0.629,
+              0.609,
+              0.554,
+              0.525
+            ],
+            "ids": [
+              "doc-37-chunk-3",
+              "doc-39-chunk-0",
+              "doc-40-chunk-0",
+              "doc-39-chunk-12",
+              "doc-39-chunk-13"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.594,
+              0.591,
+              0.554,
+              0.545,
+              0.539
+            ],
+            "ids": [
+              "doc-44-chunk-2",
+              "doc-43-chunk-0",
+              "doc-44-chunk-1",
+              "doc-43-chunk-3",
+              "doc-43-chunk-5"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.788,
+              0.612,
+              0.542,
+              0.508,
+              0.499
+            ],
+            "ids": [
+              "doc-44-chunk-10",
+              "doc-44-chunk-15",
+              "doc-44-chunk-11",
+              "doc-44-chunk-4",
+              "doc-44-chunk-18"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                5
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.712,
+              0.626,
+              0.547,
+              0.545,
+              0.527
+            ],
+            "ids": [
+              "doc-44-chunk-10",
+              "doc-44-chunk-15",
+              "doc-44-chunk-11",
+              "doc-44-chunk-9",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.539,
+              0.492,
+              0.488,
+              0.48,
+              0.477
+            ],
+            "ids": [
+              "doc-39-chunk-11",
+              "doc-39-chunk-9",
+              "doc-38-chunk-2",
+              "doc-40-chunk-4",
+              "doc-39-chunk-7"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.44,
+              0.435,
+              0.372,
+              0.333,
+              0.33
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-4",
+              "doc-41-chunk-3",
+              "doc-43-chunk-2",
+              "doc-40-chunk-5"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.564,
+              0.558,
+              0.539,
+              0.512,
+              0.491
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-40-chunk-7",
+              "doc-40-chunk-14",
+              "doc-40-chunk-15",
+              "doc-40-chunk-8"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.605,
+              0.59,
+              0.587,
+              0.524,
+              0.507
+            ],
+            "ids": [
+              "doc-40-chunk-7",
+              "doc-40-chunk-14",
+              "doc-40-chunk-15",
+              "doc-40-chunk-8",
+              "doc-40-chunk-6"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                1
+              ],
+              "encontradas": 2,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.459,
+              0.424,
+              0.363,
+              0.363,
+              0.36
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-2",
+              "doc-44-chunk-5",
+              "doc-36-chunk-4",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.704,
+              0.599,
+              0.46,
+              0.444,
+              0.441
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-2",
+              "doc-36-chunk-0",
+              "doc-36-chunk-1",
+              "doc-36-chunk-4"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.735,
+              0.632,
+              0.563,
+              0.555,
+              0.552
+            ],
+            "ids": [
+              "doc-44-chunk-7",
+              "doc-44-chunk-8",
+              "doc-44-chunk-6",
+              "doc-44-chunk-12",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                3,
+                5
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.653,
+              0.643,
+              0.582,
+              0.548,
+              0.546
+            ],
+            "ids": [
+              "doc-44-chunk-7",
+              "doc-44-chunk-6",
+              "doc-44-chunk-5",
+              "doc-44-chunk-11",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.534,
+              0.515,
+              0.508,
+              0.421,
+              0.408
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-43-chunk-3",
+              "doc-43-chunk-2",
+              "doc-39-chunk-17",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.354,
+              0.352,
+              0.326,
+              0.322
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-36-chunk-3",
+              "gap-38-answer",
+              "doc-40-chunk-5",
+              "doc-36-chunk-2"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.378,
+              0.374,
+              0.37,
+              0.37
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-43-chunk-2",
+              "doc-43-chunk-3",
+              "doc-41-chunk-0",
+              "doc-40-chunk-4"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.41,
+              0.247,
+              0.233,
+              0.225,
+              0.219
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-43-chunk-3",
+              "doc-44-chunk-5",
+              "doc-43-chunk-0",
+              "doc-41-chunk-0"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.303,
+              0.279,
+              0.25,
+              0.247,
+              0.246
+            ],
+            "ids": [
+              "doc-44-chunk-20",
+              "doc-44-chunk-7",
+              "doc-44-chunk-5",
+              "doc-41-chunk-0",
+              "doc-44-chunk-6"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.137,
+              0.132,
+              0.127,
+              0.125,
+              0.118
+            ],
+            "ids": [
+              "doc-40-chunk-6",
+              "doc-44-chunk-1",
+              "doc-40-chunk-7",
+              "doc-44-chunk-3",
+              "doc-40-chunk-12"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                5
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.2
+            },
+            "scores": [
+              0.576,
+              0.549,
+              0.536,
+              0.527,
+              0.526
+            ],
+            "ids": [
+              "doc-44-chunk-12",
+              "doc-44-chunk-5",
+              "doc-44-chunk-9",
+              "doc-44-chunk-4",
+              "doc-43-chunk-4"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.573,
+              0.526,
+              0.516,
+              0.502,
+              0.493
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-40-chunk-12",
+              "doc-37-chunk-3",
+              "doc-37-chunk-0",
+              "doc-40-chunk-15"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.623,
+              0.596,
+              0.581,
+              0.575,
+              0.57
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-40-chunk-8",
+              "doc-40-chunk-12",
+              "doc-40-chunk-6",
+              "doc-40-chunk-0"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.688,
+              0.679,
+              0.667,
+              0.659,
+              0.623
+            ],
+            "ids": [
+              "doc-39-chunk-12",
+              "doc-39-chunk-13",
+              "doc-38-chunk-3",
+              "doc-37-chunk-3",
+              "doc-39-chunk-0"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.627,
+              0.555,
+              0.447,
+              0.415,
+              0.409
+            ],
+            "ids": [
+              "doc-36-chunk-3",
+              "doc-36-chunk-2",
+              "doc-36-chunk-1",
+              "doc-36-chunk-0",
+              "doc-40-chunk-2"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.517,
+              0.517,
+              0.514,
+              0.433,
+              0.412
+            ],
+            "ids": [
+              "doc-41-chunk-4",
+              "doc-41-chunk-0",
+              "doc-41-chunk-1",
+              "doc-43-chunk-3",
+              "doc-44-chunk-12"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.615,
+              0.599,
+              0.465,
+              0.351,
+              0.324
+            ],
+            "ids": [
+              "doc-41-chunk-1",
+              "doc-41-chunk-4",
+              "doc-41-chunk-0",
+              "doc-37-chunk-2",
+              "doc-40-chunk-16"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.535,
+              0.498,
+              0.494,
+              0.488
+            ],
+            "ids": [
+              "doc-39-chunk-13",
+              "doc-39-chunk-12",
+              "doc-37-chunk-3",
+              "doc-40-chunk-4",
+              "doc-39-chunk-14"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.413,
+              0.379,
+              0.371,
+              0.37,
+              0.365
+            ],
+            "ids": [
+              "doc-37-chunk-2",
+              "doc-37-chunk-0",
+              "doc-38-chunk-1",
+              "doc-39-chunk-17",
+              "doc-37-chunk-3"
+            ]
+          }
+        ]
+      },
+      "banda": {
+        "consultas": {
+          "cubierta": [
+            {
+              "consulta": "que son las GANs",
+              "scores": [
+                0.584,
+                0.546,
+                0.537,
+                0.494,
+                0.471
+              ],
+              "top_1": 0.584,
+              "top_k": 0.471
+            },
+            {
+              "consulta": "que es un VAE",
+              "scores": [
+                0.487,
+                0.474,
+                0.471,
+                0.461,
+                0.436
+              ],
+              "top_1": 0.487,
+              "top_k": 0.436
+            },
+            {
+              "consulta": "que son los modelos de difusion",
+              "scores": [
+                0.59,
+                0.415,
+                0.404,
+                0.403,
+                0.393
+              ],
+              "top_1": 0.59,
+              "top_k": 0.393
+            },
+            {
+              "consulta": "que es la geometria semantica",
+              "scores": [
+                0.561,
+                0.469,
+                0.457,
+                0.451,
+                0.447
+              ],
+              "top_1": 0.561,
+              "top_k": 0.447
+            }
+          ],
+          "tangencial": [
+            {
+              "consulta": "que es la arquitectura transformer",
+              "scores": [
+                0.565,
+                0.417,
+                0.405,
+                0.403,
+                0.359
+              ],
+              "top_1": 0.565,
+              "top_k": 0.359
+            },
+            {
+              "consulta": "como se entrena una red neuronal",
+              "scores": [
+                0.531,
+                0.499,
+                0.486,
+                0.485,
+                0.482
+              ],
+              "top_1": 0.531,
+              "top_k": 0.482
+            }
+          ],
+          "ajena": [
+            {
+              "consulta": "cual es la capital de Francia",
+              "scores": [
+                0.139,
+                0.139,
+                0.131,
+                0.124,
+                0.124
+              ],
+              "top_1": 0.139,
+              "top_k": 0.124
+            },
+            {
+              "consulta": "como preparo una paella",
+              "scores": [
+                0.257,
+                0.22,
+                0.212,
+                0.193,
+                0.187
+              ],
+              "top_1": 0.257,
+              "top_k": 0.187
+            },
+            {
+              "consulta": "cuanto cuesta un billete de tren a Madrid",
+              "scores": [
+                0.193,
+                0.163,
+                0.149,
+                0.146,
+                0.145
+              ],
+              "top_1": 0.193,
+              "top_k": 0.145
+            }
+          ]
+        },
+        "analisis": {
+          "ruido_maximo": 0.257,
+          "senal_minima": 0.393,
+          "banda_vacia": 0.136,
+          "centro_de_la_banda": 0.325,
+          "hay_banda": true
+        }
+      }
+    },
+    "1500": {
+      "espacio": "exp-chunk-1500",
+      "fragmentos": 60,
+      "longitud_media": 1248,
+      "longitud_max": 2785,
+      "sobre_recorte_produccion": 50,
+      "caracteres_que_perderia_el_recorte": 20930,
+      "anclas_partidas_en_preguntas": [],
+      "tokens_indexado": 22989,
+      "top_5": {
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.286,
+            "hit_3": 0.524,
+            "hit_5": 0.714,
+            "mrr": 0.444
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.75,
+            "mrr": 0.208
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.375,
+            "hit_3": 0.625,
+            "hit_5": 0.75,
+            "mrr": 0.531
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.333,
+            "hit_5": 0.333,
+            "mrr": 0.167
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.333,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.5
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 1.0,
+            "mrr": 0.75
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                4
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.25
+            },
+            "scores": [
+              0.628,
+              0.611,
+              0.602,
+              0.601,
+              0.574
+            ],
+            "ids": [
+              "doc-39-chunk-0",
+              "doc-37-chunk-2",
+              "doc-39-chunk-7",
+              "doc-40-chunk-0",
+              "doc-37-chunk-1"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.605,
+              0.578,
+              0.569,
+              0.566,
+              0.535
+            ],
+            "ids": [
+              "doc-43-chunk-0",
+              "doc-37-chunk-1",
+              "doc-44-chunk-1",
+              "doc-43-chunk-2",
+              "doc-43-chunk-3"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.583,
+              0.505,
+              0.451,
+              0.447,
+              0.401
+            ],
+            "ids": [
+              "doc-44-chunk-6",
+              "doc-44-chunk-7",
+              "doc-44-chunk-3",
+              "doc-44-chunk-2",
+              "doc-44-chunk-9"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                4
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.25
+            },
+            "scores": [
+              0.627,
+              0.526,
+              0.525,
+              0.506,
+              0.503
+            ],
+            "ids": [
+              "doc-44-chunk-6",
+              "doc-44-chunk-7",
+              "doc-44-chunk-9",
+              "doc-44-chunk-8",
+              "doc-44-chunk-3"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                0,
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.606,
+              0.492,
+              0.48,
+              0.45,
+              0.448
+            ],
+            "ids": [
+              "doc-39-chunk-7",
+              "doc-39-chunk-5",
+              "doc-40-chunk-2",
+              "doc-39-chunk-6",
+              "doc-39-chunk-4"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.439,
+              0.435,
+              0.33,
+              0.314,
+              0.307
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-2",
+              "doc-40-chunk-3",
+              "doc-41-chunk-2",
+              "doc-40-chunk-6"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.57,
+              0.505,
+              0.498,
+              0.491,
+              0.447
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-37-chunk-2",
+              "doc-40-chunk-11",
+              "doc-40-chunk-5",
+              "doc-40-chunk-8"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.614,
+              0.544,
+              0.526,
+              0.524,
+              0.494
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-40-chunk-12",
+              "doc-40-chunk-11",
+              "doc-40-chunk-5",
+              "doc-37-chunk-2"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                2
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.462,
+              0.461,
+              0.363,
+              0.356,
+              0.342
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-0",
+              "doc-36-chunk-2",
+              "doc-43-chunk-2",
+              "doc-44-chunk-7"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.613,
+              0.606,
+              0.472,
+              0.435,
+              0.397
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-2",
+              "doc-36-chunk-0",
+              "doc-36-chunk-3",
+              "doc-39-chunk-6"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                3
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.333
+            },
+            "scores": [
+              0.697,
+              0.68,
+              0.534,
+              0.457,
+              0.446
+            ],
+            "ids": [
+              "doc-44-chunk-4",
+              "doc-44-chunk-5",
+              "doc-44-chunk-7",
+              "doc-44-chunk-8",
+              "doc-44-chunk-3"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                4,
+                3
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.25
+            },
+            "scores": [
+              0.669,
+              0.572,
+              0.572,
+              0.508,
+              0.486
+            ],
+            "ids": [
+              "doc-44-chunk-4",
+              "doc-44-chunk-5",
+              "doc-44-chunk-7",
+              "doc-44-chunk-3",
+              "doc-44-chunk-9"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.522,
+              0.471,
+              0.421,
+              0.419,
+              0.402
+            ],
+            "ids": [
+              "doc-43-chunk-1",
+              "doc-41-chunk-2",
+              "doc-43-chunk-3",
+              "doc-39-chunk-11",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.354,
+              0.352,
+              0.333,
+              0.326
+            ],
+            "ids": [
+              "doc-40-chunk-2",
+              "doc-36-chunk-1",
+              "gap-38-answer",
+              "doc-36-chunk-2",
+              "doc-40-chunk-3"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.37,
+              0.369,
+              0.369,
+              0.359,
+              0.359
+            ],
+            "ids": [
+              "doc-40-chunk-2",
+              "gap-38-answer",
+              "doc-41-chunk-3",
+              "doc-41-chunk-0",
+              "doc-43-chunk-3"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.41,
+              0.24,
+              0.223,
+              0.223,
+              0.216
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-41-chunk-3",
+              "doc-43-chunk-0",
+              "doc-44-chunk-2",
+              "doc-41-chunk-0"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.304,
+              0.265,
+              0.261,
+              0.255,
+              0.245
+            ],
+            "ids": [
+              "doc-44-chunk-13",
+              "doc-44-chunk-4",
+              "doc-39-chunk-2",
+              "doc-44-chunk-5",
+              "doc-41-chunk-0"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.118,
+              0.118,
+              0.111,
+              0.103,
+              0.103
+            ],
+            "ids": [
+              "doc-40-chunk-9",
+              "doc-44-chunk-1",
+              "doc-40-chunk-4",
+              "doc-44-chunk-12",
+              "doc-44-chunk-4"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.586,
+              0.554,
+              0.547,
+              0.524,
+              0.516
+            ],
+            "ids": [
+              "doc-44-chunk-3",
+              "doc-44-chunk-8",
+              "doc-43-chunk-0",
+              "doc-44-chunk-1",
+              "doc-44-chunk-6"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.527,
+              0.512,
+              0.5,
+              0.498,
+              0.491
+            ],
+            "ids": [
+              "doc-40-chunk-9",
+              "doc-37-chunk-2",
+              "doc-37-chunk-0",
+              "doc-37-chunk-1",
+              "doc-38-chunk-2"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.596,
+              0.591,
+              0.587,
+              0.586,
+              0.582
+            ],
+            "ids": [
+              "doc-40-chunk-5",
+              "doc-40-chunk-4",
+              "doc-40-chunk-0",
+              "doc-37-chunk-1",
+              "doc-40-chunk-9"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 5,
+              "rr": 0.0
+            },
+            "scores": [
+              0.679,
+              0.673,
+              0.65,
+              0.632,
+              0.628
+            ],
+            "ids": [
+              "doc-39-chunk-8",
+              "doc-39-chunk-7",
+              "doc-37-chunk-2",
+              "doc-38-chunk-1",
+              "doc-39-chunk-0"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.563,
+              0.56,
+              0.432,
+              0.401,
+              0.388
+            ],
+            "ids": [
+              "doc-36-chunk-2",
+              "doc-36-chunk-1",
+              "doc-36-chunk-0",
+              "doc-40-chunk-1",
+              "doc-36-chunk-3"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.5
+            },
+            "scores": [
+              0.529,
+              0.518,
+              0.435,
+              0.421,
+              0.41
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-41-chunk-0",
+              "doc-41-chunk-1",
+              "doc-36-chunk-2",
+              "doc-43-chunk-2"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.669,
+              0.493,
+              0.471,
+              0.442,
+              0.342
+            ],
+            "ids": [
+              "doc-41-chunk-1",
+              "doc-41-chunk-0",
+              "doc-41-chunk-2",
+              "doc-41-chunk-3",
+              "doc-37-chunk-1"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.559,
+              0.509,
+              0.5,
+              0.494
+            ],
+            "ids": [
+              "doc-39-chunk-8",
+              "doc-39-chunk-7",
+              "doc-39-chunk-9",
+              "doc-39-chunk-10",
+              "doc-40-chunk-2"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                4
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 5,
+              "rr": 0.25
+            },
+            "scores": [
+              0.422,
+              0.387,
+              0.363,
+              0.361,
+              0.351
+            ],
+            "ids": [
+              "doc-37-chunk-1",
+              "doc-37-chunk-0",
+              "doc-39-chunk-11",
+              "doc-40-chunk-3",
+              "doc-40-chunk-12"
+            ]
+          }
+        ]
+      },
+      "mismo_volumen": {
+        "k": 3,
+        "resumen": {
+          "todas": {
+            "n": 21,
+            "hit_1": 0.286,
+            "hit_3": 0.524,
+            "hit_5": 0.524,
+            "mrr": 0.397
+          },
+          "multi": {
+            "n": 4,
+            "hit_1": 0.0,
+            "hit_3": 0.25,
+            "hit_5": 0.25,
+            "mrr": 0.083
+          },
+          "literal": {
+            "n": 8,
+            "hit_1": 0.375,
+            "hit_3": 0.625,
+            "hit_5": 0.625,
+            "mrr": 0.5
+          },
+          "parafrasis": {
+            "n": 3,
+            "hit_1": 0.0,
+            "hit_3": 0.333,
+            "hit_5": 0.333,
+            "mrr": 0.167
+          },
+          "premisa_falsa": {
+            "n": 3,
+            "hit_1": 0.333,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.5
+          },
+          "parcial": {
+            "n": 3,
+            "hit_1": 0.667,
+            "hit_3": 0.667,
+            "hit_5": 0.667,
+            "mrr": 0.667
+          }
+        },
+        "por_pregunta": [
+          {
+            "id": 1,
+            "tipo": "multi",
+            "pregunta": "¿Qué tipos de IA generativa existen?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.628,
+              0.611,
+              0.603
+            ],
+            "ids": [
+              "doc-39-chunk-0",
+              "doc-37-chunk-2",
+              "doc-39-chunk-7"
+            ]
+          },
+          {
+            "id": 2,
+            "tipo": "literal",
+            "pregunta": "¿Cómo se presentan los vectores en la IA?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.605,
+              0.578,
+              0.569
+            ],
+            "ids": [
+              "doc-43-chunk-0",
+              "doc-37-chunk-1",
+              "doc-44-chunk-1"
+            ]
+          },
+          {
+            "id": 3,
+            "tipo": "literal",
+            "pregunta": "¿Qué es la similitud coseno?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.583,
+              0.505,
+              0.451
+            ],
+            "ids": [
+              "doc-44-chunk-6",
+              "doc-44-chunk-7",
+              "doc-44-chunk-3"
+            ]
+          },
+          {
+            "id": 4,
+            "tipo": "literal",
+            "pregunta": "¿Por qué es óptima la similitud coseno en la semántica direccional?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.627,
+              0.526,
+              0.525
+            ],
+            "ids": [
+              "doc-44-chunk-6",
+              "doc-44-chunk-7",
+              "doc-44-chunk-9"
+            ]
+          },
+          {
+            "id": 5,
+            "tipo": "multi",
+            "pregunta": "¿Qué diferencias hay entre las GAN y los VAE?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                0,
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.606,
+              0.492,
+              0.48
+            ],
+            "ids": [
+              "doc-39-chunk-7",
+              "doc-39-chunk-5",
+              "doc-40-chunk-2"
+            ]
+          },
+          {
+            "id": 6,
+            "tipo": "literal",
+            "pregunta": "¿Qué es un LLM?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 0.5
+            },
+            "scores": [
+              0.439,
+              0.435,
+              0.33
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-40-chunk-2",
+              "doc-40-chunk-3"
+            ]
+          },
+          {
+            "id": 7,
+            "tipo": "literal",
+            "pregunta": "¿Qué tipos de datos procesa GPT-4o?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.57,
+              0.505,
+              0.498
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-37-chunk-2",
+              "doc-40-chunk-11"
+            ]
+          },
+          {
+            "id": 8,
+            "tipo": "literal",
+            "pregunta": "¿Qué diferencias hay entre GPT-4o y Gemini 2.0?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.614,
+              0.544,
+              0.526
+            ],
+            "ids": [
+              "doc-40-chunk-4",
+              "doc-40-chunk-12",
+              "doc-40-chunk-11"
+            ]
+          },
+          {
+            "id": 9,
+            "tipo": "literal",
+            "pregunta": "¿Qué son los hiperparámetros? ¿Y los parámetros?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                2
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 0.5
+            },
+            "scores": [
+              0.462,
+              0.461,
+              0.363
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-0",
+              "doc-36-chunk-2"
+            ]
+          },
+          {
+            "id": 10,
+            "tipo": "literal",
+            "pregunta": "¿Qué es el learning rate en deep learning?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.613,
+              0.606,
+              0.472
+            ],
+            "ids": [
+              "doc-36-chunk-1",
+              "doc-36-chunk-2",
+              "doc-36-chunk-0"
+            ]
+          },
+          {
+            "id": 11,
+            "tipo": "multi",
+            "pregunta": "¿En qué se diferencian la distancia Euclídea y la de Manhattan?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                2,
+                3
+              ],
+              "encontradas": 2,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 0.333
+            },
+            "scores": [
+              0.697,
+              0.68,
+              0.534
+            ],
+            "ids": [
+              "doc-44-chunk-4",
+              "doc-44-chunk-5",
+              "doc-44-chunk-7"
+            ]
+          },
+          {
+            "id": 12,
+            "tipo": "multi",
+            "pregunta": "¿En qué teorema se basa la distancia Euclídea (L2) y para qué tipo de datos es ideal?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                0,
+                3
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.669,
+              0.572,
+              0.572
+            ],
+            "ids": [
+              "doc-44-chunk-4",
+              "doc-44-chunk-5",
+              "doc-44-chunk-7"
+            ]
+          },
+          {
+            "id": 13,
+            "tipo": "sin_respuesta",
+            "pregunta": "En una arquitectura RAG, ¿qué problema resuelve el uso de un reranker tras recuperar documentos?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.522,
+              0.471,
+              0.421
+            ],
+            "ids": [
+              "doc-43-chunk-1",
+              "doc-41-chunk-2",
+              "doc-43-chunk-3"
+            ]
+          },
+          {
+            "id": 14,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué ocurre cuando la temperatura de un LLM aumenta, manteniendo iguales los demás parámetros?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.381,
+              0.354,
+              0.352
+            ],
+            "ids": [
+              "doc-40-chunk-2",
+              "doc-36-chunk-1",
+              "gap-38-answer"
+            ]
+          },
+          {
+            "id": 15,
+            "tipo": "sin_respuesta",
+            "pregunta": "En fine-tuning con LoRA, ¿cuál es la idea principal?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.37,
+              0.369,
+              0.369
+            ],
+            "ids": [
+              "doc-40-chunk-2",
+              "gap-38-answer",
+              "doc-41-chunk-3"
+            ]
+          },
+          {
+            "id": 16,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué es el sistema aduanero?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.41,
+              0.24,
+              0.223
+            ],
+            "ids": [
+              "gap-38-answer",
+              "doc-41-chunk-3",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 17,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Qué hora es?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.304,
+              0.265,
+              0.261
+            ],
+            "ids": [
+              "doc-44-chunk-13",
+              "doc-44-chunk-4",
+              "doc-39-chunk-2"
+            ]
+          },
+          {
+            "id": 18,
+            "tipo": "sin_respuesta",
+            "pregunta": "¿Cuál es la capital de Francia?",
+            "anclas": {
+              "aplica": false
+            },
+            "scores": [
+              0.119,
+              0.118,
+              0.111
+            ],
+            "ids": [
+              "doc-40-chunk-9",
+              "doc-44-chunk-1",
+              "doc-40-chunk-4"
+            ]
+          },
+          {
+            "id": 19,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué técnica de medición entre vectores se utiliza preferentemente con representaciones numéricas de textos por ser inmune a las variaciones en la extensión de los documentos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.586,
+              0.554,
+              0.547
+            ],
+            "ids": [
+              "doc-44-chunk-3",
+              "doc-44-chunk-8",
+              "doc-43-chunk-0"
+            ]
+          },
+          {
+            "id": 20,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué tipo de sistema de inteligencia artificial entiende y escribe textos como los de una persona, adivinando la palabra que viene después, y sirve para contestar dudas o hacer resúmenes?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.527,
+              0.512,
+              0.5
+            ],
+            "ids": [
+              "doc-40-chunk-9",
+              "doc-37-chunk-2",
+              "doc-37-chunk-0"
+            ]
+          },
+          {
+            "id": 21,
+            "tipo": "parafrasis",
+            "pregunta": "¿Qué sistema desarrollado por OpenAI, fundamentado en la arquitectura Transformer, procesa y genera de forma simultánea contenido hablado, visual y escrito en tiempo real, encontrándose disponible mediante opciones de acceso libre y de suscripción?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 0.5
+            },
+            "scores": [
+              0.596,
+              0.591,
+              0.587
+            ],
+            "ids": [
+              "doc-40-chunk-5",
+              "doc-40-chunk-4",
+              "doc-40-chunk-0"
+            ]
+          },
+          {
+            "id": 22,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿De qué manera la arquitectura dual de las Redes Generativas Antagónicas (GAN) permite una generación de texto tan efectiva frente a otros modelos?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                0
+              ],
+              "encontradas": 0,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.679,
+              0.673,
+              0.65
+            ],
+            "ids": [
+              "doc-39-chunk-8",
+              "doc-39-chunk-7",
+              "doc-37-chunk-2"
+            ]
+          },
+          {
+            "id": 23,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué es necesario reducir el learning rate (tasa de aprendizaje) cuando aumentamos el tamaño del batch size para evitar inestabilidad en el entrenamiento?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.563,
+              0.56,
+              0.432
+            ],
+            "ids": [
+              "doc-36-chunk-2",
+              "doc-36-chunk-1",
+              "doc-36-chunk-0"
+            ]
+          },
+          {
+            "id": 24,
+            "tipo": "premisa_falsa",
+            "pregunta": "¿Por qué el método HTTP GET es el estándar recomendado para enviar datos al servidor y ejecutar la inferencia de un modelo en las APIs?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                2
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 0.5
+            },
+            "scores": [
+              0.529,
+              0.518,
+              0.434
+            ],
+            "ids": [
+              "doc-41-chunk-3",
+              "doc-41-chunk-0",
+              "doc-41-chunk-1"
+            ]
+          },
+          {
+            "id": 25,
+            "tipo": "parcial",
+            "pregunta": "¿Cuáles son las características principales de FastAPI como herramienta para desarrolladores de Python e IA, y quién fue su creador?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.669,
+              0.493,
+              0.471
+            ],
+            "ids": [
+              "doc-41-chunk-1",
+              "doc-41-chunk-0",
+              "doc-41-chunk-2"
+            ]
+          },
+          {
+            "id": 26,
+            "tipo": "parcial",
+            "pregunta": "¿En qué se diferencia StyleGAN de otras variantes de GAN en cuanto a su funcionamiento, y qué empresa lo desarrolló?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 1,
+              "posiciones": [
+                1
+              ],
+              "encontradas": 1,
+              "hit_1": true,
+              "hit_3": true,
+              "hit_5": true,
+              "hallada": true,
+              "fragmentos_vistos": 3,
+              "rr": 1.0
+            },
+            "scores": [
+              0.632,
+              0.559,
+              0.509
+            ],
+            "ids": [
+              "doc-39-chunk-8",
+              "doc-39-chunk-7",
+              "doc-39-chunk-9"
+            ]
+          },
+          {
+            "id": 27,
+            "tipo": "parcial",
+            "pregunta": "¿Qué hito marcó el paper «Attention Is All You Need» de 2017 al introducir el mecanismo de autoatención en los modelos, y qué autores o institución lo publicaron?",
+            "anclas": {
+              "aplica": true,
+              "anclas": 2,
+              "posiciones": [
+                1,
+                0
+              ],
+              "encontradas": 1,
+              "hit_1": false,
+              "hit_3": false,
+              "hit_5": false,
+              "hallada": false,
+              "fragmentos_vistos": 3,
+              "rr": 0.0
+            },
+            "scores": [
+              0.42,
+              0.385,
+              0.361
+            ],
+            "ids": [
+              "doc-37-chunk-1",
+              "doc-37-chunk-0",
+              "doc-39-chunk-11"
+            ]
+          }
+        ]
+      },
+      "banda": {
+        "consultas": {
+          "cubierta": [
+            {
+              "consulta": "que son las GANs",
+              "scores": [
+                0.55,
+                0.546,
+                0.492,
+                0.47,
+                0.424
+              ],
+              "top_1": 0.55,
+              "top_k": 0.424
+            },
+            {
+              "consulta": "que es un VAE",
+              "scores": [
+                0.474,
+                0.433,
+                0.421,
+                0.418,
+                0.348
+              ],
+              "top_1": 0.474,
+              "top_k": 0.348
+            },
+            {
+              "consulta": "que son los modelos de difusion",
+              "scores": [
+                0.415,
+                0.4,
+                0.397,
+                0.356,
+                0.353
+              ],
+              "top_1": 0.415,
+              "top_k": 0.353
+            },
+            {
+              "consulta": "que es la geometria semantica",
+              "scores": [
+                0.536,
+                0.442,
+                0.438,
+                0.417,
+                0.409
+              ],
+              "top_1": 0.536,
+              "top_k": 0.409
+            }
+          ],
+          "tangencial": [
+            {
+              "consulta": "que es la arquitectura transformer",
+              "scores": [
+                0.575,
+                0.418,
+                0.404,
+                0.369,
+                0.362
+              ],
+              "top_1": 0.575,
+              "top_k": 0.362
+            },
+            {
+              "consulta": "como se entrena una red neuronal",
+              "scores": [
+                0.516,
+                0.502,
+                0.478,
+                0.468,
+                0.464
+              ],
+              "top_1": 0.516,
+              "top_k": 0.464
+            }
+          ],
+          "ajena": [
+            {
+              "consulta": "cual es la capital de Francia",
+              "scores": [
+                0.125,
+                0.116,
+                0.114,
+                0.105,
+                0.102
+              ],
+              "top_1": 0.125,
+              "top_k": 0.102
+            },
+            {
+              "consulta": "como preparo una paella",
+              "scores": [
+                0.201,
+                0.195,
+                0.191,
+                0.186,
+                0.184
+              ],
+              "top_1": 0.201,
+              "top_k": 0.184
+            },
+            {
+              "consulta": "cuanto cuesta un billete de tren a Madrid",
+              "scores": [
+                0.168,
+                0.153,
+                0.146,
+                0.139,
+                0.135
+              ],
+              "top_1": 0.168,
+              "top_k": 0.135
+            }
+          ]
+        },
+        "analisis": {
+          "ruido_maximo": 0.201,
+          "senal_minima": 0.348,
+          "banda_vacia": 0.147,
+          "centro_de_la_banda": 0.274,
+          "hay_banda": true
+        }
+      }
+    }
+  }
+}

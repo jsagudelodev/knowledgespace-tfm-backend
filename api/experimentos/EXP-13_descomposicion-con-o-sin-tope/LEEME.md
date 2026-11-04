@@ -167,7 +167,6 @@ caso donde fallan, la sin tope tenía los mismos cinco fragmentos más otros
 cinco de ruido, y con ese ruido el modelo se abstuvo. Recuperar más no es
 responder mejor, y esa es la razón de tener tope.»
 
-**Consecuencia para la memoria:** el capítulo 5 presenta el 88 % de la sin
-tope como el resultado de la configuración activa. Debe presentar la acotada
-(52 % de cobertura, desequilibrio 0,83) y este experimento como la razón de
-elegirla.
+**En la memoria** (corregido el 4 de noviembre): apartado 5.3, dentro del
+quinto experimento, con la tabla de la parte B. La decisión aparece en el
+párrafo «La descomposición acotada está activa».
