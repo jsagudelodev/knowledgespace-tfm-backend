@@ -2,7 +2,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+from app.schemas.mensajes_documento import mensaje_legible
 
 
 class DocumentStatus(str, Enum):
@@ -41,3 +43,10 @@ class DocumentResponse(BaseModel):
     updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+    # El error original se queda en la base de datos y en el log; al usuario le
+    # llega qué pasó y qué hacer. Ver `mensajes_documento.py`.
+    @field_validator("error_message")
+    @classmethod
+    def _legible(cls, v: Optional[str]) -> Optional[str]:
+        return mensaje_legible(v)
