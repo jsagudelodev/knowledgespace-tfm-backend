@@ -7,6 +7,7 @@ from sqlalchemy import text
 import app.db.models  # noqa: F401 — registra todos los mappers antes de que SQLAlchemy resuelva relaciones
 from app.core.config import settings
 from app.core.database import engine
+from app.core.error_handlers import registrar_manejadores
 from app.routers.v1.assistants import router as assistants_router
 from app.routers.v1.auth import router as auth_router
 from app.routers.v1.categories import router as categories_router
@@ -46,6 +47,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Errores no capturados: 503 si falla un proveedor, 500 si no; siempre JSON ─
+registrar_manejadores(app)
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth_router,         prefix="/api/v1/auth",          tags=["auth"])

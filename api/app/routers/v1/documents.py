@@ -269,14 +269,12 @@ async def upload_document(
 
     safe_filename = f"{uuid.uuid4().hex}.{file_extension}"
 
-    try:
-        s3 = S3Service()
-        key = S3Service.construir_key(company_id, safe_filename)
-        file_path = s3.subir_archivo(file, key)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error subiendo archivo a S3: {str(e)}"
-        ) from e
+    # Sin try/except: un fallo de S3 lo responde el manejador global
+    # (`app/core/error_handlers.py`) con un mensaje genérico, y el detalle
+    # va al log. Antes se devolvía `str(e)` al cliente, con la clave de S3.
+    s3 = S3Service()
+    key = S3Service.construir_key(company_id, safe_filename)
+    file_path = s3.subir_archivo(file, key)
 
     document = Document(
         company_id=company_id,
@@ -366,15 +364,20 @@ async def delete_document(
         )
         PineconeService().eliminar_por_documento(db_document.id, namespace=namespace)
     except Exception:
-        pass   # Si Pinecone falla no bloqueamos el borrado — el documento ya no es accesible
+        # No bloquea el borrado —el documento deja de ser accesible igual—, pero
+        # sus vectores quedan huérfanos en el índice: se deja constancia para
+        # poder limpiarlos. Antes era un `pass` y no quedaba ni rastro.
+        import logging
+        logging.getLogger("uvicorn.error").warning(
+            "[Documents] No se pudieron borrar los vectores de document_id=%s en Pinecone",
+            db_document.id, exc_info=True,
+        )
 
     # 2. Eliminar archivo de S3 — primero para no dejar huérfanos
-    try:
-        S3Service().eliminar_archivo(db_document.file_path)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error eliminando archivo de S3: {str(e)}"
-        ) from e
+    # Sin try/except: un fallo de S3 lo responde el manejador global
+    # (`app/core/error_handlers.py`) con un mensaje genérico, y el detalle
+    # va al log. Antes se devolvía `str(e)` al cliente, con la clave de S3.
+    S3Service().eliminar_archivo(db_document.file_path)
 
     # 3. Notificar al autor original, si fue otra persona quien borró
     if db_document.uploaded_by != current_user.id:
@@ -405,11 +408,11 @@ async def download_document(
     if not documento:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-    try:
-        url = S3Service().generar_url_temporal(documento.file_path, segundos=3600)
-        return JSONResponse({"url": url, "filename": documento.original_filename})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando URL de descarga: {str(e)}") from e
+    # Sin try/except: un fallo de S3 lo responde el manejador global
+    # (`app/core/error_handlers.py`) con un mensaje genérico, y el detalle
+    # va al log. Antes se devolvía `str(e)` al cliente, con la clave de S3.
+    url = S3Service().generar_url_temporal(documento.file_path, segundos=3600)
+    return JSONResponse({"url": url, "filename": documento.original_filename})
 
 
 @router.get("/{document_id}/chunks", summary="Ver los fragmentos indexados de un documento")
@@ -441,13 +444,9 @@ async def list_document_chunks(
     namespace = PineconeService.construir_namespace(
         documento.company_id, documento.assistant_id
     )
-    try:
-        fragmentos = PineconeService().listar_por_documento(document_id, namespace=namespace)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"No se pudieron leer los fragmentos del índice: {e}",
-        ) from e
+    # Un fallo de Pinecone (`VectorStoreError`) lo responde el manejador global
+    # con un 503 genérico; antes el mensaje llevaba el error crudo del SDK.
+    fragmentos = PineconeService().listar_por_documento(document_id, namespace=namespace)
 
     return {
         "document_id": document_id,

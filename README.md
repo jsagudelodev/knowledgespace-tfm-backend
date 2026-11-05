@@ -1,4 +1,4 @@
-# KnowSpace
+# KnowledgeSpace — Backend
 
 Plataforma SaaS multi-tenant para gestión de conocimiento con IA.  
 Backend REST API construido con FastAPI y desplegado en Google Cloud Run.
@@ -43,7 +43,7 @@ Backend REST API construido con FastAPI y desplegado en Google Cloud Run.
 ## Estructura del proyecto
 
 ```
-KnowledgeSpace/
+knowledgespace-tfm-backend/
 ├── api/                        # Servicio backend
 │   ├── main.py                 # Entrada FastAPI + registro de routers
 │   ├── requirements.txt
@@ -55,9 +55,9 @@ KnowledgeSpace/
 │   └── app/
 │       ├── core/               # Configuración, base de datos, seguridad JWT
 │       ├── db/
-│       │   └── models/         # Modelos SQLAlchemy (13 tablas)
+│       │   └── models/         # Modelos SQLAlchemy (14 de las 23 tablas, ver ALCANCE_TFM.md)
 │       ├── repositories/       # Capa de acceso a datos (patrón repositorio)
-│       ├── routers/v1/         # Endpoints REST (16 módulos)
+│       ├── routers/v1/         # Endpoints REST (15 routers + security.py, las dependencias de auth)
 │       ├── schemas/            # Validación de request/response con Pydantic v2
 │       └── services/           # Lógica de negocio e integraciones externas
 ├── docs/                       # Documentación técnica
@@ -78,19 +78,19 @@ KnowledgeSpace/
 ### Instalación
 
 ```bash
-# 1. Clonar y activar entorno virtual
+# 1. Clonar y crear el entorno virtual dentro de api/
 git clone https://github.com/jsagudelodev/knowledgespace-tfm-backend.git
-cd knowledgespace-tfm-backend
+cd knowledgespace-tfm-backend/api
 
 python -m venv .venv
 .venv\Scripts\activate       # Windows
 source .venv/bin/activate    # Linux / Mac
 
 # 2. Instalar dependencias
-pip install -r api/requirements.txt
+pip install -r requirements.txt
 
 # 3. Configurar variables de entorno
-cp api/.env.example api/.env
+cp .env.example .env
 # Editar api/.env con tus valores
 ```
 
@@ -141,7 +141,8 @@ Content-Type: application/json
 
 ## Tests
 
-Siempre desde `api/`: desde la raíz, `pytest` no encuentra el paquete `app`.
+Siempre desde `api/` y con su `.venv` activado: desde la raíz, `pytest` no
+encuentra el paquete `app`.
 `pytest` viene en `requirements.txt`; `ruff`, en `requirements-dev.txt`.
 
 ```bash
@@ -182,7 +183,14 @@ proveedor basta con la imagen del `Dockerfile` y las variables de
 | `docs/TFM/DEPLOYMENT.md`  | Guía de despliegue y credenciales            |
 | `docs/TFM/RAG_PIPELINE.md` | El pipeline RAG y sus decisiones            |
 | `docs/TFM/MODELO_DATOS.md`  | Modelo de datos: entidades y relaciones      |
+| `docs/TFM/MANEJO_ERRORES.md` | Manejo de errores, del backend a la pantalla |
 | `docs/TFM/DATASET_PREGUNTAS.md` | Dataset de evaluación y resultados     |
+| `api/experimentos/REGISTRO.md` | Índice de los experimentos y sus mediciones |
+| `docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md` | Preparación de la defensa: preguntas técnicas y respuestas |
 | `COMO_ARRANCAR.md`      | Arranque local paso a paso                   |
 | `ALCANCE_TFM.md`        | Qué entra en la entrega y qué no             |
 | `api/.env.example`      | Variables de entorno requeridas con ejemplos |
+
+El registro de lo hecho cada día, en los dos repositorios, está en el
+`CHANGELOG.md` del frontend
+([knowledgespace-tfm-frontend](https://github.com/jsagudelodev/knowledgespace-tfm-frontend)).
