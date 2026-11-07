@@ -44,6 +44,21 @@ class MessageRepository(BaseRepository[Message]):
             .all()
         )
 
+    def assistant_id_of_company(self, message_id: int, company_id: int) -> Optional[int]:
+        """Qué asistente respondió un mensaje, solo si es de `company_id`.
+
+        Lo usa el feedback para atribuir la calificación al asistente que de
+        verdad respondió. El filtro por empresa impide que un `message_id`
+        ajeno revele qué asistente usó otra organización. None si el mensaje
+        no es de la empresa o es anterior a que se guardara el asistente."""
+        fila = (
+            self.db.query(Message.assistant_id)
+            .join(Conversation, Conversation.id == Message.conversation_id)
+            .filter(Message.id == message_id, Conversation.company_id == company_id)
+            .first()
+        )
+        return fila[0] if fila else None
+
     def count_by_company(self, company_id: int) -> int:
         """`messages` no tiene `company_id`: se llega a la empresa por su
         conversación, y ese join es lo que garantiza el aislamiento."""

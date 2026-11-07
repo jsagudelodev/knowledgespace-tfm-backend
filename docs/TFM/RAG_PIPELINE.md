@@ -389,8 +389,8 @@ deja pasar ruido o descarta evidencia legítima, y nada en el sistema avisa de
 que ha dejado de ser válido — tal como ocurrió entre junio y octubre.
 
 **Alcance de esta medición.** Son 9 consultas sobre un corpus, no un benchmark
-formal con dataset de referencia (ver la limitación reconocida en
-`doc/DEFENSA_TFM.md` del repositorio frontend). Además, el umbral separa
+formal; la evaluación con conjunto de referencia está en
+`api/experimentos/REGISTRO.md`. Además, el umbral separa
 **tema de no-tema**, no respuesta precisa de respuesta vaga: las consultas
 tangenciales puntúan tan alto como las cubiertas — "¿qué es un transformer?"
 obtiene `0.575` frente al `0.503` de "¿qué es un VAE?". Filtrar ruido es su

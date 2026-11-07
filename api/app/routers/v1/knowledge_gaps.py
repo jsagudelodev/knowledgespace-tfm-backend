@@ -15,10 +15,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.db.models.assistant import Assistant
-from app.db.models.document import Document
 from app.db.models.knowledge_gap import KnowledgeGap
 from app.db.models.user import User
+from app.repositories.assistant_repository import AssistantRepository
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.knowledge_gap_repository import KnowledgeGapRepository
 from app.routers.v1.security import get_current_admin_user, get_current_user
@@ -55,13 +54,13 @@ def _enrich(gap: KnowledgeGap, db: Session) -> KnowledgeGapResponse:
     """
     assistant_name = None
     if gap.assistant_id:
-        a = db.get(Assistant, gap.assistant_id)
+        a = AssistantRepository(db).get(gap.assistant_id)
         if a:
             assistant_name = a.name
 
     resolved_document_name = None
     if gap.resolved_document_id:
-        d = db.get(Document, gap.resolved_document_id)
+        d = DocumentRepository(db).get(gap.resolved_document_id)
         if d:
             resolved_document_name = d.original_filename or d.filename
 

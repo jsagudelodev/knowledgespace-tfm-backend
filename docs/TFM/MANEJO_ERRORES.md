@@ -92,9 +92,25 @@ que el error llegue al manejador global.
 
 La ingesta de un documento (extraer, trocear, generar embeddings, indexar)
 corre después de responder a la subida. Si falla, el documento pasa a
-**`failed`**, se guarda el motivo en `error_message`, se avisa al autor con una
-notificación *«no se pudo procesar. Puedes reintentarlo desde Documentos»* y
-se registra la traza. El documento se puede **reintentar** desde el listado.
+**`failed`**, se guarda el error original en `error_message`, se avisa al
+autor con una notificación *«no se pudo procesar. Puedes reintentarlo desde
+Documentos»* y se registra la traza. El documento se puede **reintentar** desde
+el listado.
+
+**Lo que ve el usuario no es el error original.** La API lo traduce al
+responder (`app/schemas/mensajes_documento.py`) a un mensaje que dice qué pasó
+y qué hacer; el original se queda en la base de datos y en el log para
+diagnosticar. Se traduce al responder, no al guardar, para que valga también
+con los documentos que fallaron antes del cambio.
+
+| Error original (prefijo) | Lo que ve el usuario |
+|---|---|
+| *No se pudo extraer texto…* | No se pudo leer el texto del archivo. Si es un PDF escaneado, no tiene texto seleccionable: prueba con una versión que sí lo tenga. |
+| *Tipo de archivo … no soportado* | Este tipo de archivo no se admite. Formatos válidos: PDF, DOCX, TXT y MD. |
+| *…S3…* | No se encontró el archivo almacenado. Vuelve a subir el documento. |
+| *Error generando embedding…* | El servicio de IA no respondió al procesar el documento. Reinténtalo en unos minutos. |
+| *…Pinecone…* | No se pudo guardar el documento en el índice de búsqueda. Reinténtalo en unos minutos. |
+| cualquier otro | No se pudo procesar el documento. Reinténtalo; si vuelve a fallar, comprueba que el archivo se abre bien. |
 
 ### 2.6 Efectos secundarios: nunca rompen la operación
 
@@ -175,6 +191,7 @@ comentado en el código. Son de dos tipos:
 | Test | Qué garantiza |
 |---|---|
 | `api/tests/test_manejo_de_errores.py` (10) | 503 si falla un proveedor, 500 si no, siempre JSON; la respuesta no filtra el detalle técnico; el error queda en el log con la ruta; las `HTTPException` no cambian; la app real registra los manejadores; **ningún router devuelve `str(e)` en el `detail`** (comprobado contra el código anterior: falla) |
+| `api/tests/test_mensaje_documento_fallido.py` (10) | cada tipo de fallo de la ingesta tiene su mensaje legible; la respuesta de la API no lleva el error técnico; el original no se toca |
 | `api/tests/test_feedback_router_convert_gap.py` | convertir en pregunta sin respuesta no depende de las notificaciones |
 | `api/tests/test_permisos_por_rol.py` | que las rutas de gestión exigen rol admin, y las de aportar y leer siguen abiertas |
 | `src/app/core/interceptors/error.interceptor.spec.ts` (6) | 401 fuera y dentro del login, 403, sin red, 500, y que un 404 de negocio no dispara aviso global |
@@ -189,11 +206,6 @@ comentado en el código. Son de dos tipos:
   navegador ve un error de red (estado 0) en vez del 500. Para el usuario el
   efecto es el mismo —el interceptor trata 0 y 5xx igual—, pero el cuerpo JSON
   no llega al navegador. Los 503 de proveedores sí pasan por CORS.
-- **`error_message` de un documento fallido guarda el error crudo** y el
-  listado de Documentos lo muestra, recortado, a quien lo subió. Es útil para
-  diagnosticar (*«el PDF no contiene texto»*), pero también puede mostrar un
-  error técnico de S3. Mejora pendiente: traducirlo a mensajes legibles por
-  tipo de fallo.
 - **Sin reintentos automáticos** ante caídas de un proveedor: el mensaje invita
   a reintentar a mano.
 - **Sin identificador de petición** que una el error que ve el usuario con su

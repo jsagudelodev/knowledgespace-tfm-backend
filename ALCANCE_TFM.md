@@ -101,15 +101,13 @@ widget público embebible):
 
 ## Material de defensa
 
-- `docs/tutorials/README.md` — tutoriales interactivos ejecutables, con
-  sección "Para la defensa" y sugerencia de demo en vivo.
 - `docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md` — petición exacta al LLM, seguridad,
   multi-tenancy en Postgres, decisiones de stack, y la pregunta de
   contribución académica.
 
 ## Limitaciones conocidas
 
-- Cobertura de tests: 40 archivos y 263 tests unitarios sobre lógica pura
+- Cobertura de tests: 44 archivos y 286 tests unitarios sobre lógica pura
   —las configuraciones del pipeline RAG, construcción del contexto, parámetros
   del pipeline, cálculo de costos, validación del modelo de cada asistente,
   namespaces de Pinecone, métricas del dashboard y períodos de knowledge
@@ -158,6 +156,16 @@ widget público embebible):
   que también marca como leídas; un id ajeno en la lista se ignora). La migración
   de datos `c4e8a2f6d1b3` repartió las filas compartidas existentes. Test:
   `tests/test_notificaciones_por_usuario.py`.
+- **Manejo global de errores (2026-11-04).** `app/core/error_handlers.py`: un
+  fallo de un proveedor externo (`EmbeddingError`, `VectorStoreError`,
+  `StorageError`) responde **503** y cualquier excepción no capturada, **500**;
+  siempre en JSON (`{"detail": ...}`) y sin el detalle técnico, que va al log
+  con la traza, el método y la ruta. Antes un fallo no previsto devolvía un 500
+  en texto plano. En el frontend, el interceptor avisa de red, 401, 403 y 5xx,
+  y las acciones del usuario (calificar, descargar, eliminar o marcar
+  notificaciones) avisan del resto sin duplicar. Tests:
+  `tests/test_manejo_de_errores.py` y `avisos-de-error.spec.ts`. Detalle en
+  `docs/TFM/MANEJO_ERRORES.md`.
 - **Sin avisos de preguntas sin respuesta (2026-11-04).** "Nueva pregunta sin
   respuesta" y "Pregunta resuelta" los creaba la acción de un admin
   (convertir, resolver) y le llegaban a él mismo. Se dejaron de emitir y de

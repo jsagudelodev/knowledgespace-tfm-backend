@@ -116,8 +116,8 @@ coverage.xml
 # entregado, se queda local (ver docs/practica-tfm/README.md)
 docs/practica-tfm/
 
-# Notas de estudio nuevas dentro de los tutoriales. Los 10 archivos ya
-# versionados de docs/tutorials/ siguen entregándose (son material de defensa,
-# citados desde ALCANCE_TFM.md); esta regla solo evita que se sumen archivos
-# nuevos sin decidirlo.
+# Tutoriales de aprendizaje y preparación personal de la defensa: se quedan
+# en local, no forman parte de la entrega.
 docs/tutorials/
+docs/trabajo/ENSAYO_DEFENSA.md
+docs/trabajo/CHULETA_DEFENSA.md

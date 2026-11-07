@@ -7,11 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.db.models.conversation import Conversation
 from app.db.models.feedback import Feedback
-from app.db.models.message import Message
 from app.db.models.user import User
 from app.repositories.feedback_repository import FeedbackRepository
+from app.repositories.message_repository import MessageRepository
 from app.routers.v1.security import get_current_admin_user, get_current_user
 from app.schemas.feedback import (
     FeedbackConvertGap,
@@ -43,13 +42,7 @@ def _asistente_del_mensaje(db: Session, message_id: Optional[int], company_id: i
     """
     if not message_id:
         return None
-    fila = (
-        db.query(Message.assistant_id)
-        .join(Conversation, Conversation.id == Message.conversation_id)
-        .filter(Message.id == message_id, Conversation.company_id == company_id)
-        .first()
-    )
-    return fila[0] if fila else None
+    return MessageRepository(db).assistant_id_of_company(message_id, company_id)
 
 
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED, summary="Enviar feedback")
