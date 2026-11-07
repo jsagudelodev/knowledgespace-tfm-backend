@@ -7,15 +7,17 @@ evolucionando por separado.
 
 ## Núcleo académico (contribución del TFM)
 
-- **Pipeline RAG con cuatro configuraciones comparables**: línea base (Naive
-  RAG con filtro por umbral), descomposición de consultas, reordenado de
-  fragmentos y descomposición con tope de contexto — seleccionables por
-  variable de entorno sin tocar código (`app/services/rag_factory.py`). Las
-  cuatro conviven a propósito: la línea base es el término de comparación de
-  todas las mediciones del capítulo 5, y sustituirla por la variante elegida
-  habría hecho desaparecer el punto de referencia. Ver
-  `docs/trabajo/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué se
-  descartaron otras (RAG híbrido, agéntico, GraphRAG).
+- **Pipeline RAG con seis configuraciones comparables**: línea base (Naive
+  RAG con filtro por umbral), descomposición de consultas, descomposición con
+  tope de contexto (la activa), reordenado de fragmentos, recuperación híbrida
+  (densa + BM25) y la combinación de esta con la descomposición acotada —
+  seleccionables por variable de entorno sin tocar código
+  (`app/services/rag_factory.py`). Las seis conviven a propósito: la línea
+  base es el término de comparación de todas las mediciones del capítulo 5, y
+  sustituirla por la variante elegida habría hecho desaparecer el punto de
+  referencia. El reordenado y las dos híbridas están medidas pero inactivas.
+  Ver `docs/trabajo/ARQUITECTURAS_RAG.md` para la taxonomía completa y por qué
+  se descartaron otras (agéntico, GraphRAG).
 - **Aislamiento multi-tenant**: namespaces de Pinecone y filtrado por el
   `company_id` del usuario autenticado en cada recurso. El JWT solo lleva el
   email (`sub`); la empresa se lee del usuario en la base de datos en cada

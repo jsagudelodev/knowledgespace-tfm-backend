@@ -141,7 +141,7 @@ Cada chunk de texto genera un vector con la siguiente forma:
         "company_id":    5,
         "assistant_id":  3,          # None si no tiene asistente
         "chunk_index":   7,          # posición del chunk dentro del doc
-        "text":          "El período de vacaciones anual es de...",  # max 1000 chars
+        "text":          "El período de vacaciones anual es de...",  # el fragmento completo
     }
 }
 ```
@@ -165,7 +165,11 @@ La metadata sirve para dos propósitos:
 1. **Filtrado** — `eliminar_por_documento()` usa `filter: {document_id: 42}` para borrar solo los chunks de ese documento.
 2. **Mostrar fuentes** — cuando el LLM responde, `document_name` y el extracto de `text` se devuelven al cliente como `sources` para que el usuario sepa de qué documento vino la información.
 
-> **Límite de Pinecone:** la metadata tiene un límite de 40 KB por vector. El campo `text` se trunca a 1000 caracteres para no acercarse a ese límite.
+> **El `text` va completo, y es lo que lee el modelo.** Hasta el 2026-11-04 se
+> truncaba a 1000 caracteres; como el troceado no parte oraciones, algunos
+> fragmentos pasan de 1000 y el modelo no leía su final (EXP-15). El límite de
+> Pinecone, 40 KB de metadata por vector, queda lejos: el fragmento más largo
+> del corpus ronda los 2800 caracteres.
 
 ### Vectores del módulo Knowledge Gaps (Preguntas sin respuesta)
 
@@ -256,25 +260,23 @@ score < 0    → no ocurre con embeddings de texto (siempre ≥ 0)
 ### Umbral de relevancia
 
 ```python
-# rag_service.py
-RELEVANCE_THRESHOLD = 0.30
+# rag_service.py — el valor viene de config.py → RAG_UMBRAL_RELEVANCIA (0.30)
+RELEVANCE_THRESHOLD = settings.RAG_UMBRAL_RELEVANCIA
 
 relevant_docs = [d for d in raw_docs if d.score >= RELEVANCE_THRESHOLD]
 ```
 
 Los chunks que no superan `0.30` se descartan antes de construir el contexto. Si ninguno lo supera, el LLM recibe contexto vacío y responde que no encontró información.
 
-### Referencia práctica de scores
+### Qué scores se han medido en este corpus
 
-| Score | Interpretación |
-|---|---|
-| `0.85 – 1.0` | El chunk responde directamente la pregunta |
-| `0.65 – 0.84` | Información relacionada, probablemente útil |
-| `0.45 – 0.64` | Temáticamente cercano, contexto de apoyo |
-| `0.30 – 0.44` | Relación débil — se incluye pero puede añadir ruido |
-| `< 0.30` | Descartado — probablemente irrelevante |
-
-> Los valores exactos dependen del modelo de embedding y del idioma. Con `text-embedding-3-small` en español, `0.30` es un punto de corte razonable. Para contenido muy técnico o jerga específica, bajar a `0.25` puede ayudar.
+El `0.30` no es una convención: se midió (`api/experimentos/medir_umbral.py`,
+detalle en `docs/TFM/RAG_PIPELINE.md` §6). En el índice actual, la consulta
+ajena con más puntuación llegó a **0.258** y el fragmento útil con menos, a
+**0.393**; el umbral cae entre ambos. Por eso **no conviene bajarlo a 0.25**:
+dejaría pasar ese ruido. Los rangos dependen del modelo de embedding, del
+idioma y del troceado, así que cualquier cambio en ellos obliga a repetir la
+medición.
 
 ---
 
@@ -389,7 +391,7 @@ Si `PDFService.procesar()` devuelve texto vacío (PDF escaneado sin OCR, imagen 
 
 ### Límite de metadata por vector
 
-Pinecone acepta hasta **40 KB de metadata** por vector. El campo `text` se trunca a 1000 caracteres para evitar acercarse a ese límite. Si se añaden más campos a la metadata en el futuro, recalcular si el total sigue bajo 40 KB.
+Pinecone acepta hasta **40 KB de metadata** por vector. El campo `text` guarda el fragmento completo (hasta unos 2800 caracteres en el corpus actual), muy por debajo de ese límite. Si se añaden más campos a la metadata en el futuro, recalcular si el total sigue bajo 40 KB.
 
 ### Consistencia entre BD y Pinecone
 

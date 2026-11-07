@@ -195,7 +195,7 @@ tienen que ser cortos y remitir al repositorio.
 - [x] Anexos cortos: 10.1 (repositorios, usuarios de demostración, ejecución en local, manual), 10.2 (dónde están el prompt, la configuración y el modelo de datos) y 10.3 (correspondencia entre la numeración de la memoria y `api/experimentos/REGISTRO.md`)
 - [ ] **Rellenar los marcadores del anexo 10.1:** credenciales de los dos usuarios de demostración y enlace al vídeo
 - [ ] Portada (la hace el autor): con ella, la memoria queda en 60 páginas exactas
-- [x] 6.1 actualizado a 266 pruebas: +21 (notificaciones por usuario 7, juez de compuestas 6, candidatos por documento 3, texto completo en metadatos 3, sin «Pedir documento» 2) y −4 (aviso de documento solicitado, retirado). Tabla: Aislamiento 56, Índice vectorial 20, Preguntas sin respuesta 28, Evaluación 21; suma 266
+- [x] 6.1 actualizado a 286 pruebas (`pytest --collect-only`, 2026-11-07), con la fila nueva «Manejo de errores» (19) y Aislamiento 57; la tabla suma 286
 - [ ] Al exportar a PDF, comprobar que no pasa de 60 páginas; si pasa, recortar el 6.3 o el 7.1
 
 Con todo lo anterior, Word cuenta 59 páginas y 24.593 palabras (respaldo previo en

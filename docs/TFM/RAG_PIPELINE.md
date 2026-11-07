@@ -90,7 +90,7 @@ POST /api/v1/documents/upload
                          │      namespace: "company-{id}" o "company-{id}-assistant-{id}"
                          │      metadata por vector: document_id, document_name,
                          │                           company_id, assistant_id,
-                         │                           chunk_index, text (primeros 1000 chars)
+                         │                           chunk_index, text (fragmento completo)
                          │
                          └─ 10. Actualizar BD
                                 status = "completed" + page_count + chunk_count
@@ -104,6 +104,13 @@ POST /api/v1/documents/upload
 > fue la estrategia vigente hasta octubre de 2026 y las cifras del «antes» se
 > reproducen ejecutándola. Ver `PDFService.dividir_en_chunks_semantico`.
 
+> **Sobre el paso 9.** El `text` de los metadatos es lo que lee el modelo al
+> responder. Hasta el 2026-11-04 se guardaban solo sus primeros 1000
+> caracteres, y como el troceado no parte oraciones, algunos fragmentos pasan
+> de 1000 (hasta unos 2800): el modelo no leía su final. Ahora se guarda
+> completo; el límite de 40 KB de metadatos de Pinecone queda lejos. Ver EXP-15
+> en `api/experimentos/REGISTRO.md`.
+
 ### Archivos involucrados
 
 | Archivo | Responsabilidad |
@@ -116,18 +123,20 @@ POST /api/v1/documents/upload
 | `services/pinecone_service.py` | `upsert_vectores()` |
 | `repositories/document_repository.py` | Guardar y actualizar el registro del documento |
 
-### Chunking con overlap
+### Fragmentación por oraciones
 
 ```
-Texto original: [...AAAAAABBBBBBBBBCCCCCCC...]
-                        ↑ chunk_size=1000
+Texto original: [Oración 1. Oración 2. Oración 3. Oración 4. ...]
 
-Chunk 1: [...AAAAAABBBBBB...]  (posición 0 → 1000)
-Chunk 2: [...BBBBBBCCCCCCC...] (posición 800 → 1800)  ← overlap de 200 chars
-Chunk 3: [...]                 (posición 1600 → 2600)
+Chunk 1: [Oración 1. Oración 2.]   ← se añaden oraciones mientras quepan en ~1000
+Chunk 2: [Oración 3. Oración 4.]   ← sin solapamiento con el anterior
 ```
 
-El **overlap** evita que una respuesta quede cortada entre dos chunks. Si una oración empieza al final del chunk 1, también aparece al principio del chunk 2, garantizando que Pinecone siempre encuentre el contexto completo.
+Cada fragmento agrupa oraciones completas hasta unos 1000 caracteres, así que
+ninguna oración queda partida entre dos fragmentos y no hace falta solapamiento.
+Una oración que por sí sola pasa de 1000 forma su propio fragmento, más largo.
+El tamaño de 1000 se comparó con 500 y 1500 en EXP-15, sin una diferencia
+concluyente en la recuperación.
 
 ### Retry
 
@@ -171,6 +180,12 @@ POST /api/v1/chat/message
          ├─ 4. Guardar mensaje del usuario en BD (role = "user")
          │
          └─ RAGService.generate_response()
+                   │      (la clase la elige RAG_CONFIGURACION; la activa es
+                   │      `descomposicion_acotada`, que antes del paso 5 divide
+                   │      la pregunta si trata varios temas y reparte los
+                   │      fragmentos entre las subpreguntas. Los pasos de
+                   │      abajo son los de la línea base, comunes a las seis
+                   │      configuraciones — ver rag_factory.py)
                    │
                    ├─ 5. Embed de la pregunta
                    │      text-embedding-3-small → vector de 1536 floats
@@ -196,7 +211,7 @@ POST /api/v1/chat/message
                    │
                    ├─ 10. Llamar al LLM
                    │       modelo:      del asistente (default: gpt-4o-mini)
-                   │       temperature: del asistente (default: 0.7)
+                   │       temperature: fija, RAG_TEMPERATURA (0.0)
                    │       max_tokens:  1000
                    │
                    └─ 11. Guardar respuesta en BD (role = "assistant")
@@ -276,16 +291,16 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 
 | Parámetro | Valor actual | Dónde |
 |---|---|--------|
-| Umbral de relevancia | `0.30` | `rag_service.py → RELEVANCE_THRESHOLD` |
-| Tokens máximos respuesta | `1000` | `rag_service.py → MAX_RESPONSE_TOKENS` |
-| Resultados Pinecone (top_k) | `5` | `rag_service.py → generate_response()` |
+| Configuración del pipeline | `descomposicion_acotada` | `config.py → RAG_CONFIGURACION` |
+| Umbral de relevancia | `0.30` | `config.py → RAG_UMBRAL_RELEVANCIA` |
+| Tokens máximos respuesta | `1000` | `config.py → RAG_MAX_TOKENS_RESPUESTA` |
+| Resultados Pinecone (top_k) | `5` | `config.py → RAG_TOP_K` |
 | Historial incluido | `20 mensajes` | `routers/v1/chat.py` |
-| Tamaño de chunk | `1000 chars` | `pdf_service.py → PDFService.procesar()` |
-| Overlap entre chunks | `200 chars` | `pdf_service.py → PDFService.procesar()` |
+| Tamaño de chunk | `~1000 chars`, por oraciones, sin solapamiento | `pdf_service.py → PDFService.procesar()` |
 | Batch de embeddings | `100 textos` | `embedding_service.py → generar_embeddings_batch()` |
 | Modelo de embedding | `text-embedding-3-small` | `config.py → OPENAI_EMBEDDING_MODEL` |
 | Modelo LLM (default) | `gpt-4o-mini` | `config.py → OPENAI_CHAT_MODEL` |
-| Temperatura LLM (default) | `0.0` | `rag_service.py → DEFAULT_TEMPERATURE` |
+| Temperatura LLM (fija) | `0.0` | `config.py → RAG_TEMPERATURA` |
 | Tamaño máximo de archivo | `10 MB` | `document_service.py → MAX_SIZE_MB` |
 | Tipos de archivo soportados | `pdf, docx, txt, md` | `document_service.py → SUPPORTED_TYPES` |
 | Dimensiones del índice Pinecone | `1536` | `pinecone_service.py → DIMENSION` |
@@ -429,8 +444,7 @@ El cliente **nunca ve estos errores directamente** porque ya recibió el `201 Cr
 
 | Situación | Comportamiento |
 |---|---|
-| OpenAI sin API key | `500 Internal Server Error` |
-| Pinecone sin API key | `500 Internal Server Error` |
+| Fallo de OpenAI o de Pinecone | `503`, en JSON y sin el detalle técnico (ver `MANEJO_ERRORES.md`) |
 | Sin resultados en Pinecone (todos bajo umbral) | El LLM recibe contexto vacío y responde: *"No encontré información sobre este tema en los documentos de la empresa."* |
 | Asistente inactivo o eliminado | `404 Asistente no encontrado o inactivo` |
 | Conversación de otro usuario | `404 Conversación no encontrada` |
@@ -461,19 +475,17 @@ vincularlo, mientras que el chat responde sin nadie revisando.
 - `index_answer` — indexa una respuesta escrita a mano como chunk propio (`POST /knowledge-gaps/{id}/answer`).
 - `index_alias` — indexa la pregunta y sus variantes como alias de un documento existente al vincular (`POST /knowledge-gaps/{id}/link`).
 
-Ver `BACKLOG_BACKEND.md` → Módulo 7B para el detalle de endpoints.
-
 ---
 
 ## 9. Pendientes y mejoras futuras
 
 | Mejora | Descripción | Impacto |
 |---|---|---|
-| Registro automático de `KnowledgeGap` al responder el chat | Cuando ningún chunk supera el umbral, guardar la pregunta en `knowledge_gaps` en el momento — hoy solo existe la conversión manual desde Feedback (`POST /api/v1/feedback/{id}/convert-gap`), ver Módulo 7B en `BACKLOG_BACKEND.md` | P1 |
+| Registro automático de `KnowledgeGap` al responder el chat | Cuando ningún chunk supera el umbral, guardar la pregunta en `knowledge_gaps` en el momento — hoy solo existe la conversión manual desde Feedback (`POST /api/v1/feedback/{id}/convert-gap`) | P1 |
 | Auditar vectores huérfanos de antes del 2026-09-08 | Ya no es posible generar nuevos huérfanos (el borrado de un asistente con documentos/widgets vinculados está bloqueado), pero asistentes borrados *antes* de ese fix pueden tener vectores viejos sin dueño en Pinecone — revisar y limpiar manualmente si aplica | P3 |
 | ~~Streaming SSE~~ — **resuelto el 2026-10-25** | `POST /v1/chat/message/stream`, `StreamingResponse` con `text/event-stream`, `RAGService.generate_response_stream()`. Convive con `/message` sin sustituirla | — |
-| Reranking | Tras recuperar top_k=10, usar un modelo de reranking (ej. Cohere) para seleccionar los 5 más relevantes antes de construir el contexto | P2 |
-| Chunks por párrafo | En vez de chunks por caracteres, dividir respetando párrafos naturales del documento | P2 |
+| ~~Reranking~~ — **implementado y medido** | Configuración `reordenado` (`reordenador.py`, con el propio modelo). Mejora la recuperación, pero no las respuestas de forma demostrable y multiplica por 3,7 el coste: queda inactiva (memoria 5.3) | — |
+| ~~Chunks por párrafo~~ — **superado** | Se trocea por oraciones desde octubre de 2026 (§3) | — |
 | Soporte de tablas en DOCX | `python-docx` extrae párrafos pero no celdas de tabla | P2 |
 | Caché de embeddings de query | Si el mismo usuario repite la pregunta, reusar el embedding en vez de llamar a OpenAI | P3 |
 | Modelo de embedding multilingüe | Si la empresa opera en varios idiomas, evaluar `multilingual-e5-large` | P3 |

@@ -61,9 +61,9 @@ configuraciones: ninguna estrategia de recuperación puede saltárselo.
 
 ---
 
-## 2. Dentro de `_recuperar()` — las cuatro configuraciones
+## 2. Dentro de `_recuperar()` — las seis configuraciones
 
-Esto es lo que cambia. `rag_factory.py` instancia una de las cuatro clases
+Esto es lo que cambia. `rag_factory.py` instancia una de las seis clases
 según `RAG_CONFIGURACION`; cada una reimplementa `_recuperar` de forma
 distinta y el resto del pipeline (sección 1) no se entera de cuál está activa.
 
@@ -102,6 +102,19 @@ flowchart TD
     R5 --> R6["Conservar los\n5 primeros del nuevo orden"]
     R6 --> R7([5 fragmentos reordenados])
 
+    %% ── hibrido ───────────────────────────────────────────
+    SEL -- hibrido --> H1["Búsqueda densa en Pinecone\n+ búsqueda léxica BM25"]
+    H1 --> H2["Fusionar ambas listas\n(Reciprocal Rank Fusion)"]
+    H2 --> H3([5 fragmentos])
+
+    %% ── descomposicion_hibrida ────────────────────────────
+    SEL -- descomposicion_hibrida --> X1{"¿Varias preguntas?"}
+    X1 -- No --> X2["Búsqueda híbrida\n(densa + BM25)"]
+    X1 -- Sí --> X3["Búsqueda híbrida\nPOR CADA subpregunta"]
+    X3 --> X4["Repartir en turnos\ncomo la acotada"]
+    X4 --> X5(["Tope: 5 fragmentos"])
+    X2 --> X6([5 fragmentos])
+
     style SEL fill:#fff3cd,stroke:#997404,stroke-width:2px
     style A1 fill:#d1e7dd,stroke:#0f5132
     style A5 fill:#d1e7dd,stroke:#0f5132
@@ -109,7 +122,7 @@ flowchart TD
     style D5 fill:#f8d7da,stroke:#842029
 ```
 
-**Las tres frases que hay que tener listas si preguntan "¿por qué esa y no
+**Las frases que hay que tener listas si preguntan "¿por qué esa y no
 otra?":**
 
 - **`base`** es la línea base: el término de comparación de todo el
@@ -124,6 +137,11 @@ otra?":**
   0,67), pero las métricas de generación no se movieron fuera del margen de
   ruido del juez, y multiplica el coste ×3,7. Queda medido y documentado, no
   activo.
+- **`hibrido`** es la que mejor encuentra el fragmento correcto (hit@1 de 0,25
+  a 0,42), pero busca con la pregunta completa y baja la cobertura de las
+  preguntas de dos temas del 48 % al 30 %. **`descomposicion_hibrida`** la
+  sube al 37 %, sin llegar a la base, y es la más lenta. Ninguna está activa:
+  retroceden justo en las preguntas compuestas.
 
 ---
 
@@ -142,6 +160,6 @@ flowchart LR
 ```
 
 El router de chat llama a `crear_rag_service()` y usa el resultado como un
-`RAGService` cualquiera — no necesita saber cuál de las cuatro clases recibió.
+`RAGService` cualquiera — no necesita saber cuál de las seis clases recibió.
 Cambiar de configuración es cambiar una variable de entorno, nunca tocar
 código.
