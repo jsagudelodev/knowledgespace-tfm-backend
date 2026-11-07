@@ -3,11 +3,12 @@
 Todo lo que pide la guía oficial del TFM —separando lo exigido de lo sugerido
 y de lo que es decisión propia—
 ([`[MID] Orientaciones y pautas TFM.pdf`](%5BMID%5D%20Orientaciones%20y%20pautas%20TFM.pdf)),
-dónde está cada cosa y qué falta. Última revisión: 2026-11-02.
+dónde está cada cosa y qué falta. Última revisión: 2026-11-07.
 
-La documentación de esta carpeta es la de la entrega. El material de trabajo
-(preparación de la defensa, tutorías, auditorías internas) está en
-[`docs/trabajo/`](../trabajo/) y en `doc/trabajo/` del frontend.
+La documentación de esta carpeta es la de la entrega. Las notas de trabajo que
+se conservan en el repositorio (tutorías, arquitecturas, índice vectorial) están
+en [`docs/trabajo/`](../trabajo/); la preparación personal de la defensa y los
+tutoriales de aprendizaje se quedan en local, fuera de git.
 
 **Repositorios** (privados; se da acceso de lectura al revisor desde
 *Settings → Collaborators*):
@@ -51,13 +52,13 @@ La columna **Tipo** distingue tres cosas que no hay que confundir:
 
 | Qué | Tipo | Capítulo | Estado |
 |---|---|---|---|
-| Extensión máxima de 60 páginas | Exigido (pág. 3) | — | ⚠️ 55 páginas al 2026-11-02; controlar al añadir resumen, abstract y anexos |
+| Extensión máxima de 60 páginas | Exigido (pág. 3) | — | ⚠️ 60 páginas exactas con portada (Word, 2026-11-07); comprobar al exportar a PDF |
 | Introducción: por qué, para quién, dónde aplica | Exigido (pág. 3) | 1 | ✅ |
 | Metodología: coordinación, implementación, testeo y métricas | Exigido (pág. 3) | 1 / 5 / 6 | ✅ El trabajo individual se explica en 3.3 |
 | **Capturas de pantalla de la interfaz** | Exigido (pág. 3) | 4, 5, 6 | ✅ Cinco capturas (ver §3) |
 | **Fragmentos de código críticos, comentados** | Exigido (pág. 3) | 3, 4 | ✅ Cuatro fragmentos (ver §4) |
 | Conclusión, evaluación de resultados y trabajo futuro | Exigido (pág. 3) | 5 y 8 | ✅ |
-| **Dirección del repositorio** | Exigido (pág. 3) | 1 y anexo 10.1 | ✅ Al final de 1.3; falta repetirla en el anexo 10.1 |
+| **Dirección del repositorio** | Exigido (pág. 3) | 1 y anexo 10.1 | ✅ Al final de 1.3 y en el anexo 10.1 |
 | Desglose del costo de inferencia y justificación frente a alternativas | Exigido: «se exige» (pág. 7) | 3.3 | ✅ Tokens y comparación gpt-4o-mini / gpt-4o |
 | Costo de alojamiento (hosting, APIs) y retorno de la inversión | Exigido: «se exige» (pág. 7) | 3.3 | ✅ Con el gasto real de octubre |
 | Utilidad diferencial frente a soluciones existentes | Criterio de evaluación (pág. 7) | 2 | ✅ En 2.2 (comparación con ChatGPT y NotebookLM) |
@@ -68,15 +69,14 @@ La columna **Tipo** distingue tres cosas que no hay que confundir:
 | Diseño de datos y pipelines | Sugerido (índice, 3.4) | 3.4 ([`MODELO_DATOS.md`](MODELO_DATOS.md), [`RAG_PIPELINE.md`](RAG_PIPELINE.md)) | ✅ |
 | Análisis de errores y limitaciones | Sugerido (índice, 5.3) | 5.3 y 5.4 | ✅ |
 | Observabilidad | Sugerido, «si aplica» (índice, 6.3) | 6.3 ([`OBSERVABILIDAD.md`](OBSERVABILIDAD.md)) | ✅ |
-| Anexo: despliegue y manual de usuario | Sugerido (índice, 10.1) | 10.1 ([`DEPLOYMENT.md`](DEPLOYMENT.md) + `doc/MANUAL_USUARIO.md` del frontend) | ⚠️ Hecho en los repositorios; falta la versión corta en la memoria |
-| Resultados completos de la evaluación | Sugerido (índice, anexos) | 10.3 ([`DATASET_PREGUNTAS.md`](DATASET_PREGUNTAS.md), `api/experimentos/resultados/`) | ⚠️ Falta en la memoria |
+| Anexo: despliegue y manual de usuario | Sugerido (índice, 10.1) | 10.1 ([`DEPLOYMENT.md`](DEPLOYMENT.md) + `doc/MANUAL_USUARIO.md` del frontend) | ✅ Versión corta en la memoria; falta el enlace al vídeo |
+| Resultados completos de la evaluación | Sugerido (índice, anexos) | 10.3 ([`DATASET_PREGUNTAS.md`](DATASET_PREGUNTAS.md), `api/experimentos/REGISTRO.md`) | ✅ 10.3 remite al registro de experimentos |
 | Dataset ampliado (de 18 a 27 preguntas, con 3 tipos nuevos), RAGAS, juez con criterios sí/no, Langfuse | Propio: la guía pide métricas, no cuáles | 5 y 6.3 | ✅ Cerrado: no ampliar más |
 | Documentos técnicos de esta carpeta (`DATASET_PREGUNTAS`, `RAG_PIPELINE`, `MODELO_DATOS`…) y este índice | Propio: material de apoyo del repositorio | `docs/TFM/` | ✅ |
 
-**Extensión:** con imágenes y capítulo 2, la memoria tiene 55 páginas y
-24.056 palabras (2026-11-02). Si al añadir resumen, abstract y anexos pasa de
-60, el detalle por experimento del 5.3 se mueve al anexo 10.3 y en el cuerpo
-queda la tabla resumen con sus conclusiones.
+**Extensión:** con portada, resumen, abstract, índice y anexos, la memoria
+tiene 60 páginas en Word (2026-11-07), el máximo. Si el PDF pasa de 60, se
+recorta el 6.3 o el 7.1.
 
 ### Defensa (10 minutos de exposición y 5 de preguntas)
 
@@ -85,7 +85,7 @@ queda la tabla resumen con sus conclusiones.
 | Ajustarse a 10 + 5 minutos | Exigido (pág. 5) | ❌ Pendiente de ensayar con reloj |
 | Presentación con apoyo visual | Criterio de evaluación (pág. 7) | ❌ Pendiente |
 | Vídeo demostrativo | Recomendado (pág. 3) | ❌ Pendiente; guion y pasos en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md) |
-| Ensayo | Propio | Primer simulacro hecho el 2026-10-21 (5,7/10) |
+| Ensayo | Propio | Primer simulacro el 2026-10-21 (5,7/10); ensayo pregunta a pregunta desde el 2026-11-04 (material personal, fuera de git) |
 
 ---
 
@@ -124,8 +124,9 @@ Descartadas:
   que choca con los resultados del capítulo 5 sin explicación.
 - La figura del objetivo 4 se recorta al panel del chat: al fondo aparece una
   pregunta de prueba personal.
-- `16-usuarios.jpg` y `17-empresas.jpg` muestran correos y nombres reales; no
-  se usan.
+- `16-usuarios.jpg` (correos ya difuminados, 2026-11-07) y `17-empresas.jpg`
+  no se usan. **La 17 está pendiente de repetir:** todavía muestra «Etiquetas»
+  y empresas reales.
 
 ---
 
@@ -156,6 +157,7 @@ guía pide que no sean elementos aislados.
 | [`RAG_PIPELINE.md`](RAG_PIPELINE.md) | El pipeline RAG y la justificación del umbral |
 | [`DIAGRAMA_FLUJO_RAG.md`](DIAGRAMA_FLUJO_RAG.md) | Diagrama de flujo del pipeline (3.2) |
 | [`MODELO_DATOS.md`](MODELO_DATOS.md) | Modelo de datos (3.4) |
+| [`MANEJO_ERRORES.md`](MANEJO_ERRORES.md) | Manejo de errores, del backend a la pantalla (3.2) |
 | [`OBSERVABILIDAD.md`](OBSERVABILIDAD.md) | Langfuse, trazas y costes (6.3) |
 | [`BIBLIOGRAFIA.md`](BIBLIOGRAFIA.md) | Bibliografía de trabajo (capítulo 9) |
 
@@ -174,14 +176,45 @@ Fuera de esta carpeta, pero parte de la entrega:
 Criterio acordado el 2026-11-01: hacer lo que pide la guía, sin ampliar, y
 dedicar el tiempo restante a pulir el código.
 
-### Lo que falta (al 2026-11-04)
+### Lo que falta (al 2026-11-07)
 
-Estado: el contenido que exige la guía ya está escrito. La memoria tiene 55
-páginas y 23.535 palabras, **sin** portada, resumen, abstract, índice ni
-anexos. La guía (pág. 3) fija «un máximo de 50-60 páginas» y no excluye nada,
-y su índice de ejemplo incluye la portada y el resumen dentro de la memoria:
-lo que falta añadir (unas 5 o 6 páginas) la dejaría en torno a 60. Los anexos
-tienen que ser cortos y remitir al repositorio.
+Estado: la memoria está completa, con portada (incluido el tutor), resumen,
+abstract, índice y anexos, en 60 páginas. La guía (pág. 3) fija «un máximo de
+50-60 páginas» y no excluye nada.
+
+**Memoria:**
+
+- [ ] Enlace al vídeo en el anexo 10.1 (las credenciales ya están)
+- [ ] Exportar a PDF y comprobar que no pasa de 60 páginas; si pasa, recortar el 6.3 o el 7.1
+- [ ] Comprobar qué piden las pautas sobre el uso de herramientas de IA y, si lo piden, declararlo
+
+**Lo hace el autor (nadie puede hacerlo por él):**
+
+- [ ] Leer el capítulo 2 completo y adaptarlo a su voz, sobre todo la comparación con ChatGPT y NotebookLM
+- [ ] Leer en voz alta el 5.3 y el 5.4 y ajustarlos a su forma de hablar
+- [ ] Concretar en el trabajo futuro (cap. 8) qué significa «nuevas interfaces adaptadas a cada perfil de usuario»
+- [ ] Revisar el 6.2 y el 7.2 y prepararse para defender el hallazgo del registro
+- [ ] Comprobar que los objetivos de 1.2 coinciden con la propuesta aprobada
+
+**Repositorios:**
+
+- [ ] Repetir la captura `17-empresas.jpg` del frontend con la cuenta de superadmin, sin «Etiquetas» y con los correos difuminados
+- [ ] Dar acceso de lectura al revisor en los dos repositorios (*Settings → Collaborators*)
+- [ ] Reactivar Supabase (plan gratuito: se pausa tras una semana sin uso) antes de la entrega y de la defensa
+
+**Defensa (10 minutos de exposición y 5 de preguntas):**
+
+- [ ] Vídeo demostrativo, la semana del 9 de noviembre. Guion de 8 escenas (unos 4 minutos), lista de comprobación previa y pasos de publicación en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md). El enlace va en el anexo 10.1
+- [ ] Presentación
+- [ ] Ensayo cronometrado (primer simulacro, del 21-10: 5,7/10)
+
+**Hecho el 2026-11-07:**
+
+- [x] Portada (con el tutor), credenciales de los dos usuarios de demostración en el anexo 10.1 e índice actualizado: 60 páginas
+- [x] Capturas del manual repetidas con la interfaz actual (17 de 18) y figuras de la memoria al día
+- [x] 6.1 a 286 pruebas; «ningún enrutador consulta la base de datos» vuelve a ser cierto y lo vigila un test
+- [x] Documentación de entrega coherente con el código: `RAG_PIPELINE`, `PINECONE_VECTORES`, `DIAGRAMA_FLUJO_RAG`, `MODELO_DATOS`, `ALCANCE_TFM` de los dos repositorios, `COMO_ARRANCAR`, registro y guía de experimentos
+- [x] Material personal fuera de git: tutoriales, bitácora y preparación de la defensa
 
 **Hecho el 2026-11-04** (respaldos previos en
 `docs/Memoria_TFM_respaldo_2026-11-04.docx` y `..._2026-11-04b.docx`):
@@ -193,46 +226,13 @@ tienen que ser cortos y remitir al repositorio.
 - [x] Resumen y abstract (misma página), con palabras clave
 - [x] Índice automático de Word (niveles 1 y 2) y saltos de página antes del índice y de la introducción
 - [x] Anexos cortos: 10.1 (repositorios, usuarios de demostración, ejecución en local, manual), 10.2 (dónde están el prompt, la configuración y el modelo de datos) y 10.3 (correspondencia entre la numeración de la memoria y `api/experimentos/REGISTRO.md`)
-- [ ] **Rellenar los marcadores del anexo 10.1:** credenciales de los dos usuarios de demostración y enlace al vídeo
-- [ ] Portada (la hace el autor): con ella, la memoria queda en 60 páginas exactas
 - [x] 6.1 actualizado a 286 pruebas (`pytest --collect-only`, 2026-11-07), con la fila nueva «Manejo de errores» (19) y Aislamiento 57; la tabla suma 286
-- [ ] Al exportar a PDF, comprobar que no pasa de 60 páginas; si pasa, recortar el 6.3 o el 7.1
 
-Con todo lo anterior, Word cuenta 59 páginas y 24.593 palabras (respaldo previo en
+Con todo lo anterior, Word contaba 59 páginas y 24.593 palabras (respaldo previo en
 `docs/Memoria_TFM_respaldo_2026-11-04c.docx`).
 
-**Urgente:**
-
 - [x] Subir el arreglo del registro público (`api/app/routers/v1/auth.py`, `api/tests/test_auth_router.py`). Subido el 2026-11-02
-
-**Lo hace el autor (nadie puede hacerlo por él):**
-
-- [ ] Leer el capítulo 2 completo y adaptarlo a su voz, sobre todo la comparación con ChatGPT y NotebookLM
-- [ ] Leer en voz alta el 5.3 y el 5.4 y ajustarlos a su forma de hablar
-- [ ] Concretar en el trabajo futuro (cap. 8) qué significa «nuevas interfaces adaptadas a cada perfil de usuario»
-- [ ] Revisar el 6.2 y el 7.2 y prepararse para defender el hallazgo del registro
-- [ ] Comprobar que los objetivos de 1.2 coinciden con la propuesta aprobada
-- [ ] Revisar `ALCANCE_TFM.md` (lo modificó él)
-
-**Lo redacta Claude y lo revisa el autor:**
-
-- [ ] Resumen y abstract (media página cada uno)
-- [ ] Anexo 10.1 corto: usuario de demostración y enlaces (credenciales solo aquí, nunca en los repos)
-- [ ] Anexo 10.3: parte del detalle del 5.3, para no pasar de 60 páginas
-- [ ] Portada (solo el autor) e índice automático de Word
-
-**Cierre:**
-
-- [ ] Exportar a PDF y comprobar que no pasa de 60 páginas
-- [ ] Dar acceso de lectura al revisor en los dos repositorios
 - [x] Subir `docs/TFM/figuras/figura-objetivo4-respuesta-indexada.jpg` y este archivo (2026-11-02)
-- [ ] Reactivar Supabase (plan gratuito: se pausa tras una semana sin uso) antes de la entrega y de la defensa
-
-**Defensa (10 minutos de exposición y 5 de preguntas):**
-
-- [ ] Presentación
-- [ ] Vídeo demostrativo, la semana del 9 de noviembre. Guion de 8 escenas (unos 4 minutos), lista de comprobación previa y pasos de publicación en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md). El enlace va en el anexo 10.1
-- [ ] Ensayo cronometrado (primer simulacro, del 21-10: 5,7/10)
 
 ### Hecho
 

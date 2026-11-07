@@ -103,9 +103,10 @@ widget público embebible):
 
 ## Material de defensa
 
-- `docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md` — petición exacta al LLM, seguridad,
-  multi-tenancy en Postgres, decisiones de stack, y la pregunta de
-  contribución académica.
+- `docs/TFM/DIAGRAMA_FLUJO_RAG.md` — el recorrido de una consulta y las seis
+  configuraciones, con por qué está activa la descomposición acotada.
+- `api/experimentos/REGISTRO.md` y `api/experimentos/GUIA_PRUEBAS.md` — cada
+  experimento, su resultado, la decisión tomada y cómo reproducirlo.
 
 ## Limitaciones conocidas
 

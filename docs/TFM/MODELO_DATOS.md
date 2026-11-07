@@ -1,14 +1,15 @@
 # Modelo de Datos - KnowSpace Backend
 
 ## Versión
-- **Fecha**: 24 de octubre de 2026
-- **Versión**: 12.6
+- **Fecha**: 7 de noviembre de 2026
+- **Versión**: 12.7
+- **Cambios v12.7**: revisión documental, sin cambio de esquema. Las columnas del flujo «Pedir documento» de `knowledge_gaps` (`assigned_to`, `requested_at`, `due_at`, `note`) quedan marcadas sin uso, porque esa función se retiró el 2026-11-02; las notas sobre `create_all` y `migrate_*.sql` se marcan como históricas (el esquema se gestiona con Alembic desde v12.5, §3.7); y se quitan las referencias a un backlog que no forma parte de la entrega.
 - **Estado**: Verificado contra el esquema real de Supabase (introspección directa vía `DATABASE_URL`), incluyendo `cost_tracking` (§2.15) confirmado en producción.
 - **Cambios v12.6**: `duration_ms` en `cost_tracking` ya no se limita a la operación `chat` — las llamadas auxiliares (`descomposicion`, `reordenado`) también cronometran su propia duración, alrededor de la llamada al proveedor en `rag_service_avanzado.py` y `reordenador.py`. Sin cambio de esquema, solo de qué filas rellenan la columna que ya existía desde v12.4.
 - **Cambios v12.5**: Adoptado Alembic para la gestión de esquema (ver §3.7). Se encontraron y documentaron 4 columnas huérfanas nuevas en `documents` (`source_url`, `fetched_at`, `source_type`, `source_domain`), no registradas antes de esta auditoría, y una lista de desviaciones reales entre los modelos y la base (`nullable`, tipos) pendientes de reconciliar una a una.
 - **Cambios v12.4**: `cost_tracking` ganó `duration_ms` (Integer, nullable) vía `ALTER TABLE ADD COLUMN IF NOT EXISTS` en `migrate_cost_tracking.sql`. Antes solo se medía latencia en los experimentos contra el dataset de referencia; ahora `chat.py` cronometra cada `generate_response` y lo registra junto al costo de la operación `chat` — ver sección 2.15.
 - **Cambios v12.3**: `cost_tracking` pasó de "tabla sin modelo ORM" a módulo completo — modelo, `CostTrackingService`, router (`GET /`, `/summary`, `/daily-trend`) e instrumentación real en `chat.py` y `documents.py`. Ganó la columna `operation` (`chat`/`embedding`) vía `ALTER TABLE`, aplicada y verificada contra la BD real — ver sección 2.15.
-- **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. **Ya están en `app/db/models/knowledge_gap.py`, pero no necesariamente en la tabla real de Supabase**: `create_all` no hace `ALTER TABLE`. Aplicar `api/migrate_knowledge_gaps.sql` en cada entorno antes de asumir que esta sección refleja la BD real.
+- **Cambios v12.2**: `knowledge_gaps` ganó 17 columnas nuevas (`resolved_document_id`, `ignore_reason`, flujo de `assigned_to`/`due_at`, verificación, `variants`/`candidates`, prioridad) para el módulo "Preguntas sin respuesta" — ver sección 2.11. En su momento se aplicaron con `api/migrate_knowledge_gaps.sql`, porque `create_all` no hace `ALTER TABLE`; hoy los cambios de esquema van por Alembic (§3.7).
 - **Cambios v12.1**: se agregó `assistants.quick_prompts` (columna real usada por el código, ausente en v12.0) y se marcó `assistants.suggested_prompts` como columna huérfana — ver sección 2.8.
 
 ---
@@ -30,7 +31,7 @@
 | **knowledge_gaps** | Vacíos de conocimiento | Preguntas que el sistema no pudo responder. Detecta hard/soft gaps, incluye estado (open/in_progress/resolved/ignored), rag_score, candidatos del índice, verificación post-resolución y métricas de resolución. |
 | **notification_types** | Catálogo de tipos | Catálogo administrable de tipos de notificación con etiqueta, icono y color para UI. |
 | **notifications** | Notificaciones | Notificaciones dirigidas a usuarios o a todos los admins de una empresa. Vinculadas a un tipo del catálogo y a una entidad relacionada opcional. |
-| **budget_limits** | Presupuesto de IA | Límite de gasto mensual por empresa, con umbral de alerta y gasto acumulado. Tabla ya creada; feature en backlog (`BACKLOG_BACKEND.md`), **sin modelo ORM ni endpoint** todavía. |
+| **budget_limits** | Presupuesto de IA | Límite de gasto mensual por empresa, con umbral de alerta y gasto acumulado. Tabla ya creada; **sin modelo ORM ni endpoint**: hacer cumplir un tope de gasto queda fuera de esta entrega (`ALCANCE_TFM.md`). |
 | **cost_tracking** | Costo de IA | Registro de costo por request de IA (tokens de entrada/salida, modelo, operación chat/embedding, costo total), enlazable a conversación, asistente y documento. Instrumentado en `chat.py` (cada respuesta del LLM) y `documents.py` (embeddings al subir un documento). |
 | **quota_alerts** | Alertas de cuota | Registro de alertas de cuota mensual ya enviadas por empresa/mes/umbral (evita reenviar la misma alerta). **Sin modelo ORM ni endpoint**, no referenciada en ningún backlog — origen no confirmado. |
 | **audit_logs** | Auditoría | Bitácora de acciones (usuario, acción, recurso, IP, user agent, valores antes/después). **Sin modelo ORM ni endpoint**, no referenciada en ningún backlog — origen no confirmado. |
@@ -40,7 +41,7 @@
 | **quiz_results** | (Fuera de dominio) | Resultados de un usuario en un quiz (puntaje, respuestas, aprobado/no). **Sin modelo ORM ni endpoint**. |
 | **enrollments** | (Fuera de dominio) | Inscripción de un usuario a un curso, con progreso y estado. **Sin modelo ORM ni endpoint**. |
 
-> Las tablas marcadas "Fuera de dominio" (`courses`, `quizzes`, `quiz_results`, `enrollments`) no aparecen en `BACKLOG_BACKEND.md` ni tienen código en `app/db/models/` o `app/routers/v1/`. Antes de construir algo sobre ellas, confirmar si son intencionales o resto de un esquema compartido con TrainIQ que debería limpiarse.
+> Las tablas marcadas "Fuera de dominio" (`courses`, `quizzes`, `quiz_results`, `enrollments`) no tienen código en `app/db/models/` o `app/routers/v1/`. Antes de construir algo sobre ellas, confirmar si son intencionales o resto de un esquema compartido con TrainIQ que debería limpiarse.
 
 ---
 
@@ -702,10 +703,10 @@ conocimiento que ofrecer.
 | `resolved_at` | DateTime TZ | Nullable |
 | `resolved_document_id` | Integer FK | → documents SET NULL, nullable — con qué documento se resolvió (modo "Vincular documento") |
 | `ignore_reason` | String(30) | Nullable — `out_of_scope` / `one_off` / `duplicate` |
-| `assigned_to` | Integer FK | → users SET NULL, nullable — responsable al pedir documento |
-| `requested_at` | DateTime TZ | Nullable — cuándo se pidió el documento |
-| `due_at` | DateTime TZ | Nullable — vencimiento de la solicitud (default: 3 días laborables) |
-| `note` | Text | Nullable — nota para el responsable |
+| `assigned_to` | Integer FK | → users SET NULL, nullable — **sin uso** desde que se retiró «Pedir documento» (2026-11-02); era el responsable |
+| `requested_at` | DateTime TZ | Nullable — **sin uso**; era cuándo se pidió el documento |
+| `due_at` | DateTime TZ | Nullable — **sin uso**; era el vencimiento de la solicitud |
+| `note` | Text | Nullable — **sin uso**; era la nota para el responsable |
 | `recurrence_count` | Integer | Default 0 — veces que se reabrió tras caer bajo el umbral en la reverificación |
 | `reopened_at` | DateTime TZ | Nullable |
 | `verify_score_before` | Float | Nullable — score de la pregunta antes de resolver |
@@ -724,16 +725,14 @@ conocimiento que ofrecer.
 es el patrón de consulta más frecuente de la pantalla (lista filtrada por pestaña, ordenada).
 
 **Nota:** las columnas `resolved_document_id` en adelante no existían en el modelo
-original — se agregaron para el módulo "Preguntas sin respuesta". Si la tabla ya
-existe en un entorno desplegado, `create_all` no las agrega (solo crea tablas que
-falten); aplicar `api/migrate_knowledge_gaps.sql` con `ALTER TABLE`.
+original — se agregaron para el módulo "Preguntas sin respuesta", en su momento
+con `api/migrate_knowledge_gaps.sql`. Hoy el esquema se gestiona con Alembic (§3.7).
 
 **Jobs pendientes** (no implementados — hoy `candidates`/`verify_score_after` solo
 se calculan cuando el usuario actúa, no en segundo plano):
 - Agrupación por similitud de embeddings (`variants`), continua o cada hora.
 - Reverificación semanal de resueltas — si el score cae bajo el umbral, incrementa
   `recurrence_count`, reabre y notifica.
-- Vencimiento diario de `in_progress` con `due_at` pasado → vuelve a `open`.
 
 ---
 
@@ -903,7 +902,7 @@ consultan por `GET /api/v1/cost-tracking/summary` y `/daily-trend`.
 
 ### 2.16 quota_alerts
 
-**Sin modelo ORM ni endpoint**, y sin mención en `BACKLOG_BACKEND.md` — origen no confirmado. Registra qué alertas de cuota mensual ya se enviaron para no duplicarlas.
+**Sin modelo ORM ni endpoint** — origen no confirmado. Registra qué alertas de cuota mensual ya se enviaron para no duplicarlas.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -919,7 +918,7 @@ Constraint único en (`company_id`, `month`, `threshold`).
 
 ### 2.17 audit_logs
 
-**Sin modelo ORM ni endpoint**, y sin mención en `BACKLOG_BACKEND.md` — origen no confirmado. Bitácora genérica de acciones de usuario.
+**Sin modelo ORM ni endpoint** — origen no confirmado. Bitácora genérica de acciones de usuario.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -941,7 +940,7 @@ Constraint único en (`company_id`, `month`, `threshold`).
 
 ### 2.18 support_tickets
 
-**Sin modelo ORM ni endpoint**, y sin mención en `BACKLOG_BACKEND.md` — origen no confirmado. Mesa de ayuda por empresa.
+**Sin modelo ORM ni endpoint** — origen no confirmado. Mesa de ayuda por empresa.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -962,7 +961,7 @@ Constraint único en (`company_id`, `month`, `threshold`).
 
 ### 2.19 courses, 2.20 quizzes, 2.21 quiz_results, 2.22 enrollments — módulo LMS (fuera de dominio)
 
-**Sin modelo ORM ni endpoint**, sin mención en `BACKLOG_BACKEND.md`. Estas cuatro tablas forman un esquema completo de cursos/quizzes que no tiene relación con el flujo actual de KnowledgeSpace (documentos → asistentes → chat/widgets). Todo indica que son remanentes del esquema del proyecto hermano **TrainIQ** aplicados a esta base de datos. Se documentan tal cual existen para dejar constancia, no como funcionalidad activa.
+**Sin modelo ORM ni endpoint**. Estas cuatro tablas forman un esquema completo de cursos/quizzes que no tiene relación con el flujo actual de KnowledgeSpace (documentos → asistentes → chat/widgets). Todo indica que son remanentes del esquema del proyecto hermano **TrainIQ** aplicados a esta base de datos. Se documentan tal cual existen para dejar constancia, no como funcionalidad activa.
 
 **courses**
 

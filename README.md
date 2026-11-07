@@ -186,7 +186,8 @@ proveedor basta con la imagen del `Dockerfile` y las variables de
 | `docs/TFM/MANEJO_ERRORES.md` | Manejo de errores, del backend a la pantalla |
 | `docs/TFM/DATASET_PREGUNTAS.md` | Dataset de evaluación y resultados     |
 | `api/experimentos/REGISTRO.md` | Índice de los experimentos y sus mediciones |
-| `docs/trabajo/DEFENSA_TECNICA_AMPLIADA.md` | Preparación de la defensa: preguntas técnicas y respuestas |
+| `api/experimentos/GUIA_PRUEBAS.md` | Qué mide cada experimento y cómo reproducirlo |
+| `docs/TFM/DIAGRAMA_FLUJO_RAG.md` | Diagramas del flujo de una consulta y de las seis configuraciones |
 | `COMO_ARRANCAR.md`      | Arranque local paso a paso                   |
 | `ALCANCE_TFM.md`        | Qué entra en la entrega y qué no             |
 | `api/.env.example`      | Variables de entorno requeridas con ejemplos |

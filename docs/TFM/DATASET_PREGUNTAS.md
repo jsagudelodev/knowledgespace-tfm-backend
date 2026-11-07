@@ -1,6 +1,6 @@
 # Dataset de evaluación — preguntas
 
-Borrador de trabajo. **Las preguntas están escritas a mano, leyendo los
+**Las preguntas están escritas a mano, leyendo los
 documentos del corpus**, no generadas por un modelo: es lo que evita que
 hereden la redacción de los fragmentos e inflen artificialmente los resultados
 de recuperación.
@@ -446,7 +446,7 @@ otro contexto: si lo menciona, usó conocimiento externo o mezcló fragmentos.
 | 23 | **Acepta la premisa**: «es necesario reducir el learning rate», con el fragmento correcto en 1.ª posición | ❌ |
 | 24 | «No encontré información» | ❌ |
 | 25 | Características correctas; «no encontré información sobre el creador» | ✅ |
-| 26 | «No encontré información», sin responder la parte que sí estaba | ❌ |
+| 26 | «No encontré información», sin responder la parte que sí estaba (ver la nota tras los hallazgos) | ❌ |
 | 27 | Hito correcto; «no encontré información sobre los autores» | ✅ |
 
 **Criterios sí/no** (juez gpt-4.1): `premisa_falsa` 0/3 · `parcial` 2/3.
@@ -475,12 +475,14 @@ más difíciles, no porque el sistema empeorara.
    trae la pregunta («para evitar inestabilidad»).
 2. **Abstención excesiva.** El 100 % de abstención correcta de las 6
    `sin_respuesta` tiene un reverso que el dataset original no podía ver: el
-   sistema también se calla cuando sí tiene información (22, 24 y 26). El prompt
+   sistema también se calla cuando sí tiene información (22, 24 y 26; la 26
+   tenía otra causa, ver la nota de EXP-15 más abajo). El prompt
    le pide abstenerse si el contexto no responde la pregunta, y ante una premisa
    falsa o una pregunta compuesta interpreta que no la responde.
 3. **La abstención parcial sí funciona** cuando el sistema responde (25 y 27):
    dice qué no sabe y no completa con conocimiento externo. No nombró ni al
-   creador de FastAPI ni a Google.
+   creador de FastAPI ni a Google. (Tras el arreglo de EXP-15 apareció un caso
+   que sí completa: ver la nota más abajo.)
 4. **RAGAS no sabe juzgar estos dos tipos.** La misma respuesta —«No encontré
    información sobre este tema en los documentos de la empresa»— recibió una
    fidelidad de 0,00 en la 22 y la 24, y de 1,00 en la 26: ante una abstención,
@@ -526,3 +528,15 @@ basta para este fallo: arregla poco y degrada respuestas que estaban bien. Las
 vías que quedan como trabajo futuro son un paso explícito de detección de
 contradicciones entre pregunta y contexto antes de generar, o una verificación
 posterior de la respuesta (LLM-as-judge), medidas con este mismo conjunto.
+
+### Nota sobre la pregunta 26 (EXP-15, 2026-11-04)
+
+La abstención de la 26 no se debía al prompt. Producción guardaba solo los
+primeros 1.000 caracteres de cada fragmento, y el dato que responde la 26 estaba
+en el carácter 1.028 de un fragmento de 1.673: el modelo nunca lo leía. Corregido
+el recorte y reindexado el corpus, la 26 ya responde la parte documentada, pero
+añade de memoria que StyleGAN es de NVIDIA, un dato que no está en los
+fragmentos. El criterio `parcial` sigue en 2/3, ahora por completar con
+conocimiento propio en lugar de por callarse. Tras el arreglo, la abstención
+indebida queda en la 22 y la 24. Detalle en
+`api/experimentos/EXP-15_tamano-fragmento/LEEME.md`.

@@ -111,6 +111,8 @@ sin tocar código:
 | `descomposicion` | + descompone preguntas compuestas, sin tope de contexto | Para ver el efecto máximo de la descomposición (hasta el doble de fragmentos) |
 | `reranking` | + reordena los fragmentos recuperados | Medido y **no activo por defecto**: mejora la recuperación pero no se demostró que mejoren las respuestas, y multiplica el coste por consulta — ver `rag_factory.py` |
 | `descomposicion_acotada` | + descompone con tope de contexto y reparto equilibrado | **Valor por defecto.** Resuelve el mismo problema que `descomposicion` sin aumentar el presupuesto de fragmentos |
+| `hibrido` | + búsqueda léxica BM25 fusionada con la densa | Medido y **no activo**: es la que mejor encuentra el fragmento correcto, pero empeora las preguntas compuestas |
+| `descomposicion_hibrida` | descomposición acotada + BM25 por subpregunta | Medido y **no activo**: recupera parte de la cobertura de la híbrida sin llegar a la base, y es la más lenta |
 
 Si el valor no coincide con ninguno de estos, el sistema avisa en el log y cae
 a `base` — una variable mal escrita no debe dejar el chat sin servicio.
@@ -227,3 +229,7 @@ Este experimento no llama a ningún modelo y no tiene coste, pero **sí necesita
 el `.env` completo**: importar `PDFService` arrastra la configuración de la
 aplicación, que exige `SECRET_KEY`, `DATABASE_URL` y las credenciales de AWS
 aunque el experimento no las use.
+
+Es solo el primero. Los comandos de todos los experimentos (EXP-01 a EXP-15),
+y qué mide cada uno están en `api/experimentos/GUIA_PRUEBAS.md`;
+el índice con resultados y decisiones, en `api/experimentos/REGISTRO.md`.

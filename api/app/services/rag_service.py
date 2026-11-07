@@ -109,6 +109,9 @@ DEFAULT_TEMPERATURE = settings.RAG_TEMPERATURA
 # que las cifras del capítulo 5 siguen describiendo este sistema.
 IDENTIDAD_POR_DEFECTO = "Eres el asistente de IA interno de la empresa."
 
+# La frase de abstención la compara literalmente el frontend
+# (`FRASE_ABSTENCION` en chat-detail.component.ts) para no mostrar fuentes bajo
+# un "No encontré información". Si se cambia aquí, hay que cambiarla allí.
 REGLAS_DE_RESPUESTA = """RESPONDE ÚNICAMENTE en base al contexto de documentos proporcionado. Reglas estrictas:
 - USA SOLO la información del contexto. NUNCA uses conocimiento externo o datos de entrenamiento.
 - Si el contexto no contiene información suficiente para responder, di exactamente: "No encontré información sobre este tema en los documentos de la empresa."

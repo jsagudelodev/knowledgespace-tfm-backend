@@ -5,7 +5,7 @@ qué se obtuvo, qué se decidió y en qué archivo está la evidencia. La
 explicación de cada experimento, pensada para la defensa, está en
 [`GUIA_PRUEBAS.md`](GUIA_PRUEBAS.md).
 
-*Última actualización: 3 de noviembre de 2026.*
+*Última actualización: 7 de noviembre de 2026.*
 
 **La numeración EXP-01 a EXP-07 es la del capítulo 5 de la memoria.** Cuando la
 memoria dice «el sexto experimento», es `EXP-06`. Los posteriores se
@@ -42,9 +42,10 @@ es una segunda ejecución sobre los mismos tres documentos y parámetros.
 | [EXP-14](EXP-14_modelo-embedding/LEEME.md) | ¿Recupera mejor `text-embedding-3-large` que `3-small`? | 04-11 | MRR de 0,362 a 0,443, pero 6 preguntas a favor y 3 en contra: no concluyente. El umbral 0,30 seguiría valiendo | Se mantiene `3-small` | 5.3, noveno |
 | [EXP-15](EXP-15_tamano-fragmento/LEEME.md) | ¿Qué tamaño de fragmento recupera mejor: 500, 1.000 o 1.500? | 04-11 | hit@3 idéntico (0,52) en los tres; diferencias de posición no concluyentes; con 500 el umbral queda casi en el ruido. **Destapó un defecto:** producción guardaba solo 1.000 caracteres por fragmento y eso causaba la abstención indebida de la pregunta 26. Corregido y reindexado: la 26 responde, pero añade de memoria un dato que no está en los documentos | Se mantiene 1.000; recorte corregido | 5.3, noveno; 5.4 |
 
-**Pendientes (los pidió el tutor el 3 de noviembre):** modelo de embedding,
-tamaño de fragmento y, sin petición explícita pero previsible en la defensa,
-`top_k`. Ver [`GUIA_PRUEBAS.md`](GUIA_PRUEBAS.md) §3.
+**Lo que pidió el tutor el 3 de noviembre** (modelo de embedding y tamaño de
+fragmento) está medido en EXP-14 y EXP-15. Con EXP-15 se cerró la serie:
+`top_k` queda sin medir y declarado como tal. Ver
+[`GUIA_PRUEBAS.md`](GUIA_PRUEBAS.md) §3.
 
 ---
 

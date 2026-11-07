@@ -4,9 +4,11 @@ Lista de partida para el capítulo 2 y para las citas del resto de la memoria.
 Son los trabajos canónicos de lo que este proyecto implementa: nada está aquí
 por rellenar una cuota.
 
-> ✅ **Verificadas las 22 fichas el 19 de octubre**, contrastadas contra ACL
+> ✅ **Verificadas las 21 fichas el 19 de octubre**, contrastadas contra ACL
 > Anthology, NeurIPS/arXiv, IEEE y los boletines oficiales (DOUE). Ninguna
-> resultó inventada: autores, año y *venue* coinciden en las 22.
+> resultó inventada: autores, año y *venue* coinciden en las 21 (el recuento
+> de 22 de entonces contaba dos veces las referencias legales; ver
+> «Recuento»).
 >
 > ✅ **Las cuatro decisiones abiertas, resueltas el 20 de octubre:**
 >
@@ -146,7 +148,5 @@ suficiente para localizarla, pero si APA 7 exige el rango de páginas conviene
 tomarlo directamente de `aclanthology.org/2023.emnlp-main.322` al transcribir
 al capítulo 9, en vez de inventarlo.
 
-**Bibliografía lista para transferir al capítulo 9 del documento.** Ya no
-queda ninguna decisión abierta — lo que falta es el trabajo mecánico de
-pasar las 22 fichas verificadas al `.docx`, en el orden y formato APA 7 en
-que están redactadas aquí.
+**Bibliografía transcrita al capítulo 9 de la memoria:** las 21 fichas, en
+APA 7, coinciden con las de este documento (ver «Recuento»).

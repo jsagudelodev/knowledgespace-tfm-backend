@@ -101,7 +101,7 @@ método: en las diapositivas la desviación de tamaño pasa de 107 a 228.
 
 ## El resto de experimentos
 
-Este README solo detalla el primero. Los doce realizados hasta hoy están en:
+Este README solo detalla el primero. Los quince realizados están en:
 
 - [`REGISTRO.md`](REGISTRO.md): índice con la pregunta, el resultado, la
   decisión y los archivos de evidencia de cada uno, y la convención para los

@@ -216,18 +216,30 @@ en RAGAS**.
 - **Si te preguntan:** «Probé a corregirlo en el prompt y empeoró más de lo que
   arregló. Lo dejo como limitación medida, no escondida.»
 
+### EXP-13, EXP-14 y EXP-15
+
+Tienen su propia carpeta, con un `LEEME.md` que explica qué se midió, el
+resultado y la decisión:
+
+- **EXP-13** — descomposición con tope o sin tope:
+  [`EXP-13_descomposicion-con-o-sin-tope/LEEME.md`](EXP-13_descomposicion-con-o-sin-tope/LEEME.md).
+- **EXP-14** — `text-embedding-3-small` frente a `3-large`:
+  [`EXP-14_modelo-embedding/LEEME.md`](EXP-14_modelo-embedding/LEEME.md).
+- **EXP-15** — fragmentos de 500, 1.000 y 1.500, y el defecto del recorte:
+  [`EXP-15_tamano-fragmento/LEEME.md`](EXP-15_tamano-fragmento/LEEME.md).
+
 ---
 
-## 3. Lo que todavía no está medido
+## 3. Lo que pidió el tutor y lo que queda sin medir
 
-Esto es lo que pidió el tutor el 3 de noviembre. Hasta que se mida, la
-respuesta honesta es la de la última columna.
+Lo pidió el tutor el 3 de noviembre. Lo medido tiene su cifra; lo que no, la
+respuesta honesta de la tercera columna.
 
 | Decisión | Por qué se tomó | Respuesta honesta hoy | Experimento previsto |
 |---|---|---|---|
 | Modelo de embedding `text-embedding-3-small` | Coste y simplicidad | ✅ **Medido en EXP-14:** «`3-large` mejora el MRR de 0,36 a 0,44, pero gana en 6 preguntas y pierde en 3: no es concluyente, y cambiar obliga a reindexar y repetir las mediciones. El umbral seguiría valiendo.» | Hecho |
-| Fragmentos de ~1.000 caracteres | Valor heredado del troceado anterior | ✅ **Medido en EXP-15:** «500, 1.000 y 1.500 dan el mismo hit@3; las diferencias no son concluyentes y con 500 el umbral quedaría casi en el ruido.» Además destapó que producción recorta a 1.000 el texto que lee el modelo | Hecho |
-| `top_k = 5` | Valor habitual; no se midió | «No lo medí; con más fragmentos sube el coste y el modelo atiende peor el centro del contexto.» | EXP-16, si da tiempo |
+| Fragmentos de ~1.000 caracteres | Valor heredado del troceado anterior | ✅ **Medido en EXP-15:** «500, 1.000 y 1.500 dan el mismo hit@3; las diferencias no son concluyentes y con 500 el umbral quedaría casi en el ruido.» Además destapó que producción recortaba a 1.000 el texto que lee el modelo (corregido el 4 de noviembre) | Hecho |
+| `top_k = 5` | Valor habitual; no se midió | «No lo medí; con más fragmentos sube el coste y el modelo atiende peor el centro del contexto.» | No se hará: la serie se cerró con EXP-15 |
 | Generador `gpt-4o-mini` | Coste: `gpt-4o` cuesta 16,7 veces más (memoria 3.3) | Medido en coste, no en calidad | Opcional |
 | Pinecone frente a pgvector | Espacios de nombres para el aislamiento | La memoria ya declara que no se comparó y que pgvector habría bastado | No se hará |
 

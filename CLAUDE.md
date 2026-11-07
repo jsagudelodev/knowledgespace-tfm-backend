@@ -1,139 +1,77 @@
-# KnowSpace Backend - Claude AI Assistant Guide
+# KnowledgeSpace Backend — guía para Claude Code
 
-## Project Overview
-FastAPI backend for KnowSpace (SaaS multi-tenant) with PostgreSQL (Supabase) and JWT authentication.
+## Qué es
+API FastAPI de KnowledgeSpace, plataforma multiempresa de asistentes RAG.
+PostgreSQL (Supabase) con SQLAlchemy 2.0 y Alembic, Pinecone como índice
+vectorial, S3 para los archivos y OpenAI para embeddings y generación.
+Visión general y documentación: `README.md`; alcance de la entrega:
+`ALCANCE_TFM.md`.
 
-## Project Structure
+## Estructura
 ```
-KnowledgeSpace/
-├── api/                        # Python FastAPI backend (deployable unit)
-│   ├── main.py                 # FastAPI app entry point, router registration
-│   ├── requirements.txt
-│   ├── migrate_*.sql           # Migraciones manuales (no hay Alembic)
-│   ├── Dockerfile              # Multi-stage build para Cloud Run
-│   ├── .dockerignore
-│   ├── .env                    # Variables locales (no commitear)
-│   ├── .env.example
+knowledgespace-tfm-backend/
+├── Dockerfile                  # imagen para Cloud Run (en la raíz)
+├── api/                        # unidad desplegable
+│   ├── main.py                 # app FastAPI y registro de los 15 routers
+│   ├── alembic/                # migraciones versionadas (alembic upgrade head)
+│   ├── migrate_*.sql           # migraciones manuales anteriores a Alembic (histórico)
+│   ├── experimentos/           # experimentos EXP-01..15; índice en REGISTRO.md
+│   ├── tests/                  # pytest
 │   └── app/
-│       ├── core/
-│       │   ├── config.py       # Pydantic Settings — todas las env vars
-│       │   ├── database.py     # Base, engine, SessionLocal, get_db  ← fuente única
-│       │   └── security.py     # JWT: create_access_token, decode_token
-│       ├── db/
-│       │   └── models/         # SQLAlchemy ORM models (13 tablas)
-│       │       ├── user.py
-│       │       ├── company.py
-│       │       ├── assistant.py
-│       │       ├── category.py
-│       │       ├── tag.py
-│       │       ├── document.py
-│       │       ├── conversation.py
-│       │       ├── message.py
-│       │       ├── feedback.py
-│       │       ├── notification.py
-│       │       ├── notification_type.py
-│       │       ├── knowledge_gap.py
-│       │       └── widget.py
-│       ├── repositories/       # Patrón repositorio (BaseRepository[T] genérico)
-│       │   ├── base.py
-│       │   ├── user_repository.py
-│       │   ├── company_repository.py
-│       │   ├── category_repository.py
-│       │   ├── tag_repository.py
-│       │   ├── document_repository.py
-│       │   └── feedback_repository.py
-│       ├── routers/
-│       │   └── v1/             # Todos los endpoints REST
-│       │       ├── auth.py         # /api/v1/auth
-│       │       ├── users.py        # /api/v1/users
-│       │       ├── companies.py    # /api/v1/companies
-│       │       ├── categories.py   # /api/v1/categories
-│       │       ├── tags.py         # /api/v1/tags
-│       │       ├── documents.py    # /api/v1/documents
-│       │       ├── conversation.py # /api/v1/conversations
-│       │       ├── message.py      # /api/v1/messages
-│       │       ├── feedback.py     # /api/v1/feedback
-│       │       ├── notification.py # /api/v1/notifications
-│       │       ├── knowledge_gaps.py # /api/v1/knowledge-gaps
-│       │       └── security.py     # get_current_user, get_current_admin_user, get_current_superadmin
-│       ├── schemas/            # Pydantic v2 schemas (validación request/response)
-│       │   ├── user.py
-│       │   ├── company.py
-│       │   ├── category.py
-│       │   ├── tag.py
-│       │   ├── document.py
-│       │   ├── conversation.py
-│       │   ├── message.py
-│       │   ├── feedback.py
-│       │   ├── notification.py
-│       │   ├── notification_type.py
-│       │   ├── knowledge_gap.py
-│       │   └── token.py
-│       └── services/           # Lógica de negocio / integraciones externas
-│           ├── document_service.py
-│           ├── notification_service.py
-│           ├── pdf_service.py
-│           ├── s3_service.py
-│           ├── embedding_service.py        # OpenAI embeddings
-│           ├── pinecone_service.py         # vector store (namespaces por empresa/asistente)
-│           ├── rag_service.py              # retrieval + generación del chat
-│           └── knowledge_gap_index_service.py  # candidatos/alias/respuesta/verificación de Preguntas sin respuesta — ver docs/TFM/RAG_PIPELINE.md §8
-├── docs/                       # Documentación técnica
-└── CLAUDE.md
+│       ├── core/               # config (Settings), database, security (JWT),
+│       │                       # error_handlers, exceptions, observabilidad
+│       ├── db/models/          # 14 modelos SQLAlchemy
+│       ├── repositories/       # BaseRepository[T] + uno por entidad
+│       ├── routers/v1/         # endpoints REST; security.py = dependencias de rol
+│       ├── schemas/            # Pydantic v2
+│       └── services/           # lógica de negocio e integraciones:
+│                               #   rag_factory.py elige la configuración RAG,
+│                               #   rag_service*.py (seis configuraciones),
+│                               #   embedding, pinecone, s3, pdf, cost_tracking,
+│                               #   knowledge_gap_index_service, alcance_global
+└── docs/
+    ├── TFM/                    # documentación de entrega (RAG_PIPELINE, MODELO_DATOS,
+    │                           # MANEJO_ERRORES, DEPLOYMENT, ENTREGA_TFM…)
+    └── trabajo/                # notas de trabajo
 ```
 
-## Database Connection
-- **ORM**: SQLAlchemy 2.0
-- **Database**: PostgreSQL (Supabase)
-- **Fuente única**: `app/core/database.py` → `Base`, `engine`, `SessionLocal`, `get_db`
-- Todos los modelos importan `Base` desde `app.core.database`
+## Reglas del código
+- **Capas:** los routers no consultan la base de datos; eso es de los
+  repositorios (lo vigila `tests/test_capas_sin_consultas_en_routers.py`; la
+  única excepción es `setup.py`). Los servicios son los únicos que hablan con
+  proveedores externos.
+- **Multiempresa:** cada recurso se filtra por el `company_id` del usuario
+  autenticado, nunca por lo que envía la petición. El JWT solo lleva el email
+  (`sub`); `get_current_user` carga el usuario y su empresa de la base de
+  datos. Un recurso de otra empresa responde 404, no 403.
+- **Roles:** `user` | `admin` | `superadmin`, con `get_current_user`,
+  `get_current_admin_user` y `get_current_superadmin` en `routers/v1/security.py`.
+- **Pinecone:** un namespace por asistente, `company-{id}-assistant-{aid}`. Los
+  experimentos solo escriben en namespaces `exp-*`.
+- **Errores:** fallo de proveedor → 503, excepción no prevista → 500, siempre
+  JSON y sin detalle técnico (`core/error_handlers.py`, `docs/TFM/MANEJO_ERRORES.md`).
+- **Parámetros del RAG** en `core/config.py` (`RAG_CONFIGURACION`,
+  `RAG_UMBRAL_RELEVANCIA`, `RAG_TOP_K`, `RAG_TEMPERATURA`…), por variable de
+  entorno. Cambiar el modelo de embedding o el troceado obliga a reindexar y a
+  repetir la medición del umbral.
+- **Cifras:** solo las de `api/experimentos/resultados/` o la memoria.
+- Schemas con `model_config = {"from_attributes": True}`; modelos heredan de
+  `Base` (`app.core.database`).
 
-## Auth & Roles
-- JWT via `python-jose`; tokens en `Authorization: Bearer <token>`
-- Roles: `user` | `admin` | `superadmin`
-- Guards en `app/routers/v1/security.py`:
-  - `get_current_user` — cualquier usuario activo
-  - `get_current_admin_user` — admin o superadmin
-  - `get_current_superadmin` — solo superadmin
-
-## Multi-tenant
-Cada recurso está filtrado por el `company_id` del usuario autenticado, nunca del request body. El JWT solo lleva el email (`sub`); `get_current_user` carga el usuario de la base de datos y su empresa sale de ahí.
-
-## Key Patterns
-1. **Models**: heredan de `Base` (`app.core.database`)
-2. **Schemas**: `model_config = {"from_attributes": True}` (Pydantic v2, sin `class Config`)
-3. **Routers**: `async def` + `Depends(get_db)` + `Depends(get_current_user)`
-4. **Repositories**: `BaseRepository[T]` genérico en `repositories/base.py`
-5. **Enum de estado**: `DocumentStatus(str, Enum)` en `schemas/document.py`
-
-## Development
+## Desarrollo
 ```bash
-# Instalar dependencias (solo la primera vez)
-cd api
-pip install -r requirements.txt
-
-# Arrancar servidor — SIEMPRE desde api/
-python -m uvicorn main:app --host 127.0.0.1 --port 8002 --reload
+cd api                                   # obligatorio: sys.path y ruta del .env
+.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8002 --reload
+.venv\Scripts\python.exe -m pytest       # tests
+.venv\Scripts\python.exe -m alembic upgrade head
 ```
+- Usar siempre el entorno virtual del proyecto, nunca el Python global.
+- Swagger: `http://127.0.0.1:8002/docs`.
+- Primer arranque: `POST /api/v1/setup` crea la primera empresa y su
+  superadmin; solo funciona si no existe ningún usuario. Detalle en
+  `COMO_ARRANCAR.md`.
 
-> El `cd api` no es opcional y resuelve dos cosas distintas: pone `api/` en
-> `sys.path` (para que `main` y el paquete `app` se importen) **y** deja el
-> directorio de trabajo donde está el `.env`, que `config.py` carga por ruta
-> relativa. Lanzar desde la raíz con `--app-dir api` arregla lo primero pero no
-> lo segundo, y la app falla con 5 errores de validación de Pydantic.
-> Ver `COMO_ARRANCAR.md` para el detalle.
-
-- **Swagger UI**: `http://127.0.0.1:8002/docs`
-- **Crear tablas y sembrar datos iniciales**: `POST /api/v1/setup` — no hay
-  script. El endpoint de bootstrap hace `Base.metadata.create_all`, siembra los
-  tipos de notificación y crea la primera empresa con su superadmin. Solo
-  funciona si no existe ningún usuario; ver `README.md`.
-
-## Deploy — GCP Cloud Run
-```bash
-cd api
-gcloud builds submit --tag gcr.io/TU_PROYECTO/knowspace-api
-gcloud run deploy knowspace-api --image gcr.io/TU_PROYECTO/knowspace-api \
-  --platform managed --region us-central1 \
-  --set-env-vars="DATABASE_URL=...,SECRET_KEY=..."
-```
+## Despliegue
+Cloud Run, servicio `knowledgespace-tfm-backend`, región `europe-west1`, con
+despliegue continuo desde `main` (Cloud Build). Pasos y variables en
+`docs/TFM/DEPLOYMENT.md`.
