@@ -89,7 +89,7 @@ def _vectores_de_documento(
     diapositivas— lo supera: en el corpus de evaluación, 10 de 87 fragmentos,
     el mayor de 2.785. La pregunta 26 se abstenía por eso: su respuesta
     empezaba en el carácter 1.028 de un fragmento de 1.673. Ver
-    `experimentos/EXP-15_tamano-fragmento/LEEME.md`.
+    `experimentos/9-embeddings-y-tamano/EXP-15_tamano-fragmento/LEEME.md`.
 
     Sin tope propio: el modelo de embedding admite 8.191 tokens, unos 33.000
     caracteres en español, por debajo de los 40 KB de metadatos de Pinecone.
@@ -157,7 +157,7 @@ def _procesar_documento_background(
         # necesitar solapamiento. La contrapartida es menor regularidad de
         # tamaño: la desviación típica sube de 107 a 228 caracteres en
         # material esquemático.
-        # Cifras y método en experimentos/resultados/chunking_2026-10-07.json
+        # Cifras y método en experimentos/1-fragmentacion/chunking_2026-10-07.json
         # y experimentos/README.md.
         chunks, paginas = PDFService.procesar(
             s3_key, file_type=file_type, semantico=True

@@ -434,8 +434,8 @@ otro contexto: si lo menciona, usó conocimiento externo o mezcló fragmentos.
 ### Primera medición (2026-10-23, configuración activa)
 
 `descomposicion_acotada`, temperatura 0. Resultados en
-`resultados/dataset_ejecutado_2026-10-23_descomposicion_acotada_temp0.0.json` y
-`resultados/ragas_2026-10-23_avanzado_descomposicion_acotada_temp0.0.json`.
+`ampliacion/dataset_ejecutado_2026-10-23_descomposicion_acotada_temp0.0.json` y
+`ampliacion/ragas_2026-10-23_avanzado_descomposicion_acotada_temp0.0.json`.
 
 | # | Respuesta del sistema | Criterio |
 |---|---|---|
@@ -539,4 +539,4 @@ añade de memoria que StyleGAN es de NVIDIA, un dato que no está en los
 fragmentos. El criterio `parcial` sigue en 2/3, ahora por completar con
 conocimiento propio en lugar de por callarse. Tras el arreglo, la abstención
 indebida queda en la 22 y la 24. Detalle en
-`api/experimentos/EXP-15_tamano-fragmento/LEEME.md`.
+`api/experimentos/9-embeddings-y-tamano/EXP-15_tamano-fragmento/LEEME.md`.

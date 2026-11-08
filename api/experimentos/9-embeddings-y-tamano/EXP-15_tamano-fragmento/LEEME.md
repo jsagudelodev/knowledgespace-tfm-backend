@@ -133,8 +133,8 @@ no por abstenerse.
   así que no se atribuyen al arreglo. La bajada de fidelidad es coherente con
   la frase sobre NVIDIA, pero no se puede separar del ruido.
 
-**Archivos:** `resultados/dataset_ejecutado_2026-11-04_descomposicion_acotada_temp0.0_texto_completo.json`
-y `resultados/ragas_2026-11-04_avanzado_descomposicion_acotada_temp0.0_texto_completo.json`.
+**Archivos:** `9-embeddings-y-tamano/dataset_ejecutado_2026-11-04_descomposicion_acotada_temp0.0_texto_completo.json`
+y `9-embeddings-y-tamano/ragas_2026-11-04_avanzado_descomposicion_acotada_temp0.0_texto_completo.json`.
 
 **Para la defensa:** «Midiendo el tamaño de fragmento descubrí que el modelo
 solo leía los primeros 1.000 caracteres de cada fragmento. Lo corregí, y la

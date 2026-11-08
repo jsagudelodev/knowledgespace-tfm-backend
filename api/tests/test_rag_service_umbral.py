@@ -61,7 +61,7 @@ def test_el_fragmento_justo_por_debajo_no_pasa():
 
 def test_una_consulta_ajena_al_corpus_no_deja_ningun_fragmento():
     """Puntuaciones reales de "¿cómo preparo una paella?" contra el índice,
-    medidas el 2026-10-09 (ver `resultados/umbral_2026-10-09.json`)."""
+    medidas el 2026-10-09 (ver `2-umbral/umbral_2026-10-09.json`)."""
     ajena = [_doc(s) for s in (0.258, 0.221, 0.206, 0.195, 0.187)]
     assert _filtrar(ajena) == []
 

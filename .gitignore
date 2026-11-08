@@ -51,8 +51,8 @@ docs/Memoria_TFM*.docx
 
 # Documentos de prueba para los experimentos. Son material docente de terceros
 # y el repositorio se entrega con el TFM, asi que no se publican. Las cifras que
-# produjeron estan en `api/experimentos/resultados/`, y el README de ese
-# directorio describe el corpus usado.
+# produjeron estan en las carpetas de cada experimento de `api/experimentos/`,
+# y su README describe el corpus usado.
 docs/Test-Documentos/
 *.swp
 *.swo

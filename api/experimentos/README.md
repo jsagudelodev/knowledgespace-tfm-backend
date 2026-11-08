@@ -3,6 +3,13 @@
 Mediciones que respaldan las afirmaciones de la memoria. Cada una se puede
 reproducir con un comando, y su salida queda en `resultados/` con la fecha.
 
+> **Un experimento, una carpeta.** La memoria cuenta nueve experimentos y cada
+> uno tiene aquí su carpeta, de [`1-fragmentacion/`](1-fragmentacion/LEEME.md)
+> a [`9-embeddings-y-tamano/`](9-embeddings-y-tamano/LEEME.md), más
+> [`ampliacion/`](ampliacion/LEEME.md), con un `LEEME.md` y los resultados que
+> respaldan sus cifras. Dentro, cada medición conserva su registro (EXP-01 a
+> EXP-15); la equivalencia completa está al principio de [`REGISTRO.md`](REGISTRO.md).
+
 > La regla del proyecto es que toda afirmación sobre el sistema debe poder
 > verificarse en el código. Estos scripts son esa verificación: si la memoria
 > dice "el chunking semántico elimina los cortes a mitad de palabra", aquí está

@@ -161,7 +161,7 @@ class PDFService:
         cobertura oscila entre 99,1 % y 100,4 % según el documento, es decir
         alrededor de un 1 % del contenido alterado.
 
-        Cifras y método en `experimentos/resultados/chunking_2026-10-07.json`.
+        Cifras y método en `experimentos/1-fragmentacion/chunking_2026-10-07.json`.
         """
         # Paso 1: divide en oraciones
         oraciones = texto.split(".")

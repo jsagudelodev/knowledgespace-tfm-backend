@@ -54,7 +54,7 @@ knowledgespace-tfm-backend/
   `RAG_UMBRAL_RELEVANCIA`, `RAG_TOP_K`, `RAG_TEMPERATURA`…), por variable de
   entorno. Cambiar el modelo de embedding o el troceado obliga a reindexar y a
   repetir la medición del umbral.
-- **Cifras:** solo las de `api/experimentos/resultados/` o la memoria.
+- **Cifras:** solo las de las carpetas de experimento de `api/experimentos/` o la memoria.
 - Schemas con `model_config = {"from_attributes": True}`; modelos heredan de
   `Base` (`app.core.database`).
 

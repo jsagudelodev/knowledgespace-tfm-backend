@@ -64,7 +64,7 @@ from openai import OpenAI  # noqa: E402
 from app.core.config import settings  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
 
-CARPETA = AQUI / "EXP-14_modelo-embedding" / "resultados"
+CARPETA = AQUI / "9-embeddings-y-tamano" / "EXP-14_modelo-embedding" / "resultados"
 PREFIJO_EXPERIMENTAL = "exp-"
 
 

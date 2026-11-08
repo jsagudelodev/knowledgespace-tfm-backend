@@ -76,7 +76,7 @@ from app.core.database import SessionLocal  # noqa: E402
 from app.services.pdf_service import PDFService  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
 
-CARPETA = AQUI / "EXP-15_tamano-fragmento" / "resultados"
+CARPETA = AQUI / "9-embeddings-y-tamano" / "EXP-15_tamano-fragmento" / "resultados"
 VOLUMEN = 5000
 RECORTE_PRODUCCION = 1000   # `chunk[:1000]` en routers/v1/documents.py
 EXTRACTORES = {"pdf": PDFService._extraer_pdf, "docx": PDFService._extraer_docx,

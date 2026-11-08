@@ -58,7 +58,7 @@ Uso:
     cd api
     .venv-eval\\Scripts\\python.exe experimentos\\evaluar_ragas.py
     .venv-eval\\Scripts\\python.exe experimentos\\evaluar_ragas.py \\
-        --entrada resultados\\dataset_ejecutado_2026-10-11.json
+        --entrada 4-linea-base\\dataset_ejecutado_2026-10-11.json
 """
 from __future__ import annotations
 

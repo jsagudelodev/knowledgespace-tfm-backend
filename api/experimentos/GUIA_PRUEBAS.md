@@ -6,8 +6,9 @@ experimento, qué se preguntó, cómo se midió, qué salió, qué se decidió y
 responderlo en voz alta.
 
 El índice con los archivos de evidencia está en [`REGISTRO.md`](REGISTRO.md).
-Las cifras salen de [`resultados/`](resultados/); si un número no está ahí, no
-se cita.
+Las cifras salen de los resultados guardados en la carpeta de cada experimento
+(`1-fragmentacion/` a `9-embeddings-y-tamano/` y `ampliacion/`); si un número no
+está ahí, no se cita.
 
 *Última actualización: 3 de noviembre de 2026.*
 
@@ -39,7 +40,7 @@ en RAGAS**.
 
 ## 2. Experimento por experimento
 
-### EXP-01 — Troceado: por caracteres o por oraciones
+### EXP-01 — Troceado: por caracteres o por oraciones *(memoria: experimento 1)*
 
 - **Pregunta:** ¿qué le hace cada estrategia al texto?
 - **Cómo:** los mismos tres PDF troceados con las dos estrategias: 1.000
@@ -57,7 +58,7 @@ en RAGAS**.
 - **Límite honesto:** se comparó la **estrategia**, no el **tamaño**. Los 1.000
   caracteres no están justificados por ninguna medición (ver §3).
 
-### EXP-02 — El umbral de relevancia 0,30
+### EXP-02 — El umbral de relevancia 0,30 *(memoria: experimento 2)*
 
 - **Pregunta:** el 0,30 se fijó en junio sobre el índice antiguo; ¿sigue
   valiendo con el troceado por oraciones?
@@ -75,7 +76,7 @@ en RAGAS**.
 - **Límite honesto:** nueve consultas. Y el umbral mide parecido, no si el
   fragmento responde (EXP-04 lo demuestra).
 
-### EXP-03 — Preguntas compuestas, línea base
+### EXP-03 — Preguntas compuestas, línea base *(memoria: experimento 3)*
 
 - **Pregunta:** ¿qué pasa si el mensaje trae dos preguntas de temas distintos?
 - **Cómo:** seis parejas de preguntas. Se mide cuánta evidencia de cada una
@@ -87,7 +88,7 @@ en RAGAS**.
   solo vector, que queda a medio camino entre los dos temas y no se parece
   bien a ninguno.»
 
-### EXP-04 — La línea base, de punta a punta
+### EXP-04 — La línea base, de punta a punta *(memoria: experimento 4)*
 
 - **Pregunta:** ¿cómo recupera y responde el RAG básico?
 - **Cómo:** las 18 preguntas del conjunto de referencia (8 literales, 4
@@ -103,7 +104,7 @@ en RAGAS**.
   umbral habría contestado tres preguntas tangenciales.»
 - **Nota:** se hizo con temperatura 0,7, la de entonces.
 
-### EXP-05 — Descomposición sin tope
+### EXP-05 — Descomposición sin tope *(memoria: experimento 5)*
 
 - **Pregunta:** si se parte la pregunta en subpreguntas y se busca cada una por
   separado, ¿se arregla EXP-03?
@@ -113,7 +114,7 @@ en RAGAS**.
 - **Decisión:** superada por EXP-08, que consigue el reparto sin duplicar el
   contexto.
 
-### EXP-06 — Temperatura
+### EXP-06 — Temperatura *(memoria: experimento 6)*
 
 - **Pregunta:** el modelo generaba con temperatura 0,7 desde el principio; ¿es
   correcto para un sistema que no debe inventar?
@@ -131,7 +132,7 @@ en RAGAS**.
   la respuesta, que es la que no debe inventar, usaba 0,7.»
 - **Límite honesto:** solo se probaron dos valores. Falta literatura (ver §4).
 
-### EXP-07 — Reordenado (reranking)
+### EXP-07 — Reordenado (reranking) *(memoria: experimento 7)*
 
 - **Pregunta:** la línea base tiene hit@1 0,25 y hit@5 0,67: encuentra la
   evidencia pero la deja abajo. ¿Un reordenador mejora las respuestas?
@@ -149,7 +150,7 @@ en RAGAS**.
   y empeoraba las respuestas. Optimizar una métrica aislada llevó a un sistema
   peor.
 
-### EXP-08 — Reparto equilibrado (la configuración activa)
+### EXP-08 — Reparto equilibrado (la configuración activa) *(memoria: experimento 5)*
 
 - **Pregunta:** ¿se puede dar contexto a cada subpregunta sin pagar el doble?
 - **Cómo:** se mantienen los 5 fragmentos, pero se llenan por turnos: el mejor
@@ -165,7 +166,7 @@ en RAGAS**.
   responder mejor.»
 - **⚠️ No está en la memoria.** Ver §5.
 
-### EXP-09 — Híbrido (densa + BM25)
+### EXP-09 — Híbrido (densa + BM25) *(memoria: experimento 8)*
 
 - **Pregunta:** el tutor preguntó si era híbrido. ¿Sumar búsqueda por palabra
   exacta mejora la recuperación?
@@ -183,7 +184,7 @@ en RAGAS**.
   palabras distintas.
 - **⚠️ No está en la memoria.** Ver §5.
 
-### EXP-10 — Reparto + híbrido
+### EXP-10 — Reparto + híbrido *(memoria: experimento 8)*
 
 - **Resultado:** el mejor hit@3 (0,67), MRR (0,544) y desequilibrio (0,67) de
   los medidos, pero compuestas al 37 % y la más lenta (p95 8,77 s). La
@@ -192,7 +193,7 @@ en RAGAS**.
 - **Decisión:** medido, no activo.
 - **⚠️ No está en la memoria.**
 
-### EXP-11 — Tipos de pregunta nuevos
+### EXP-11 — Tipos de pregunta nuevos *(memoria: ampliación)*
 
 - **Pregunta:** ¿cómo responde a paráfrasis, premisas falsas y preguntas
   parciales?
@@ -208,7 +209,7 @@ en RAGAS**.
   una premisa falsa le enseña algo incorrecto con la apariencia de venir de su
   propia documentación.»
 
-### EXP-12 — Reglas en el prompt contra las premisas falsas
+### EXP-12 — Reglas en el prompt contra las premisas falsas *(memoria: ampliación)*
 
 - **Resultado:** premisa falsa de 0/3 a 1/3, pero la pertinencia cae de 0,698 a
   0,583 porque el modelo empieza a abstenerse a medias sin motivo.
@@ -216,17 +217,17 @@ en RAGAS**.
 - **Si te preguntan:** «Probé a corregirlo en el prompt y empeoró más de lo que
   arregló. Lo dejo como limitación medida, no escondida.»
 
-### EXP-13, EXP-14 y EXP-15
+### EXP-13, EXP-14 y EXP-15 *(memoria: experimentos 5 y 9)*
 
 Tienen su propia carpeta, con un `LEEME.md` que explica qué se midió, el
 resultado y la decisión:
 
 - **EXP-13** — descomposición con tope o sin tope:
-  [`EXP-13_descomposicion-con-o-sin-tope/LEEME.md`](EXP-13_descomposicion-con-o-sin-tope/LEEME.md).
+  [`5-descomposicion/EXP-13_descomposicion-con-o-sin-tope/LEEME.md`](5-descomposicion/EXP-13_descomposicion-con-o-sin-tope/LEEME.md).
 - **EXP-14** — `text-embedding-3-small` frente a `3-large`:
-  [`EXP-14_modelo-embedding/LEEME.md`](EXP-14_modelo-embedding/LEEME.md).
+  [`9-embeddings-y-tamano/EXP-14_modelo-embedding/LEEME.md`](9-embeddings-y-tamano/EXP-14_modelo-embedding/LEEME.md).
 - **EXP-15** — fragmentos de 500, 1.000 y 1.500, y el defecto del recorte:
-  [`EXP-15_tamano-fragmento/LEEME.md`](EXP-15_tamano-fragmento/LEEME.md).
+  [`9-embeddings-y-tamano/EXP-15_tamano-fragmento/LEEME.md`](9-embeddings-y-tamano/EXP-15_tamano-fragmento/LEEME.md).
 
 ---
 

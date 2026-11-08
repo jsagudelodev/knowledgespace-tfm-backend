@@ -21,7 +21,7 @@ cualquier deriva en el tiempo les afecte por igual.
 temperatura 0. El juez es otro modelo (gpt-4.1 por defecto), con cliente
 propio para que sus llamadas no se mezclen con las trazas del RAG.
 
-Escribe dos archivos en `EXP-13_descomposicion-con-o-sin-tope/resultados/`:
+Escribe dos archivos en `5-descomposicion/EXP-13_descomposicion-con-o-sin-tope/resultados/`:
 el JSON con todo y un Markdown con las respuestas, para leerlas una por una.
 
 Coste aproximado con los valores por defecto: unos 0,30 USD, casi todo del
@@ -58,7 +58,7 @@ from app.core.config import settings  # noqa: E402
 from app.services.pinecone_service import PineconeService  # noqa: E402
 from app.services.rag_factory import CONFIGURACIONES  # noqa: E402
 
-CARPETA = AQUI / "EXP-13_descomposicion-con-o-sin-tope" / "resultados"
+CARPETA = AQUI / "5-descomposicion" / "EXP-13_descomposicion-con-o-sin-tope" / "resultados"
 
 
 def version_del_codigo() -> str:

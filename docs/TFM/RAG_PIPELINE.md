@@ -397,7 +397,7 @@ cd api
 
 No llama al modelo generativo: solo genera los embeddings de las nueve
 consultas, cuyo coste es de millonésimas de dólar. Los resultados quedan
-versionados en `experimentos/resultados/umbral_AAAA-MM-DD.json`.
+versionados en `experimentos/2-umbral/umbral_AAAA-MM-DD.json`.
 
 **Cuándo hay que repetirla.** Siempre que cambie el corpus, la estrategia de
 fragmentación, el modelo de embeddings o el idioma. Un umbral fuera de la banda
