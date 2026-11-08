@@ -175,7 +175,8 @@ POST /api/v1/chat/message
          │      Si se pasa conversation_id → verificar que pertenece al usuario
          │      Si no → crear nueva conversación (título = primeros 50 chars del mensaje)
          │
-         ├─ 3. Cargar historial (últimos 20 mensajes de la conversación)
+         ├─ 3. Cargar historial (últimos 20 mensajes de la conversación con ESE
+         │      asistente; los de otro asistente no entran — corregido 2026-11-07)
          │
          ├─ 4. Guardar mensaje del usuario en BD (role = "user")
          │
@@ -295,7 +296,7 @@ fallback a `company-{id}` solo aplica cuando **no** se especifica ningún asiste
 | Umbral de relevancia | `0.30` | `config.py → RAG_UMBRAL_RELEVANCIA` |
 | Tokens máximos respuesta | `1000` | `config.py → RAG_MAX_TOKENS_RESPUESTA` |
 | Resultados Pinecone (top_k) | `5` | `config.py → RAG_TOP_K` |
-| Historial incluido | `20 mensajes` | `routers/v1/chat.py` |
+| Historial incluido | `20 mensajes` más recientes, solo del asistente elegido | `message_repository.py → historial_del_asistente()` |
 | Tamaño de chunk | `~1000 chars`, por oraciones, sin solapamiento | `pdf_service.py → PDFService.procesar()` |
 | Batch de embeddings | `100 textos` | `embedding_service.py → generar_embeddings_batch()` |
 | Modelo de embedding | `text-embedding-3-small` | `config.py → OPENAI_EMBEDDING_MODEL` |

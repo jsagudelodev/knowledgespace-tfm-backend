@@ -70,8 +70,12 @@ def _preparar_conversacion(
 
     msg_repo = MessageRepository(db)
 
-    # Historial ANTES de agregar el mensaje actual, para no duplicarlo en el prompt
-    history = msg_repo.get_by_conversation(conversation.id, skip=0, limit=20)
+    # Historial ANTES de agregar el mensaje actual, para no duplicarlo en el
+    # prompt. Solo los mensajes con este asistente y los 20 más recientes: ver
+    # `historial_del_asistente` para los dos fallos que corrige.
+    history = msg_repo.historial_del_asistente(
+        conversation.id, assistant.id if assistant else None, limite=20
+    )
     conversation_history = [{"role": m.role, "content": m.content} for m in history]
 
     msg_repo.create_message(

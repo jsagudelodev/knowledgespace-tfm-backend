@@ -44,6 +44,39 @@ class MessageRepository(BaseRepository[Message]):
             .all()
         )
 
+    def historial_del_asistente(
+        self, conversation_id: int, assistant_id: Optional[int], limite: int = 20
+    ) -> List[Message]:
+        """Los últimos `limite` mensajes de la conversación con ESE asistente,
+        en orden cronológico: el historial que recibe el modelo.
+
+        No reutiliza `get_by_conversation` por dos motivos, encontrados al
+        revisar el código el 2026-11-07. Ese método no filtra por asistente: al
+        cambiar de asistente en la misma conversación, el nuevo recibía como
+        historial las preguntas y respuestas del anterior, sacadas de otro
+        espacio de conocimiento. Y ordena de antiguo a nuevo con `limit`, así
+        que en una conversación larga entregaba los primeros mensajes, no los
+        recientes.
+        `get_by_conversation` sigue siendo el correcto para pintar la
+        conversación en pantalla.
+
+        Sin asistente (`None`) se toman solo los mensajes que tampoco tienen,
+        para no mezclarlos con los de un asistente. El `id` desempata los
+        mensajes guardados en el mismo instante.
+        """
+        filtro_asistente = (
+            Message.assistant_id.is_(None) if assistant_id is None
+            else Message.assistant_id == assistant_id
+        )
+        filas = (
+            self.db.query(Message)
+            .filter(Message.conversation_id == conversation_id, filtro_asistente)
+            .order_by(Message.created_at.desc(), Message.id.desc())
+            .limit(limite)
+            .all()
+        )
+        return list(reversed(filas))
+
     def assistant_id_of_company(self, message_id: int, company_id: int) -> Optional[int]:
         """Qué asistente respondió un mensaje, solo si es de `company_id`.
 

@@ -84,7 +84,7 @@ recorta el 6.3 o el 7.1.
 |---|---|---|
 | Ajustarse a 10 + 5 minutos | Exigido (pág. 5) | ❌ Pendiente de ensayar con reloj |
 | Presentación con apoyo visual | Criterio de evaluación (pág. 7) | ❌ Pendiente |
-| Vídeo demostrativo | Recomendado (pág. 3) | ❌ Pendiente; guion y pasos en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md) |
+| Vídeo demostrativo | Recomendado (pág. 3) | ❌ Pendiente; el guion es material personal, fuera de git |
 | Ensayo | Propio | Primer simulacro el 2026-10-21 (5,7/10); ensayo pregunta a pregunta desde el 2026-11-04 (material personal, fuera de git) |
 
 ---
@@ -204,7 +204,7 @@ abstract, índice y anexos, en 60 páginas. La guía (pág. 3) fija «un máximo
 
 **Defensa (10 minutos de exposición y 5 de preguntas):**
 
-- [ ] Vídeo demostrativo, la semana del 9 de noviembre. Guion de 8 escenas (unos 4 minutos), lista de comprobación previa y pasos de publicación en [`../trabajo/VIDEO_DEMO.md`](../trabajo/VIDEO_DEMO.md). El enlace va en el anexo 10.1
+- [ ] Vídeo demostrativo, la semana del 9 de noviembre. Guion de 8 escenas (unos 4 minutos), con lista de comprobación previa y pasos de publicación, en `docs/trabajo/VIDEO_DEMO.md` (solo local). El enlace va en el anexo 10.1
 - [ ] Presentación
 - [ ] Ensayo cronometrado (primer simulacro, del 21-10: 5,7/10)
 
